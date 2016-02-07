@@ -1,6 +1,3 @@
 [submodule "Crosscables"]
 	path = Crosscables
 	url = https://github.com/partouf/Crosscables.git
-[submodule "obs-studio"]
-	path = obs-studio
-	url = https://github.com/jp9000/obs-studio.git
