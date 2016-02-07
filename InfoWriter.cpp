@@ -1,14 +1,54 @@
 #include "InfoWriter.h"
 
-#include "InfoWriterSettings.h"
 #include <Groundfloor/Atoms/Defines.h>
 #include <Groundfloor/Materials/FileWriter.h>
 #include <Groundfloor/Materials/Functions.h>
+
+#ifndef FAKEOBS
+#include <callback/calldata.h>
+#else
+void *obs_get_signal_handler()
+{
+   return nullptr;
+}
+#endif
+
+#ifndef uint32_t
+typedef unsigned int uint32_t;
+#endif
+
+const char *c_TimestampNotation = "%Y-%m-%d %H:%M:%S";
 
 InfoWriter::InfoWriter()
 {
    StartTime = 0;
    Started = false;
+
+   auto handler = obs_get_signal_handler();
+   OutputStarting.Connect(handler, "output_starting", InfoWriter::OnOutputStarting, this);
+   OutputStopping.Connect(handler, "output_stopping", InfoWriter::OnOutputStopping, this);
+}
+
+void InfoWriter::OnOutputStarting(void *data, calldata_t *params)
+{
+#ifndef FAKEOBS
+   InfoWriter *self = static_cast<InfoWriter *>(data);
+   if (self != nullptr)
+   {
+      self->MarkStart();
+   }
+#endif
+}
+
+void InfoWriter::OnOutputStopping(void *data, calldata_t *params)
+{
+#ifndef FAKEOBS
+   InfoWriter *self = static_cast<InfoWriter *>(data);
+   if (self != nullptr)
+   {
+      self->MarkStop();
+   }
+#endif
 }
 
 std::string InfoWriter::SecsToHMSString(__int64 totalseconds)
@@ -69,7 +109,7 @@ void InfoWriter::MarkStart()
    StartTime = Groundfloor::GetTimestamp();
    Started = true;
 
-   auto MarkStr = Groundfloor::TimestampToStr("%Y-%m-%d %H:%m:%S", StartTime);
+   auto MarkStr = Groundfloor::TimestampToStr(c_TimestampNotation, StartTime);
    MarkStr->prepend_ansi("START @ ");
 
    WriteToFile(MarkStr->getValue());
@@ -83,7 +123,7 @@ void InfoWriter::MarkStop()
    Started = false;
 
    auto Now = Groundfloor::GetTimestamp();
-   auto MarkStr = Groundfloor::TimestampToStr("%Y-%m-%d %H:%m:%S", Now);
+   auto MarkStr = Groundfloor::TimestampToStr(c_TimestampNotation, Now);
    MarkStr->prepend_ansi("STOP @ ");
 
    WriteToFile(MarkStr->getValue());
