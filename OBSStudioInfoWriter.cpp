@@ -63,8 +63,7 @@ obs_properties_t *obstudio_infowriter_properties(void *unused)
 
    obs_properties_t *props = obs_properties_create();
 
-   // note: should become OBS_PATH_FILE_SAVE once that's implemented into OBS
-   obs_properties_add_path(props, setting_file, obs_module_text("Logfile"), OBS_PATH_FILE, logfile_filter, NULL);
+   obs_properties_add_path(props, setting_file, obs_module_text("Logfile"), OBS_PATH_FILE_SAVE, logfile_filter, NULL);
    obs_properties_add_text(props, setting_format, obs_module_text("Format"), OBS_TEXT_DEFAULT);
 
    return props;
