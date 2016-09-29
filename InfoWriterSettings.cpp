@@ -1,11 +1,11 @@
 #include "InfoWriterSettings.h"
 
-std::string InfoWriterSettings::GetFilename()
+std::string InfoWriterSettings::GetFilename() const
 {
    return Filename;
 }
 
-std::string InfoWriterSettings::GetFormat()
+std::string InfoWriterSettings::GetFormat() const
 {
    return Format;
 }
