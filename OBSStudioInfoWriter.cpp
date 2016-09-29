@@ -2,6 +2,7 @@
 // note: the external symbols are defined in obs-module.h
 
 #include <obs-module.h>
+#include <obs-frontend-api/obs-frontend-api.h>
 #include <Groundfloor/Materials/FileWriter.h>
 #include <Groundfloor/Materials/Functions.h>
 #include <Groundfloor/Atoms/Defines.h>
@@ -20,7 +21,7 @@ void obstudio_infowriter_stop_hotkey(void *data, obs_hotkey_id id, obs_hotkey_t 
    if (pressed)
    {
       InfoWriter *Writer = static_cast<InfoWriter *>(data);
-      Writer->MarkStop();
+      Writer->MarkStop(imtUnknown);
    }
 }
 
@@ -33,22 +34,8 @@ void obstudio_infowriter_write_hotkey(void *data, obs_hotkey_id id, obs_hotkey_t
    {
       InfoWriter *Writer = static_cast<InfoWriter *>(data);
 
-      // note: there's currently no way to determine start/stop of stream/recording, so the first time you press the hotkey it will start as well
-      if (!Writer->HasStarted())
-      {
-         Writer->MarkStart();
-      }
-
       Writer->WriteInfo();
    }
-}
-
-void obstudio_infowriter_startstream(void *data, calldata_t *params)
-{
-   UNUSED_PARAMETER(params);
-
-   InfoWriter *Writer = static_cast<InfoWriter *>(data);
-   Writer->MarkStart();
 }
 
 const char *obstudio_infowriter_get_name(void *type_data)
@@ -56,6 +43,28 @@ const char *obstudio_infowriter_get_name(void *type_data)
    UNUSED_PARAMETER(type_data);
 
    return infowriter_idname;
+}
+
+void obsstudio_infowriter_frontend_event_callback(enum obs_frontend_event event, void *private_data)
+{
+   InfoWriter *Writer = static_cast<InfoWriter *>(private_data);
+
+   if (event == OBS_FRONTEND_EVENT_STREAMING_STARTED)
+   {
+      Writer->MarkStart(imtStream);
+   }
+   else if (event == OBS_FRONTEND_EVENT_RECORDING_STARTED)
+   {
+      Writer->MarkStart(imtRecording);
+   }
+   else if (event == OBS_FRONTEND_EVENT_STREAMING_STOPPED)
+   {
+      Writer->MarkStop(imtStream);
+   }
+   else if (event == OBS_FRONTEND_EVENT_RECORDING_STOPPED)
+   {
+      Writer->MarkStop(imtRecording);
+   }
 }
 
 void *obstudio_infowriter_create(obs_data_t *settings, obs_source_t *source)
@@ -66,6 +75,8 @@ void *obstudio_infowriter_create(obs_data_t *settings, obs_source_t *source)
 
    obs_hotkey_register_source(source, "InfoWriter", "Write timestamp to file", obstudio_infowriter_write_hotkey, Writer);
    obs_hotkey_register_source(source, "InfoWriterStop", "Stop timer", obstudio_infowriter_stop_hotkey, Writer);
+
+   obs_frontend_add_event_callback(obsstudio_infowriter_frontend_event_callback, Writer);
 
    return Writer;
 }
@@ -118,11 +129,13 @@ void obstudio_infowriter_destroy(void *data)
    InfoWriter *Writer = static_cast<InfoWriter *>(data);
    if (Writer != nullptr)
    {
-      Writer->MarkStop();
+      Writer->MarkStop(imtUnknown);
+
+      obs_frontend_remove_event_callback(obsstudio_infowriter_frontend_event_callback, Writer);
+
       delete Writer;
    }
 }
-
 
 struct obs_source_info obstudio_infowriter_source;
 

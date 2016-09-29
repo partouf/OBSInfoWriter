@@ -3,19 +3,7 @@
 #include <Groundfloor/Atoms/Defines.h>
 #include <Groundfloor/Materials/FileWriter.h>
 #include <Groundfloor/Materials/Functions.h>
-
-#ifndef FAKEOBS
-#include <callback/calldata.h>
-#else
-void *obs_get_signal_handler()
-{
-   return nullptr;
-}
-#endif
-
-#ifndef uint32_t
-typedef unsigned int uint32_t;
-#endif
+#include <cstdint>
 
 const char *c_TimestampNotation = "%Y-%m-%d %H:%M:%S";
 
@@ -23,32 +11,6 @@ InfoWriter::InfoWriter()
 {
    StartTime = 0;
    Started = false;
-
-   auto handler = obs_get_signal_handler();
-   OutputStarting.Connect(handler, "output_starting", InfoWriter::OnOutputStarting, this);
-   OutputStopping.Connect(handler, "output_stopping", InfoWriter::OnOutputStopping, this);
-}
-
-void InfoWriter::OnOutputStarting(void *data, calldata_t *params)
-{
-#ifndef FAKEOBS
-   InfoWriter *self = static_cast<InfoWriter *>(data);
-   if (self != nullptr)
-   {
-      self->MarkStart();
-   }
-#endif
-}
-
-void InfoWriter::OnOutputStopping(void *data, calldata_t *params)
-{
-#ifndef FAKEOBS
-   InfoWriter *self = static_cast<InfoWriter *>(data);
-   if (self != nullptr)
-   {
-      self->MarkStop();
-   }
-#endif
 }
 
 std::string InfoWriter::SecsToHMSString(__int64 totalseconds)
@@ -104,27 +66,49 @@ void InfoWriter::WriteInfo()
    }
 }
 
-void InfoWriter::MarkStart()
+void InfoWriter::MarkStart(InfoMediaType AType)
 {
    StartTime = Groundfloor::GetTimestamp();
    Started = true;
 
    auto MarkStr = Groundfloor::TimestampToStr(c_TimestampNotation, StartTime);
-   MarkStr->prepend_ansi("START @ ");
+
+   switch (AType) {
+   case imtUnknown:
+      MarkStr->prepend_ansi("START @ ");
+      break;
+   case imtStream:
+      MarkStr->prepend_ansi("START STREAM @ ");
+      break;
+   case imtRecording:
+      MarkStr->prepend_ansi("START RECORDING @ ");
+      break;
+   }
 
    WriteToFile(MarkStr->getValue());
 
    delete MarkStr;
 }
 
-void InfoWriter::MarkStop()
+void InfoWriter::MarkStop(InfoMediaType AType)
 {
    StartTime = 0;
    Started = false;
 
    auto Now = Groundfloor::GetTimestamp();
    auto MarkStr = Groundfloor::TimestampToStr(c_TimestampNotation, Now);
-   MarkStr->prepend_ansi("STOP @ ");
+
+   switch (AType) {
+   case imtUnknown:
+      MarkStr->prepend_ansi("STOP @ ");
+      break;
+   case imtStream:
+      MarkStr->prepend_ansi("STOP STREAM @ ");
+      break;
+   case imtRecording:
+      MarkStr->prepend_ansi("STOP RECORDING @ ");
+      break;
+   }
 
    WriteToFile(MarkStr->getValue());
 
