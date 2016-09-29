@@ -9,7 +9,7 @@ int main()
    Writer.GetSettings()->SetFilename("c:/temp/log.txt");
    Writer.GetSettings()->SetFormat("%d:%02d:%02d");
    
-   Writer.MarkStart();
+   Writer.MarkStart(imtUnknown);
 
    Writer.WriteInfo();
 
@@ -21,7 +21,7 @@ int main()
 
    Writer.WriteInfo();
 
-   Writer.MarkStop();
+   Writer.MarkStop(imtUnknown);
 
 
    return 0;
