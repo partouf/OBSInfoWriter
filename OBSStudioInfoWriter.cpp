@@ -13,18 +13,6 @@ const char *logfile_filter = "All formats (*.*)";
 const char *setting_file = "file";
 const char *setting_format = "format";
 
-void obstudio_infowriter_stop_hotkey(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
-{
-   UNUSED_PARAMETER(id);
-   UNUSED_PARAMETER(hotkey);
-
-   if (pressed)
-   {
-      InfoWriter *Writer = static_cast<InfoWriter *>(data);
-      Writer->MarkStop(imtUnknown);
-   }
-}
-
 void obstudio_infowriter_write_hotkey(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
 {
    UNUSED_PARAMETER(id);
@@ -65,6 +53,10 @@ void obsstudio_infowriter_frontend_event_callback(enum obs_frontend_event event,
    {
       Writer->MarkStop(imtRecording);
    }
+   else if (event == OBS_FRONTEND_EVENT_SCENE_CHANGED)
+   {
+      Writer->WriteInfo("Scene changed");
+   }
 }
 
 void *obstudio_infowriter_create(obs_data_t *settings, obs_source_t *source)
@@ -74,7 +66,6 @@ void *obstudio_infowriter_create(obs_data_t *settings, obs_source_t *source)
    UNUSED_PARAMETER(settings);
 
    obs_hotkey_register_source(source, "InfoWriter", "Write timestamp to file", obstudio_infowriter_write_hotkey, Writer);
-   obs_hotkey_register_source(source, "InfoWriterStop", "Stop timer", obstudio_infowriter_stop_hotkey, Writer);
 
    obs_frontend_add_event_callback(obsstudio_infowriter_frontend_event_callback, Writer);
 
@@ -129,7 +120,10 @@ void obstudio_infowriter_destroy(void *data)
    InfoWriter *Writer = static_cast<InfoWriter *>(data);
    if (Writer != nullptr)
    {
-      Writer->MarkStop(imtUnknown);
+      if (Writer->HasStarted())
+      {
+         Writer->MarkStop(imtUnknown);
+      }
 
       obs_frontend_remove_event_callback(obsstudio_infowriter_frontend_event_callback, Writer);
 

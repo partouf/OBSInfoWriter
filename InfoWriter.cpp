@@ -13,7 +13,7 @@ InfoWriter::InfoWriter()
    Started = false;
 }
 
-std::string InfoWriter::SecsToHMSString(__int64 totalseconds)
+std::string InfoWriter::SecsToHMSString(const int64_t totalseconds) const
 {
    uint32_t hr = (uint32_t)trunc(totalseconds / 60.0 / 60.0);
    uint32_t min = (uint32_t)trunc(totalseconds / 60.0) - (hr * 60);
@@ -27,14 +27,14 @@ std::string InfoWriter::SecsToHMSString(__int64 totalseconds)
    return buffer;
 }
 
-std::string InfoWriter::MilliToHMSString(__int64 time)
+std::string InfoWriter::MilliToHMSString(const int64_t time) const
 {
    uint32_t totalseconds = (uint32_t)trunc(time / 1000.0);
 
    return SecsToHMSString(totalseconds);
 }
 
-void InfoWriter::WriteToFile(std::string Data)
+void InfoWriter::WriteToFile(const std::string Data) const
 {
    char crlf[] = GFNATIVENEXTLINE;
 
@@ -55,15 +55,26 @@ void InfoWriter::WriteToFile(std::string Data)
    Writer.close();
 }
 
-void InfoWriter::WriteInfo()
+void InfoWriter::WriteInfo(const std::string AExtraInfo)
 {
    if (Started)
    {
       auto CurrentTime = Groundfloor::GetTimestamp();
       auto Info = SecsToHMSString(CurrentTime - StartTime);
 
+      if (AExtraInfo.length() != 0)
+      {
+         Info += " - ";
+         Info += AExtraInfo;
+      }
+
       WriteToFile(Info);
    }
+}
+
+void InfoWriter::WriteInfo()
+{
+   WriteInfo("");
 }
 
 void InfoWriter::MarkStart(InfoMediaType AType)
@@ -115,7 +126,7 @@ void InfoWriter::MarkStop(InfoMediaType AType)
    delete MarkStr;
 }
 
-bool InfoWriter::HasStarted()
+bool InfoWriter::HasStarted() const
 {
    return Started;
 }

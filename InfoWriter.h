@@ -1,27 +1,29 @@
 #pragma once
 
 #include "InfoWriterSettings.h"
+#include <cstdint>
 
 enum InfoMediaType { imtUnknown = 0, imtStream = 1, imtRecording = 2 };
 
 class InfoWriter
 {
 private:
-   __int64 StartTime;
+   int64_t StartTime;
    InfoWriterSettings Settings;
    bool Started;
 
-   std::string InfoWriter::SecsToHMSString(__int64 totalseconds);
-   std::string MilliToHMSString(__int64 time);
-   void WriteToFile(std::string Data);
+   std::string InfoWriter::SecsToHMSString(const int64_t totalseconds) const;
+   std::string MilliToHMSString(const int64_t time) const;
+   void WriteToFile(const std::string Data) const;
 public:
    InfoWriter();
 
-   void MarkStart(InfoMediaType AType);
+   void MarkStart(const InfoMediaType AType);
+   void WriteInfo(const std::string AExtraInfo);
    void WriteInfo();
-   void MarkStop(InfoMediaType AType);
+   void MarkStop(const InfoMediaType AType);
 
-   bool HasStarted();
+   bool HasStarted() const;
 
    InfoWriterSettings *GetSettings();
 };
