@@ -2,4 +2,4 @@ os:
   - linux
 language: cpp
 compiler: clang
-script: sudo apt-get install ffmpeg && sudo add-apt-repository ppa:obsproject/obs-studio && sudo apt-get update && sudo apt-get install obs-studio
+script: sudo apt-get install ffmpeg && sudo add-apt-repository ppa:obsproject/obs-studio -y && sudo apt-get update && sudo apt-get install obs-studio
