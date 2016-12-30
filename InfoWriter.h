@@ -4,6 +4,7 @@
 #include <cstdint>
 
 enum InfoMediaType { imtUnknown = 0, imtStream = 1, imtRecording = 2 };
+typedef int8_t InfoHotkey;
 
 class InfoWriter
 {
@@ -20,7 +21,7 @@ public:
 
    void MarkStart(const InfoMediaType AType);
    void WriteInfo(const std::string AExtraInfo);
-   void WriteInfo();
+   void WriteInfo(const InfoHotkey AHotkey);
    void MarkStop(const InfoMediaType AType);
 
    bool HasStarted() const;

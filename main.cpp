@@ -11,7 +11,7 @@ int main()
    
    Writer.MarkStart(imtUnknown);
 
-   Writer.WriteInfo();
+   Writer.WriteInfo(1);
 
    for (int i = 0; i < INT_MAX; i++)
    {
@@ -19,7 +19,7 @@ int main()
       i -= 1;
    }
 
-   Writer.WriteInfo();
+   Writer.WriteInfo(1);
 
    Writer.MarkStop(imtUnknown);
 

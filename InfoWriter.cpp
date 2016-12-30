@@ -72,9 +72,11 @@ void InfoWriter::WriteInfo(const std::string AExtraInfo)
    }
 }
 
-void InfoWriter::WriteInfo()
+void InfoWriter::WriteInfo(const InfoHotkey AHotkey)
 {
-   WriteInfo("");
+   auto text = Settings.GetHotkeyText(AHotkey);
+
+   WriteInfo(text);
 }
 
 void InfoWriter::MarkStart(InfoMediaType AType)
