@@ -1,7 +1,5 @@
 # Project: OBSInfoWriter
 
-CPP  = g++
-CC   = gcc
 OBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o $(RES)
 LINKOBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o $(RES)
 LIBS = -L"../Crosscables/libGroundfloor/" -lobs -lobs-frontend-api -lrt -lGroundfloor
@@ -24,13 +22,13 @@ clean: clean-custom
 clean-custom:
 
 $(BIN): $(LINKOBJ)
-	$(CPP) -o $(BIN) $(LINKOBJ) $(CXXFLAGS) $(LIBS) -shared
+	$(CXX) -o $(BIN) $(LINKOBJ) $(LIBS) -shared
 
 OBSStudioInfoWriter.o: OBSStudioInfoWriter.cpp
-	$(CPP) -c OBSStudioInfoWriter.cpp -o OBSStudioInfoWriter.o $(CXXFLAGS)
+	$(CXX) -c OBSStudioInfoWriter.cpp -o OBSStudioInfoWriter.o $(CXXFLAGS)
 
 InfoWriter.o: InfoWriter.cpp
-	$(CPP) -c InfoWriter.cpp -o InfoWriter.o $(CXXFLAGS)
+	$(CXX) -c InfoWriter.cpp -o InfoWriter.o $(CXXFLAGS)
 
 InfoWriterSettings.o: InfoWriterSettings.cpp
-	$(CPP) -c InfoWriterSettings.cpp -o InfoWriterSettings.o $(CXXFLAGS)
+	$(CXX) -c InfoWriterSettings.cpp -o InfoWriterSettings.o $(CXXFLAGS)
