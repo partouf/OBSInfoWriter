@@ -8,6 +8,7 @@ before_install:
   && cd Crosscables/libGroundfloor && sh build.sh && cd /home
   && cd OBSInfoWriter && make -f Makefile.linux"
 script:
+- chmod 0777 $TRAVIS_BUILD_DIR
 - echo OK
 deploy:
   provider: releases
