@@ -6,7 +6,7 @@ before_install:
 - docker pull partouf2/docker-obs-studio
 - docker run -v "$TRAVIS_BUILD_DIR:/home/OBSInfoWriter" partouf2/docker-obs-studio /bin/sh -c "cd /home && git clone https://github.com/partouf/Crosscables.git
   && cd Crosscables/libGroundfloor && sh build.sh && cd /home
-  && cd OBSInfoWriter && git checkout $TRAVIS_BRANCH && make -f Makefile.linux"
+  && cd OBSInfoWriter && make -f Makefile.linux"
 script:
 - echo OK
 deploy:
