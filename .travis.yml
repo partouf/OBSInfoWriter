@@ -10,3 +10,4 @@ before_install:
 - docker run partouf2/docker-obs-studio /bin/sh -c "cd /home && git clone https://github.com/partouf/Crosscables.git && cd Crosscables/libGroundfloor && sh build.sh && cd /home && git clone https://github.com/partouf/OBSInfoWriter.git && cd OBSInfoWriter && git checkout $TRAVIS_BRANCH && make -f Makefile.linux"
 
 script:
+- echo OK
