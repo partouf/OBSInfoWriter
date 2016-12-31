@@ -14,5 +14,7 @@ deploy:
   api_key:
     secure: 3SUEZ5i/xNd6SK1N8gZPSB4/qruzXZvydRiRuZR523KOQrgcrCxxVpJZ7AyyY8k+eF58spM+TrwwnZEYp2jJxYivbU8iCujnMdXZEAvGmPlLE+WJPBsLNYG6+Ncwr0SZdIeyWFipPMXrYEa9ldVqq6fGNYBBkSlWMeOd82DTq4ftIX/N8vnEbWL4DcogY6glZ5zTV2M/aPL5qGuFNGRPu9/4vQgKZXmAnUnaY5xA2MYsiaNxwKUapckeuxjWmrAphDqmS2oaVVoc7P9EBXYGz+3oM0DNz3Fh6xmOYIOGEx0ESBLeFNwbEvr+oBu3TuqWDlrsOO6Mh2PGdBXH//1h09kV/Zo8d8wETgR4wUPK1pXCvhHB0PRRLDt3pVEwLqP0MXstl9ZNoMB85FgEjPUhhHsIce9EEEL44FfTmVaeAzXMQLFlcoaet6QeucHYHPWgSiffMAPSYwO/xD00RsqihlYYEdMAPkr+4Uyhm7InR2ykHse1+cIgwme9JZE/ef5ddX4L9ralSxiwkikbxAKfY3LhTCRbBcIc2bMWjWjlY+Cwyjl80cLTdroVvH4s0G82Qj1uIXTs4W05XmVH/DvHTZflBAPv2uHhiyutZijWbD9Lb9inUTwoYk59LTJroOS439Oz2vFYjTFD0tv+8TxV9JAo9i26QvzE7diwx59JZ10=
   file: "$TRAVIS_BUILD_DIR/libOBSInfoWriter.so"
+  skip_cleanup: true
   on:
     repo: partouf/OBSInfoWriter
+    tags: true
