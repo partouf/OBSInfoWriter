@@ -8,7 +8,7 @@ before_install:
   && cd Crosscables/libGroundfloor && sh build.sh && cd /home
   && cd OBSInfoWriter && make -f Makefile.linux"
 script:
-- chmod -Rf 0777 /home/travis/build/partouf/OBSInfoWriter
+- sudo chmod -Rf 0777 /home/travis/build/partouf/OBSInfoWriter
 - echo OK
 deploy:
   provider: releases
