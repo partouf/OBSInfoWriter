@@ -4,6 +4,7 @@
 #include <Groundfloor/Materials/FileWriter.h>
 #include <Groundfloor/Materials/Functions.h>
 #include <cstdint>
+#include <cmath>
 
 const char *c_TimestampNotation = "%Y-%m-%d %H:%M:%S";
 
