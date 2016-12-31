@@ -13,7 +13,7 @@ private:
    InfoWriterSettings Settings;
    bool Started;
 
-   std::string InfoWriter::SecsToHMSString(const int64_t totalseconds) const;
+   std::string SecsToHMSString(const int64_t totalseconds) const;
    std::string MilliToHMSString(const int64_t time) const;
    void WriteToFile(const std::string Data) const;
 public:
