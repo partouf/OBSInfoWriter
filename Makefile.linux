@@ -24,7 +24,7 @@ clean: clean-custom
 clean-custom:
 
 $(BIN): $(LINKOBJ)
-	$(CPP) -o $(BIN) $(LINKOBJ) $(CXXFLAGS) -shared
+	$(CPP) -o $(BIN) $(LINKOBJ) $(CXXFLAGS) $(LIBS) -shared
 
 OBSStudioInfoWriter.o: OBSStudioInfoWriter.cpp
 	$(CPP) -c OBSStudioInfoWriter.cpp -o OBSStudioInfoWriter.o $(CXXFLAGS)
