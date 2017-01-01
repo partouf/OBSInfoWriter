@@ -5,7 +5,7 @@ LINKOBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o $(RES)
 LIBS = -L"../Crosscables/libGroundfloor/" -lobs -lobs-frontend-api -lrt -lGroundfloor
 CXXINCS = -I"../include" -I"../obs-studio/libobs" -I"../obs-studio/UI" -I"../Crosscables/include"
 BIN  = libOBSInfoWriter.so
-CXXFLAGS = $(CXXINCS) -ansi -fexceptions -std=c++11
+CXXFLAGS = $(CXXINCS) -ansi -fexceptions -std=c++11 -g -fPIC
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
