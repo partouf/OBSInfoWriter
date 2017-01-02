@@ -112,7 +112,18 @@ void obsstudio_infowriter_frontend_event_callback(enum obs_frontend_event event,
    }
    else if (event == OBS_FRONTEND_EVENT_SCENE_CHANGED)
    {
-      Writer->WriteInfo("Scene changed");
+      auto scene = obs_frontend_get_current_scene();
+      std::string scenename = obs_source_get_name(scene);
+      obs_source_release(scene);
+
+      if (scenename == "")
+      {
+         Writer->WriteInfo("Scene changed");
+      }
+      else
+      {
+         Writer->WriteInfo("Scene changed to " + scenename);
+      }
    }
 }
 
