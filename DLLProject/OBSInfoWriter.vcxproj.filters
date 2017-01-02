@@ -24,18 +24,12 @@
     <ClCompile Include="..\OBSStudioInfoWriter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\SourceListWrapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\InfoWriterSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\InfoWriter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SourceListWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

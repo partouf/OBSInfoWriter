@@ -140,12 +140,10 @@
     <ClCompile Include="..\InfoWriter.cpp" />
     <ClCompile Include="..\InfoWriterSettings.cpp" />
     <ClCompile Include="..\OBSStudioInfoWriter.cpp" />
-    <ClCompile Include="..\SourceListWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\InfoWriter.h" />
     <ClInclude Include="..\InfoWriterSettings.h" />
-    <ClInclude Include="..\SourceListWrapper.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

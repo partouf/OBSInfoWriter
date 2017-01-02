@@ -6,7 +6,6 @@
 #include <Groundfloor/Materials/FileWriter.h>
 #include <Groundfloor/Materials/Functions.h>
 #include <Groundfloor/Atoms/Defines.h>
-#include "SourceListWrapper.h"
 #include "InfoWriter.h"
 
 const char *infowriter_idname = "infowriter";
@@ -114,7 +113,8 @@ void obsstudio_infowriter_frontend_event_callback(enum obs_frontend_event event,
    else if (event == OBS_FRONTEND_EVENT_SCENE_CHANGED)
    {
       auto scene = obs_frontend_get_current_scene();
-      auto scenename = GuessSceneName(scene);
+      std::string scenename = obs_source_get_name(scene);
+      obs_source_release(scene);
 
       if (scenename == "")
       {
