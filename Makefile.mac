@@ -1,0 +1,34 @@
+# Project: OBSInfoWriter
+
+OBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o $(RES)
+LINKOBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o $(RES)
+LIBS = -L"../Crosscables/libGroundfloor/" -lobs -lobs-frontend-api -lrt -lGroundfloor
+CXXINCS = -I"../include" -I"../obs-studio/libobs" -I"../obs-studio/UI" -I"../Crosscables/include"
+BIN  = libOBSInfoWriter.so
+CXXFLAGS = $(CXXINCS) -ansi -fexceptions -std=c++11 -g -fPIC
+RM = rm -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before libOBSInfoWriter.so all-after
+
+all-before:
+
+all-after:
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+clean-custom:
+
+$(BIN): $(LINKOBJ)
+	$(CXX) -o $(BIN) $(LINKOBJ) $(LIBS) -shared
+
+OBSStudioInfoWriter.o: OBSStudioInfoWriter.cpp
+	$(CXX) -c OBSStudioInfoWriter.cpp -o OBSStudioInfoWriter.o $(CXXFLAGS)
+
+InfoWriter.o: InfoWriter.cpp
+	$(CXX) -c InfoWriter.cpp -o InfoWriter.o $(CXXFLAGS)
+
+InfoWriterSettings.o: InfoWriterSettings.cpp
+	$(CXX) -c InfoWriterSettings.cpp -o InfoWriterSettings.o $(CXXFLAGS)
