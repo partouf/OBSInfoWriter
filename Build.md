@@ -2,8 +2,18 @@
 
 1. Setup a directory where you can clone all the projects in
 
-2. Follow the Build directions for obs-studio
-- https://github.com/jp9000/obs-studio/wiki/Install-Instructions
+2. Clone the latest OBS-Studio
+- Follow the Build directions for obs-studio https://github.com/jp9000/obs-studio/wiki/Install-Instructions
+- You don't need to build the project
+
+3. On Mac:
+- Extract the .dylib binaries from the latest OBS for MAC build and place them in a folder called obs-binaries (right-click on OBS in Applications and choose "Show package contents")
+
+4. On Windows:
+- Run .... to get static .lib files to link to for libobs.dll and obs-frontend
+
+5. On Linux:
+- ... Copy .so files?
 
 3. Clone Crosscables
 - git clone https://github.com/partouf/Crosscables.git

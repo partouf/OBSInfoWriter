@@ -2,7 +2,7 @@
 
 OBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o $(RES)
 LINKOBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o $(RES)
-LIBS = -L"../Crosscables/libGroundfloor/" -lobs -lobs-frontend-api -lrt -lGroundfloor
+LIBS = -L"../Crosscables/libGroundfloor/" -L"../obs-binaries/" -lobs.0 -lobs-frontend-api -lGroundfloor
 CXXINCS = -I"../include" -I"../obs-studio/libobs" -I"../obs-studio/UI" -I"../Crosscables/include"
 BIN  = libOBSInfoWriter.so
 CXXFLAGS = $(CXXINCS) -ansi -fexceptions -std=c++11 -g -fPIC
