@@ -5,6 +5,7 @@
 #include <Groundfloor/Materials/Functions.h>
 #include <cstdint>
 #include <cmath>
+#include <regex>
 
 const char *c_TimestampNotation = "%Y-%m-%d %H:%M:%S";
 
@@ -20,10 +21,13 @@ std::string InfoWriter::SecsToHMSString(const int64_t totalseconds) const
    uint32_t min = (uint32_t)trunc(totalseconds / 60.0) - (hr * 60);
    uint32_t sec = totalseconds % 60;
 
-   auto Format = Settings.GetFormat() + "\0\0\0\0";
+   auto format = Settings.GetFormat();
+   std::regex tabregex("(\\\\t)");
+   format = std::regex_replace(format, tabregex, "\t");
+   format += "\0\0\0\0";
 
    char buffer[1024];
-   sprintf(&buffer[0], Format.c_str(), hr, min, sec);
+   sprintf(&buffer[0], format.c_str(), hr, min, sec);
 
    return buffer;
 }

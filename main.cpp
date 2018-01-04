@@ -8,7 +8,7 @@ int main()
 {
    InfoWriter Writer;
    Writer.GetSettings()->SetFilename("./log %Y-%m-%d %H%M%S.txt");
-   Writer.GetSettings()->SetFormat("%d:%02d:%02d");
+   Writer.GetSettings()->SetFormat("\\t%d:%02d:%02d");
    
    Writer.MarkStart(imtUnknown);
 
