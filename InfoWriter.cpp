@@ -5,6 +5,7 @@
 #include <Groundfloor/Materials/Functions.h>
 #include <cstdint>
 #include <cmath>
+#include <regex>
 
 const char *c_TimestampNotation = "%Y-%m-%d %H:%M:%S";
 
@@ -20,10 +21,14 @@ std::string InfoWriter::SecsToHMSString(const int64_t totalseconds) const
    uint32_t min = (uint32_t)trunc(totalseconds / 60.0) - (hr * 60);
    uint32_t sec = totalseconds % 60;
 
-   auto Format = Settings.GetFormat() + "\0\0\0\0";
+   std::string format = Settings.GetFormat();
+   std::string replacement = "\t";
+   std::regex tabregex("(\\\\t)");
+   format = std::regex_replace(format, tabregex, replacement);
+   format += "\0\0\0\0";
 
    char buffer[1024];
-   sprintf(&buffer[0], Format.c_str(), hr, min, sec);
+   sprintf(&buffer[0], format.c_str(), hr, min, sec);
 
    return buffer;
 }
@@ -43,7 +48,7 @@ void InfoWriter::WriteToFile(const std::string Data) const
    SData.append_ansi(crlf);
 
    Groundfloor::FileWriter Writer;
-   Writer.open(Settings.GetFilename().c_str(), true);
+   Writer.open(CurrentFilename.c_str(), true);
    Writer.start();
    Writer.add(&SData);
 
@@ -80,9 +85,20 @@ void InfoWriter::WriteInfo(const InfoHotkey AHotkey)
    WriteInfo(text);
 }
 
+void InfoWriter::InitCurrentFilename(int64_t timestamp)
+{
+  CurrentFilename = Settings.GetFilename();
+  if (CurrentFilename.find('%') != 0) {
+      auto filename = Groundfloor::TimestampToStr(CurrentFilename.c_str(), StartTime);
+      CurrentFilename = filename->getValue();
+      delete filename;
+  }
+}
+
 void InfoWriter::MarkStart(InfoMediaType AType)
 {
    StartTime = Groundfloor::GetTimestamp();
+   InitCurrentFilename(StartTime);
    Started = true;
 
    auto MarkStr = Groundfloor::TimestampToStr(c_TimestampNotation, StartTime);
