@@ -2,14 +2,16 @@
 // Stuff to test without having to plug in
 
 #include "InfoWriter.h"
+#include <climits>
 
 int main()
 {
    InfoWriter Writer;
-   Writer.GetSettings()->SetFilename("c:/temp/log.txt");
+   Writer.GetSettings()->SetFilename("./log %Y-%m-%d %H%M%S.txt");
    Writer.GetSettings()->SetFormat("%d:%02d:%02d");
    
    Writer.MarkStart(imtUnknown);
+
 
    Writer.WriteInfo(1);
 

@@ -43,7 +43,7 @@ void InfoWriter::WriteToFile(const std::string Data) const
    SData.append_ansi(crlf);
 
    Groundfloor::FileWriter Writer;
-   Writer.open(Settings.GetFilename().c_str(), true);
+   Writer.open(CurrentFilename.c_str(), true);
    Writer.start();
    Writer.add(&SData);
 
@@ -80,9 +80,20 @@ void InfoWriter::WriteInfo(const InfoHotkey AHotkey)
    WriteInfo(text);
 }
 
+void InfoWriter::InitCurrentFilename(int64_t timestamp)
+{
+  CurrentFilename = Settings.GetFilename();
+  if (CurrentFilename.find('%') != 0) {
+      auto filename = Groundfloor::TimestampToStr(CurrentFilename.c_str(), StartTime);
+      CurrentFilename = filename->getValue();
+      delete filename;
+  }
+}
+
 void InfoWriter::MarkStart(InfoMediaType AType)
 {
    StartTime = Groundfloor::GetTimestamp();
+   InitCurrentFilename(StartTime);
    Started = true;
 
    auto MarkStr = Groundfloor::TimestampToStr(c_TimestampNotation, StartTime);

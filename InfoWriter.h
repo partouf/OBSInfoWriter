@@ -12,7 +12,9 @@ private:
    int64_t StartTime;
    InfoWriterSettings Settings;
    bool Started;
+   std::string CurrentFilename;
 
+   void InitCurrentFilename(int64_t timestamp);
    std::string SecsToHMSString(const int64_t totalseconds) const;
    std::string MilliToHMSString(const int64_t time) const;
    void WriteToFile(const std::string Data) const;

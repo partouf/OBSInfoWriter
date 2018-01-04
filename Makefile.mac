@@ -2,7 +2,9 @@
 
 OBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o $(RES)
 LINKOBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o $(RES)
+CONSOLELINKOBJ = main.o InfoWriter.o InfoWriterSettings.o $(RES)
 LIBS = -L"../Crosscables/libGroundfloor/" -L"../obs-binaries/" -lobs.0 -lobs-frontend-api -lGroundfloor
+CONSOLELIBS = -L"../Crosscables/libGroundfloor/" -lGroundfloor
 CXXINCS = -I"../include" -I"../obs-studio/libobs" -I"../obs-studio/UI" -I"../Crosscables/include"
 BIN  = libOBSInfoWriter.so
 CXXFLAGS = $(CXXINCS) -ansi -fexceptions -std=c++11 -g -fPIC
@@ -16,6 +18,8 @@ all-before:
 
 all-after:
 
+console: libOBSInfoWriter.so main
+
 clean: clean-custom
 	${RM} $(OBJ) $(BIN)
 
@@ -23,6 +27,9 @@ clean-custom:
 
 $(BIN): $(LINKOBJ)
 	$(CXX) -o $(BIN) $(LINKOBJ) $(LIBS) -shared
+
+main: $(CONSOLELINKOBJ)
+	$(CXX) -o main $(CONSOLELINKOBJ) $(CONSOLELIBS)
 
 OBSStudioInfoWriter.o: OBSStudioInfoWriter.cpp
 	$(CXX) -c OBSStudioInfoWriter.cpp -o OBSStudioInfoWriter.o $(CXXFLAGS)
@@ -32,3 +39,6 @@ InfoWriter.o: InfoWriter.cpp
 
 InfoWriterSettings.o: InfoWriterSettings.cpp
 	$(CXX) -c InfoWriterSettings.cpp -o InfoWriterSettings.o $(CXXFLAGS)
+
+main.o: main.cpp
+	$(CXX) -c main.cpp -o main.o $(CXXFLAGS)
