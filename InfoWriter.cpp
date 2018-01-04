@@ -21,9 +21,10 @@ std::string InfoWriter::SecsToHMSString(const int64_t totalseconds) const
    uint32_t min = (uint32_t)trunc(totalseconds / 60.0) - (hr * 60);
    uint32_t sec = totalseconds % 60;
 
-   auto format = Settings.GetFormat();
+   std::string format = Settings.GetFormat();
+   std::string replacement = "\t";
    std::regex tabregex("(\\\\t)");
-   format = std::regex_replace(format, tabregex, "\t");
+   format = std::regex_replace(format, tabregex, replacement);
    format += "\0\0\0\0";
 
    char buffer[1024];
