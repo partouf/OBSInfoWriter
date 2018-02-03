@@ -61,7 +61,7 @@ void InfoWriter::WriteToFile(const std::string Data) const
    Writer.close();
 }
 
-void InfoWriter::WriteInfo(const std::string AExtraInfo)
+void InfoWriter::WriteInfo(const std::string AExtraInfo) const
 {
    if (Started)
    {
@@ -78,7 +78,7 @@ void InfoWriter::WriteInfo(const std::string AExtraInfo)
    }
 }
 
-void InfoWriter::WriteInfo(const InfoHotkey AHotkey)
+void InfoWriter::WriteInfo(const InfoHotkey AHotkey) const
 {
    auto text = Settings.GetHotkeyText(AHotkey);
 
@@ -150,7 +150,7 @@ bool InfoWriter::HasStarted() const
    return Started;
 }
 
-InfoWriterSettings * InfoWriter::GetSettings()
+InfoWriterSettings *InfoWriter::GetSettings()
 {
    return &Settings;
 }
