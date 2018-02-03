@@ -17,6 +17,7 @@ const char *setting_hotkey2text = "hotkey2text";
 const char *setting_hotkey3text = "hotkey3text";
 const char *setting_hotkey4text = "hotkey4text";
 const char *setting_hotkey5text = "hotkey5text";
+const char *setting_shouldlogscenechanges = "logscenechanges";
 
 void obstudio_infowriter_write_hotkey1(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
 {
@@ -90,6 +91,22 @@ const char *obstudio_infowriter_get_name(void *type_data)
    return infowriter_idname;
 }
 
+void LogSceneChange(InfoWriter *Writer, const std::string scenename)
+{
+   auto WriterSettings = Writer->GetSettings();
+   if (WriterSettings->GetShouldLogSceneChanges())
+   {
+      if (scenename == "")
+      {
+         Writer->WriteInfo("Scene changed");
+      }
+      else
+      {
+         Writer->WriteInfo("Scene changed to " + scenename);
+      }
+   }
+}
+
 void obsstudio_infowriter_frontend_event_callback(enum obs_frontend_event event, void *private_data)
 {
    InfoWriter *Writer = static_cast<InfoWriter *>(private_data);
@@ -116,14 +133,7 @@ void obsstudio_infowriter_frontend_event_callback(enum obs_frontend_event event,
       std::string scenename = obs_source_get_name(scene);
       obs_source_release(scene);
 
-      if (scenename == "")
-      {
-         Writer->WriteInfo("Scene changed");
-      }
-      else
-      {
-         Writer->WriteInfo("Scene changed to " + scenename);
-      }
+      LogSceneChange(Writer, scenename);
    }
 }
 
@@ -159,6 +169,8 @@ obs_properties_t *obstudio_infowriter_properties(void *unused)
    obs_properties_add_text(props, setting_hotkey4text, obs_module_text("Hotkey 4 text"), OBS_TEXT_DEFAULT);
    obs_properties_add_text(props, setting_hotkey5text, obs_module_text("Hotkey 5 text"), OBS_TEXT_DEFAULT);
 
+   obs_properties_add_bool(props, setting_shouldlogscenechanges, obs_module_text("Log Scene changes"));
+
    return props;
 }
 
@@ -172,6 +184,8 @@ void obstudio_infowriter_get_defaults(obs_data_t *settings)
    obs_data_set_default_string(settings, setting_hotkey3text, "Hotkey 3 was pressed");
    obs_data_set_default_string(settings, setting_hotkey4text, "Hotkey 4 was pressed");
    obs_data_set_default_string(settings, setting_hotkey5text, "Hotkey 5 was pressed");
+
+   obs_data_set_default_bool(settings, setting_shouldlogscenechanges, true);
 }
 
 void obstudio_infowriter_update(void *data, obs_data_t *settings)
@@ -202,6 +216,8 @@ void obstudio_infowriter_update(void *data, obs_data_t *settings)
 
    hotkeytext = obs_data_get_string(settings, setting_hotkey5text);
    WriterSettings->SetHotkeyText(5, hotkeytext);
+
+   WriterSettings->SetShouldLogSceneChanges(obs_data_get_bool(settings, setting_shouldlogscenechanges));
 }
 
 uint32_t obstudio_infowriter_get_width(void *data)

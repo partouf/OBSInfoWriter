@@ -22,6 +22,11 @@ std::string InfoWriterSettings::GetHotkeyText(const int hotkeynum) const
    return "";
 }
 
+bool InfoWriterSettings::GetShouldLogSceneChanges() const
+{
+	return ShouldLogSceneChanges;
+}
+
 void InfoWriterSettings::SetFilename(std::string filename)
 {
    this->Filename = filename;
@@ -39,4 +44,9 @@ void InfoWriterSettings::SetHotkeyText(const int hotkeynum, std::string text)
    else if (hotkeynum == 3) Hotkey3Text = text;
    else if (hotkeynum == 4) Hotkey4Text = text;
    else if (hotkeynum == 5) Hotkey5Text = text;
+}
+
+void InfoWriterSettings::SetShouldLogSceneChanges(bool logchanges)
+{
+	ShouldLogSceneChanges = logchanges;
 }

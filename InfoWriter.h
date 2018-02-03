@@ -22,8 +22,8 @@ public:
    InfoWriter();
 
    void MarkStart(const InfoMediaType AType);
-   void WriteInfo(const std::string AExtraInfo);
-   void WriteInfo(const InfoHotkey AHotkey);
+   void WriteInfo(const std::string AExtraInfo) const;
+   void WriteInfo(const InfoHotkey AHotkey) const;
    void MarkStop(const InfoMediaType AType);
 
    bool HasStarted() const;
