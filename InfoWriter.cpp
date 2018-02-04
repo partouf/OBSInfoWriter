@@ -47,6 +47,22 @@ void InfoWriter::WriteToFile(const std::string Data) const
    Groundfloor::String SData(Data.c_str());
    SData.append_ansi(crlf);
 
+   WriteGFStringToFile(SData);
+}
+
+void InfoWriter::WriteDblLineToFile(const std::string Data) const
+{
+   char crlf[] = GFNATIVENEXTLINE;
+
+   Groundfloor::String SData(Data.c_str());
+   SData.append_ansi(crlf);
+   SData.append_ansi(crlf);
+
+   WriteGFStringToFile(SData);
+}
+
+void InfoWriter::WriteGFStringToFile(const Groundfloor::String &SData) const
+{
    Groundfloor::FileWriter Writer;
    Writer.open(CurrentFilename.c_str(), true);
    Writer.start();
@@ -140,7 +156,7 @@ void InfoWriter::MarkStop(InfoMediaType AType)
       break;
    }
 
-   WriteToFile(MarkStr->getValue());
+   WriteDblLineToFile(MarkStr->getValue());
 
    delete MarkStr;
 }
