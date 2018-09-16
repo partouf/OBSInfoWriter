@@ -17,6 +17,10 @@ For the original OBS-classic version, go to https://github.com/partouf/ObsInfoPl
 - Place the **libOBSInfoWriter.so** file into the `~/.config/obs-studio/plugins/OBSInfoWriter/bin/64bit/` folder
   - Note: the section "~/" indicates your _home folder_
 
+### MacOSX
+- Right-click on OBS in Applications and choose "Show package contents"
+- Place the **libOBSInfoWriter.so** file in the plugins folder
+
 ## Configuration
 - Add the InfoWriter Source to 1 scene (the scene doesn't have to be always active).
 - Configure the Source and select the text file where you want the timestamps to be written to.
