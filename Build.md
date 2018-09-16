@@ -13,7 +13,7 @@
 - Run .... to get static .lib files to link to for libobs.dll and obs-frontend
 
 5. On Linux:
-- ... Copy .so files?
+- No extra action required
 
 3. Clone Crosscables
 - git clone https://github.com/partouf/Crosscables.git
