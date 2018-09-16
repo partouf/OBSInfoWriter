@@ -19,7 +19,7 @@ For the original OBS-classic version, go to https://github.com/partouf/ObsInfoPl
 
 ### MacOSX
 - Right-click on OBS in Applications and choose "Show package contents"
-- Place the **libOBSInfoWriter.so** file in the plugins folder
+- Place the **libOBSInfoWriter.so** file (from the libOBSInfoWriter.OSX.zip file) in the plugins folder
 
 ## Configuration
 - Add the InfoWriter Source to 1 scene (the scene doesn't have to be always active).
