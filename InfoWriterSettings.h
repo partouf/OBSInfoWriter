@@ -13,6 +13,16 @@ protected:
    std::string Hotkey3Text;
    std::string Hotkey4Text;
    std::string Hotkey5Text;
+   std::string Hotkey6Text;
+   std::string Hotkey7Text;
+   std::string Hotkey8Text;
+   std::string Hotkey9Text;
+   std::string Hotkey10Text;
+   std::string Hotkey11Text;
+   std::string Hotkey12Text;
+   std::string Hotkey13Text;
+   std::string Hotkey14Text;
+
 
    bool ShouldLogSceneChanges;
 public:
