@@ -1,4 +1,11 @@
 # OBSInfoWriter
+
+This project is a fork of the original project adding 10 more hotkeys.
+
+Take a look to the screenshot.
+
+![Hotkeys List Sample](sample_hotkeys_list.jpg)
+
 Multiplatform version of ObsInfoPlugin to write timestamps to a file.
 
 Plugin thread on the OBS forums: https://obsproject.com/forum/resources/infowriter.345/
