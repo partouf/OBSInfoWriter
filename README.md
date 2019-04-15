@@ -2,6 +2,8 @@
 
 This project is a fork of the original project adding 10 more hotkeys.
 
+This fork has been built just for 64 bits. So copy the OBSInfoWriter.dll into the OBS Plugins 64 bits.
+
 Take a look to the screenshot.
 
 ![Hotkeys List Sample](sample_hotkeys_list.jpg)
