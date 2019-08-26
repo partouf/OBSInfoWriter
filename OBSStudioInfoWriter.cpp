@@ -17,6 +17,15 @@ const char *setting_hotkey2text = "hotkey2text";
 const char *setting_hotkey3text = "hotkey3text";
 const char *setting_hotkey4text = "hotkey4text";
 const char *setting_hotkey5text = "hotkey5text";
+const char *setting_hotkey6text = "hotkey6text";
+const char *setting_hotkey7text = "hotkey7text";
+const char *setting_hotkey8text = "hotkey8text";
+const char *setting_hotkey9text = "hotkey9text";
+const char *setting_hotkey10text = "hotkey10text";
+const char *setting_hotkey11text = "hotkey11text";
+const char *setting_hotkey12text = "hotkey12text";
+const char *setting_hotkey13text = "hotkey13text";
+const char *setting_hotkey14text = "hotkey14text";
 const char *setting_shouldlogscenechanges = "logscenechanges";
 
 void obstudio_infowriter_write_hotkey1(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
@@ -84,6 +93,117 @@ void obstudio_infowriter_write_hotkey5(void *data, obs_hotkey_id id, obs_hotkey_
    }
 }
 
+/*************************** MORE FUNCTIONS *********************************/
+void obstudio_infowriter_write_hotkey6(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
+{
+	UNUSED_PARAMETER(id);
+	UNUSED_PARAMETER(hotkey);
+
+	if (pressed)
+	{
+		InfoWriter *Writer = static_cast<InfoWriter *>(data);
+
+		Writer->WriteInfo(6);
+	}
+}
+
+void obstudio_infowriter_write_hotkey7(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
+{
+	UNUSED_PARAMETER(id);
+	UNUSED_PARAMETER(hotkey);
+
+	if (pressed)
+	{
+		InfoWriter *Writer = static_cast<InfoWriter *>(data);
+
+		Writer->WriteInfo(7);
+	}
+}
+void obstudio_infowriter_write_hotkey8(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
+{
+	UNUSED_PARAMETER(id);
+	UNUSED_PARAMETER(hotkey);
+
+	if (pressed)
+	{
+		InfoWriter *Writer = static_cast<InfoWriter *>(data);
+
+		Writer->WriteInfo(8);
+	}
+}
+void obstudio_infowriter_write_hotkey9(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
+{
+	UNUSED_PARAMETER(id);
+	UNUSED_PARAMETER(hotkey);
+
+	if (pressed)
+	{
+		InfoWriter *Writer = static_cast<InfoWriter *>(data);
+
+		Writer->WriteInfo(9);
+	}
+}
+void obstudio_infowriter_write_hotkey10(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
+{
+	UNUSED_PARAMETER(id);
+	UNUSED_PARAMETER(hotkey);
+
+	if (pressed)
+	{
+		InfoWriter *Writer = static_cast<InfoWriter *>(data);
+
+		Writer->WriteInfo(10);
+	}
+}
+void obstudio_infowriter_write_hotkey11(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
+{
+	UNUSED_PARAMETER(id);
+	UNUSED_PARAMETER(hotkey);
+
+	if (pressed)
+	{
+		InfoWriter *Writer = static_cast<InfoWriter *>(data);
+
+		Writer->WriteInfo(11);
+	}
+}
+void obstudio_infowriter_write_hotkey12(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
+{
+	UNUSED_PARAMETER(id);
+	UNUSED_PARAMETER(hotkey);
+
+	if (pressed)
+	{
+		InfoWriter *Writer = static_cast<InfoWriter *>(data);
+
+		Writer->WriteInfo(12);
+	}
+}
+void obstudio_infowriter_write_hotkey13(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
+{
+	UNUSED_PARAMETER(id);
+	UNUSED_PARAMETER(hotkey);
+
+	if (pressed)
+	{
+		InfoWriter *Writer = static_cast<InfoWriter *>(data);
+
+		Writer->WriteInfo(13);
+	}
+}
+void obstudio_infowriter_write_hotkey14(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
+{
+	UNUSED_PARAMETER(id);
+	UNUSED_PARAMETER(hotkey);
+
+	if (pressed)
+	{
+		InfoWriter *Writer = static_cast<InfoWriter *>(data);
+
+		Writer->WriteInfo(14);
+	}
+}
+
 const char *obstudio_infowriter_get_name(void *type_data)
 {
    UNUSED_PARAMETER(type_data);
@@ -148,6 +268,16 @@ void *obstudio_infowriter_create(obs_data_t *settings, obs_source_t *source)
    obs_hotkey_register_source(source, "InfoWriter.Hotkey3", "Hotkey 3", obstudio_infowriter_write_hotkey3, Writer);
    obs_hotkey_register_source(source, "InfoWriter.Hotkey4", "Hotkey 4", obstudio_infowriter_write_hotkey4, Writer);
    obs_hotkey_register_source(source, "InfoWriter.Hotkey5", "Hotkey 5", obstudio_infowriter_write_hotkey5, Writer);
+   obs_hotkey_register_source(source, "InfoWriter.Hotkey6", "Hotkey 6", obstudio_infowriter_write_hotkey6, Writer);
+   obs_hotkey_register_source(source, "InfoWriter.Hotkey7", "Hotkey 7", obstudio_infowriter_write_hotkey7, Writer);
+   obs_hotkey_register_source(source, "InfoWriter.Hotkey8", "Hotkey 8", obstudio_infowriter_write_hotkey8, Writer);
+   obs_hotkey_register_source(source, "InfoWriter.Hotkey9", "Hotkey 9", obstudio_infowriter_write_hotkey9, Writer);
+   obs_hotkey_register_source(source, "InfoWriter.Hotkey10", "Hotkey 10", obstudio_infowriter_write_hotkey10, Writer);
+   obs_hotkey_register_source(source, "InfoWriter.Hotkey11", "Hotkey 11", obstudio_infowriter_write_hotkey11, Writer);
+   obs_hotkey_register_source(source, "InfoWriter.Hotkey12", "Hotkey 12", obstudio_infowriter_write_hotkey12, Writer);
+   obs_hotkey_register_source(source, "InfoWriter.Hotkey13", "Hotkey 13", obstudio_infowriter_write_hotkey13, Writer);
+   obs_hotkey_register_source(source, "InfoWriter.Hotkey14", "Hotkey 14", obstudio_infowriter_write_hotkey14, Writer);
+
 
    obs_frontend_add_event_callback(obsstudio_infowriter_frontend_event_callback, Writer);
 
@@ -168,6 +298,16 @@ obs_properties_t *obstudio_infowriter_properties(void *unused)
    obs_properties_add_text(props, setting_hotkey3text, obs_module_text("Hotkey 3 text"), OBS_TEXT_DEFAULT);
    obs_properties_add_text(props, setting_hotkey4text, obs_module_text("Hotkey 4 text"), OBS_TEXT_DEFAULT);
    obs_properties_add_text(props, setting_hotkey5text, obs_module_text("Hotkey 5 text"), OBS_TEXT_DEFAULT);
+   obs_properties_add_text(props, setting_hotkey6text, obs_module_text("Hotkey 6 text"), OBS_TEXT_DEFAULT);
+   obs_properties_add_text(props, setting_hotkey7text, obs_module_text("Hotkey 7 text"), OBS_TEXT_DEFAULT);
+   obs_properties_add_text(props, setting_hotkey8text, obs_module_text("Hotkey 8 text"), OBS_TEXT_DEFAULT);
+   obs_properties_add_text(props, setting_hotkey9text, obs_module_text("Hotkey 9 text"), OBS_TEXT_DEFAULT);
+   obs_properties_add_text(props, setting_hotkey10text, obs_module_text("Hotkey 10 text"), OBS_TEXT_DEFAULT);
+   obs_properties_add_text(props, setting_hotkey11text, obs_module_text("Hotkey 11 text"), OBS_TEXT_DEFAULT);
+   obs_properties_add_text(props, setting_hotkey12text, obs_module_text("Hotkey 12 text"), OBS_TEXT_DEFAULT);
+   obs_properties_add_text(props, setting_hotkey13text, obs_module_text("Hotkey 13 text"), OBS_TEXT_DEFAULT);
+   obs_properties_add_text(props, setting_hotkey14text, obs_module_text("Hotkey 14 text"), OBS_TEXT_DEFAULT);
+
 
    obs_properties_add_bool(props, setting_shouldlogscenechanges, obs_module_text("Log Scene changes"));
 
@@ -184,6 +324,15 @@ void obstudio_infowriter_get_defaults(obs_data_t *settings)
    obs_data_set_default_string(settings, setting_hotkey3text, "Hotkey 3 was pressed");
    obs_data_set_default_string(settings, setting_hotkey4text, "Hotkey 4 was pressed");
    obs_data_set_default_string(settings, setting_hotkey5text, "Hotkey 5 was pressed");
+   obs_data_set_default_string(settings, setting_hotkey6text, "Hotkey 6 was pressed");
+   obs_data_set_default_string(settings, setting_hotkey7text, "Hotkey 7 was pressed");
+   obs_data_set_default_string(settings, setting_hotkey8text, "Hotkey 8 was pressed");
+   obs_data_set_default_string(settings, setting_hotkey9text, "Hotkey 9 was pressed");
+   obs_data_set_default_string(settings, setting_hotkey10text, "Hotkey 10 was pressed");
+   obs_data_set_default_string(settings, setting_hotkey11text, "Hotkey 11 was pressed");
+   obs_data_set_default_string(settings, setting_hotkey12text, "Hotkey 12 was pressed");
+   obs_data_set_default_string(settings, setting_hotkey13text, "Hotkey 13 was pressed");
+   obs_data_set_default_string(settings, setting_hotkey14text, "Hotkey 14 was pressed");
 
    obs_data_set_default_bool(settings, setting_shouldlogscenechanges, true);
 }
@@ -216,6 +365,33 @@ void obstudio_infowriter_update(void *data, obs_data_t *settings)
 
    hotkeytext = obs_data_get_string(settings, setting_hotkey5text);
    WriterSettings->SetHotkeyText(5, hotkeytext);
+
+   hotkeytext = obs_data_get_string(settings, setting_hotkey6text);
+   WriterSettings->SetHotkeyText(6, hotkeytext);
+
+   hotkeytext = obs_data_get_string(settings, setting_hotkey7text);
+   WriterSettings->SetHotkeyText(7, hotkeytext);
+
+   hotkeytext = obs_data_get_string(settings, setting_hotkey8text);
+   WriterSettings->SetHotkeyText(8, hotkeytext);
+
+   hotkeytext = obs_data_get_string(settings, setting_hotkey9text);
+   WriterSettings->SetHotkeyText(9, hotkeytext);
+
+   hotkeytext = obs_data_get_string(settings, setting_hotkey10text);
+   WriterSettings->SetHotkeyText(10, hotkeytext);
+
+   hotkeytext = obs_data_get_string(settings, setting_hotkey11text);
+   WriterSettings->SetHotkeyText(11, hotkeytext);
+
+   hotkeytext = obs_data_get_string(settings, setting_hotkey12text);
+   WriterSettings->SetHotkeyText(12, hotkeytext);
+
+   hotkeytext = obs_data_get_string(settings, setting_hotkey13text);
+   WriterSettings->SetHotkeyText(13, hotkeytext);
+
+   hotkeytext = obs_data_get_string(settings, setting_hotkey14text);
+   WriterSettings->SetHotkeyText(14, hotkeytext);
 
    WriterSettings->SetShouldLogSceneChanges(obs_data_get_bool(settings, setting_shouldlogscenechanges));
 }
@@ -253,7 +429,7 @@ void obstudio_infowriter_destroy(void *data)
 struct obs_source_info obstudio_infowriter_source;
 
 OBS_DECLARE_MODULE()
-OBS_MODULE_USE_DEFAULT_LOCALE("infowriter", "en-US")
+OBS_MODULE_USE_DEFAULT_LOCALE("OBSInfoWriter", "en-US")
 
 void obstudio_infowriter_setup()
 {
