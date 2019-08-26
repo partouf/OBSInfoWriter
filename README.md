@@ -1,13 +1,5 @@
 # OBSInfoWriter
 
-This project is a fork of the original project adding 10 more hotkeys.
-
-This fork has been built just for 64 bits. So copy the OBSInfoWriter.dll into the OBS Plugins 64 bits.
-
-Take a look to the screenshot.
-
-![Hotkeys List Sample](sample_hotkeys_list.jpg)
-
 Multiplatform version of ObsInfoPlugin to write timestamps to a file.
 
 Plugin thread on the OBS forums: https://obsproject.com/forum/resources/infowriter.345/
@@ -46,3 +38,9 @@ The format option is very limited in it's use, the variables in the formatting a
 It is recommended the default value is not changed.
 
 What is possible that might improve logging is that you can put spaces or a \t tab character in front of the format, so your log times are indented in between the start and stop of the recording or stream.
+
+## More hotkeys
+
+Contributed by https://github.com/RetroGamer74
+
+![Hotkeys List Sample](sample_hotkeys_list.jpg)
