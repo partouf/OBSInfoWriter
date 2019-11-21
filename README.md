@@ -44,14 +44,14 @@ What is possible that might improve logging is that you can put spaces or a \t t
 Contributed by https://github.com/RetroGamer74
 ![Hotkeys List Sample](sample_hotkeys_list.jpg)
 
-######### NEW CHANGES (TheTawnyFool)
+#### NEW CHANGES (TheTawnyFool)
     Contributed by https://github.com/TheTawnyFool
 
     Changed the output to log seperate timers for recording and streaming. Allows for indepedent timestamps of streaming and recordings at the same time. 
 
     Updated to fix problems with OBS newer update to allow pausing in recordings.  Now when you pause a recording, the recording timer used by the hotkeys will pause until you resume the recording.  This way the record timer offsets of the hotkey events to be synced correctly with the video. The streaming timer will not pause if you are tracking both.
 
-    ## Checkbox to log streaming events
+## Checkbox to log streaming events
       Allows turning on and off logging relating to streaming. Recommend to leave off if not streaming, and or not wanting to log timers relating to streaming.
 
 
