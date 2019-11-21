@@ -22,6 +22,29 @@
   - Run lib /def:obsfrontend.exports /out:obs-frontend-api32.lib /machine:x86
 - Copy the lib files to ..\obs-studio-bin\lib\x64 and ..\obs-studio-bin\lib\x86 from the OBSInfoWriter folder
 
+4.ALT. Another way to do step 4 above for Windows
+- Make .lib files for obs.dll and obs-frontend-api.dll
+  - Open visual studio command prompt and copy obs.dll and obs-frontend-api.dll to a folder (no spaces in path)
+  - Create a .bat file (make sure to execute in the visual studio command prompt) as follows
+
+@echo off
+dumpbin /exports obs.dll > exports.txt
+echo EXPORTS > obs.def
+for /f "skip=19 tokens=4" %%A in (exports.txt) do echo %%A >> obs.def
+lib /def:obs.def /out:obs32.lib /machine:x86
+lib /def:obs.def /out:obs64.lib /machine:x64
+
+@echo off
+dumpbin /exports obs-frontend-api.dll > exports.txt
+echo EXPORTS > obs-frontend-api.def
+for /f "skip=19 tokens=4" %%A in (exports.txt) do echo %%A >> obs-frontend-api.def
+lib /def:obs-frontend-api.def /out:obs-frontend-api32.lib /machine:x86
+lib /def:obs-frontend-api.def /out:obs-frontend-api64.lib /machine:x64
+  
+  - Run the batfile an you should have the 4 lib files made
+- Copy the lib files to ..\obs-studio-bin\lib\x64 and ..\obs-studio-bin\lib\x86 from the OBSInfoWriter folder 
+  - I believe the files need to be renamed obs-frontend-api.lib and obs.lib under the \x86 and \x64 folders
+ 
 5. On Linux:
 - No extra action required
 
@@ -38,3 +61,5 @@
 5. Build
 - Linux: make -f Makefile.linux
 - Mac: make -f Makefile.mac
+
+

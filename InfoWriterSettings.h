@@ -23,16 +23,20 @@ protected:
    std::string Hotkey13Text;
    std::string Hotkey14Text;
 
-
    bool ShouldLogSceneChanges;
+   bool ShouldLogStreaming;
+
 public:
    std::string GetFilename() const;
    std::string GetFormat() const;
    std::string GetHotkeyText(const int hotkeynum) const;
+
    bool GetShouldLogSceneChanges() const;
+   bool GetShouldLogStreaming() const;
 
    void SetFilename(std::string filename);
    void SetFormat(std::string format);
    void SetHotkeyText(const int hotkeynum, std::string text);
    void SetShouldLogSceneChanges(bool logchanges);
+   void SetShouldLogStreaming(bool logchanges);
 };

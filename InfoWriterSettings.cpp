@@ -36,6 +36,11 @@ bool InfoWriterSettings::GetShouldLogSceneChanges() const
 	return ShouldLogSceneChanges;
 }
 
+bool InfoWriterSettings::GetShouldLogStreaming() const
+{
+	return ShouldLogStreaming;
+}
+
 void InfoWriterSettings::SetFilename(std::string filename)
 {
    this->Filename = filename;
@@ -68,4 +73,9 @@ void InfoWriterSettings::SetHotkeyText(const int hotkeynum, std::string text)
 void InfoWriterSettings::SetShouldLogSceneChanges(bool logchanges)
 {
 	ShouldLogSceneChanges = logchanges;
+}
+
+void InfoWriterSettings::SetShouldLogStreaming(bool logchanges)
+{
+	ShouldLogStreaming = logchanges;
 }

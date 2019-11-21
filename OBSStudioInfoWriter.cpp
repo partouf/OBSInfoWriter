@@ -27,6 +27,7 @@ const char *setting_hotkey12text = "hotkey12text";
 const char *setting_hotkey13text = "hotkey13text";
 const char *setting_hotkey14text = "hotkey14text";
 const char *setting_shouldlogscenechanges = "logscenechanges";
+const char *setting_shouldlogstreaming = "logstreaming";
 
 void obstudio_infowriter_write_hotkey1(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
 {
@@ -93,7 +94,6 @@ void obstudio_infowriter_write_hotkey5(void *data, obs_hotkey_id id, obs_hotkey_
    }
 }
 
-/*************************** MORE FUNCTIONS *********************************/
 void obstudio_infowriter_write_hotkey6(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
 {
 	UNUSED_PARAMETER(id);
@@ -214,15 +214,16 @@ const char *obstudio_infowriter_get_name(void *type_data)
 void LogSceneChange(InfoWriter *Writer, const std::string scenename)
 {
    auto WriterSettings = Writer->GetSettings();
+
    if (WriterSettings->GetShouldLogSceneChanges())
    {
       if (scenename == "")
       {
-         Writer->WriteInfo("Scene changed");
+		  Writer->WriteInfo("EVENT: SCENE CHANGED @ " + Writer->NowTimeStamp());
       }
       else
       {
-         Writer->WriteInfo("Scene changed to " + scenename);
+         Writer->WriteInfo("EVENT: SCENE CHANGED TO " + scenename + " @ " + Writer->NowTimeStamp());
       }
    }
 }
@@ -233,7 +234,7 @@ void obsstudio_infowriter_frontend_event_callback(enum obs_frontend_event event,
 
    if (event == OBS_FRONTEND_EVENT_STREAMING_STARTED)
    {
-      Writer->MarkStart(imtStream);
+	  Writer->MarkStart(imtStream);   
    }
    else if (event == OBS_FRONTEND_EVENT_RECORDING_STARTED)
    {
@@ -241,11 +242,19 @@ void obsstudio_infowriter_frontend_event_callback(enum obs_frontend_event event,
    }
    else if (event == OBS_FRONTEND_EVENT_STREAMING_STOPPED)
    {
-      Writer->MarkStop(imtStream);
+		if (Writer->IsStreaming()) Writer->MarkStop(imtStream); 
    }
    else if (event == OBS_FRONTEND_EVENT_RECORDING_STOPPED)
    {
-      Writer->MarkStop(imtRecording);
+	   Writer->MarkStop(imtRecording);
+   }
+   else if (event == OBS_FRONTEND_EVENT_RECORDING_PAUSED)
+   {
+	   Writer->MarkPauseStart(imtRecordingPauseStart);
+   }
+   else if (event == OBS_FRONTEND_EVENT_RECORDING_UNPAUSED)
+   {
+	   Writer->MarkPauseResume(imtRecordingPauseResume);
    }
    else if (event == OBS_FRONTEND_EVENT_SCENE_CHANGED)
    {
@@ -310,6 +319,7 @@ obs_properties_t *obstudio_infowriter_properties(void *unused)
 
 
    obs_properties_add_bool(props, setting_shouldlogscenechanges, obs_module_text("Log Scene changes"));
+   obs_properties_add_bool(props, setting_shouldlogstreaming, obs_module_text("Log Streaming events"));
 
    return props;
 }
@@ -394,6 +404,9 @@ void obstudio_infowriter_update(void *data, obs_data_t *settings)
    WriterSettings->SetHotkeyText(14, hotkeytext);
 
    WriterSettings->SetShouldLogSceneChanges(obs_data_get_bool(settings, setting_shouldlogscenechanges));
+   WriterSettings->SetShouldLogStreaming(obs_data_get_bool(settings, setting_shouldlogstreaming));
+
+   Writer->SetShowStreamOutput(obs_data_get_bool(settings, setting_shouldlogstreaming)); //added thetawnyfool
 }
 
 uint32_t obstudio_infowriter_get_width(void *data)
