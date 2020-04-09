@@ -232,7 +232,7 @@ void InfoWriter::MarkPauseResume(InfoMediaType AType)
 	PausedTotalTime += (CurrentTime - PausedStartTime);
 
 	std::string Info;
-	Info = "EVENT: RECORDING RESUMED @ " + NowTimeStamp() + "(paused lasted for ";
+	Info = "EVENT:RECORDING RESUMED @ " + NowTimeStamp() + "(paused lasted for ";
 	Info += SecsToHMSString(CurrentTime - PausedStartTime);
 	Info += " seconds)";
 
