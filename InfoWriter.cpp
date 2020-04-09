@@ -12,7 +12,14 @@ const char *c_TimestampNotation = "%Y-%m-%d %H:%M:%S";
 InfoWriter::InfoWriter()
 {
    StartTime = 0;
-   Started = false;
+   StartRecordTime = 0;
+   StartStreamTime = 0;
+   PausedTotalTime = 0;
+   PausedStartTime = 0;
+   StreamStarted = false;
+   RecordStarted = false;
+   ShowStreaming = false;
+   Paused = false;
 }
 
 std::string InfoWriter::SecsToHMSString(const int64_t totalseconds) const
@@ -38,6 +45,12 @@ std::string InfoWriter::MilliToHMSString(const int64_t time) const
    uint32_t totalseconds = (uint32_t)trunc(time / 1000.0);
 
    return SecsToHMSString(totalseconds);
+}
+
+std::string InfoWriter::NowTimeStamp() const
+{
+	auto NowStr = Groundfloor::TimestampToStr(c_TimestampNotation, StartTime);
+	return NowStr->getValue();
 }
 
 void InfoWriter::WriteToFile(const std::string Data) const
@@ -79,26 +92,59 @@ void InfoWriter::WriteGFStringToFile(const Groundfloor::String &SData) const
 
 void InfoWriter::WriteInfo(const std::string AExtraInfo) const
 {
-   if (Started)
-   {
-      auto CurrentTime = Groundfloor::GetTimestamp();
-      auto Info = SecsToHMSString(CurrentTime - StartTime);
+	std::string Info;
+	auto CurrentTime = Groundfloor::GetTimestamp();
+	auto tmpTime = SecsToHMSString(0);
 
-      if (AExtraInfo.length() != 0)
-      {
-         Info += " - ";
-         Info += AExtraInfo;
-      }
+	auto PausedTmpTime = PausedTotalTime;
+	if (Paused) PausedTmpTime = PausedTotalTime + (CurrentTime - PausedStartTime);
 
-      WriteToFile(Info);
-   }
+	if (RecordStarted)
+	{
+		tmpTime = SecsToHMSString((CurrentTime - StartRecordTime) - PausedTmpTime);
+	}
+
+	std::string record_info = tmpTime;
+	tmpTime = SecsToHMSString(0);
+	if (StreamStarted)
+	{
+		tmpTime = SecsToHMSString(CurrentTime - StartStreamTime);
+	}
+	auto stream_info = tmpTime;
+
+	record_info += " Record Time Marker";
+	stream_info += " Stream Time Marker";
+
+	if (!RecordStarted) record_info += " (not recording)";
+	if (Paused) record_info += " (recording is paused)";
+	if (!StreamStarted) stream_info += " (not streaming)";
+
+	record_info += "\n";
+	stream_info += "\n";
+
+	if (AExtraInfo.length() != 0)
+	{
+		Info = "";
+		Info += AExtraInfo;
+		Info += "\n";
+	}
+
+	Info += record_info;
+	if (ShowStreaming) Info += stream_info;
+
+	WriteToFile(Info);
 }
 
 void InfoWriter::WriteInfo(const InfoHotkey AHotkey) const
 {
-   auto text = Settings.GetHotkeyText(AHotkey);
+	auto Now = Groundfloor::GetTimestamp();
+	auto MarkStr = Groundfloor::TimestampToStr(c_TimestampNotation, Now);
+	auto hotkey_text = Settings.GetHotkeyText(AHotkey);  
 
-   WriteInfo(text);
+    hotkey_text = "HOTKEY:" + hotkey_text + " @ " + MarkStr->getValue();
+
+    WriteInfo(hotkey_text);
+    delete MarkStr;
 }
 
 void InfoWriter::InitCurrentFilename(int64_t timestamp)
@@ -115,55 +161,104 @@ void InfoWriter::MarkStart(InfoMediaType AType)
 {
    StartTime = Groundfloor::GetTimestamp();
    InitCurrentFilename(StartTime);
-   Started = true;
 
    auto MarkStr = Groundfloor::TimestampToStr(c_TimestampNotation, StartTime);
 
    switch (AType) {
-   case imtUnknown:
-      MarkStr->prepend_ansi("START @ ");
-      break;
    case imtStream:
-      MarkStr->prepend_ansi("START STREAM @ ");
+	   StartStreamTime = Groundfloor::GetTimestamp();
+	   StreamStarted = true;
+	   if (ShowStreaming)
+	   {
+		   MarkStr->prepend_ansi("EVENT:START STREAM @ ");
+	   }
+	  WriteInfo(MarkStr->getValue());
       break;
+   case imtUnknown:
+      MarkStr->prepend_ansi(" (WARNING:Unsure how we STARTED) ");
    case imtRecording:
-      MarkStr->prepend_ansi("START RECORDING @ ");
+      MarkStr->prepend_ansi("EVENT:START RECORDING @ ");
+	  StartRecordTime = Groundfloor::GetTimestamp();
+	  RecordStarted = true;
+	  Paused = false;
+	  WriteInfo(MarkStr->getValue());
       break;
    }
-
-   WriteToFile(MarkStr->getValue());
 
    delete MarkStr;
 }
 
 void InfoWriter::MarkStop(InfoMediaType AType)
 {
-   StartTime = 0;
-   Started = false;
+	auto Now = Groundfloor::GetTimestamp();
+	auto MarkStr = Groundfloor::TimestampToStr(c_TimestampNotation, Now);
 
-   auto Now = Groundfloor::GetTimestamp();
-   auto MarkStr = Groundfloor::TimestampToStr(c_TimestampNotation, Now);
+	switch (AType) {
+	case imtStream:
+		MarkStr->prepend_ansi("EVENT:STOP STREAM @ ");
+		MarkStr->append(" Stream Time Marker Reset to 0");	
+		StreamStarted = false;
+		StartStreamTime = 0;
+		break;
+	case imtUnknown:
+	case imtRecording:
+		MarkStr->prepend_ansi("EVENT:STOP RECORDING @ ");
+		MarkStr->append(" Record Time Marker Reset to 0");
+		StartRecordTime = 0;  //reset times 
+		PausedTotalTime = 0;
+		Paused = false;
+		RecordStarted = false;
+		break;
+	}
 
-   switch (AType) {
-   case imtUnknown:
-      MarkStr->prepend_ansi("STOP @ ");
-      break;
-   case imtStream:
-      MarkStr->prepend_ansi("STOP STREAM @ ");
-      break;
-   case imtRecording:
-      MarkStr->prepend_ansi("STOP RECORDING @ ");
-      break;
-   }
+	WriteInfo(MarkStr->getValue());
 
-   WriteDblLineToFile(MarkStr->getValue());
+	delete MarkStr;
+}
 
-   delete MarkStr;
+//TheTawnyFool addition for pausing
+void InfoWriter::MarkPauseStart(InfoMediaType AType)
+{
+   Paused = true;
+   PausedStartTime = Groundfloor::GetTimestamp();
+
+   WriteInfo("EVENT:RECORDING PAUSED @ " + NowTimeStamp() );
+}    
+
+void InfoWriter::MarkPauseResume(InfoMediaType AType)
+{
+	Paused = false;
+	auto CurrentTime = Groundfloor::GetTimestamp();
+	PausedTotalTime += (CurrentTime - PausedStartTime);
+
+	std::string Info;
+	Info = "EVENT: RECORDING RESUMED @ " + NowTimeStamp() + "(paused lasted for ";
+	Info += SecsToHMSString(CurrentTime - PausedStartTime);
+	Info += " seconds)";
+
+	WriteInfo(Info);
 }
 
 bool InfoWriter::HasStarted() const
 {
-   return Started;
+	if (StreamStarted) return true;
+	if (RecordStarted) return true;
+	return false;
+}
+
+bool InfoWriter::IsStreaming() const
+{
+	return StreamStarted;
+}
+
+bool InfoWriter::ShowStreamOutput() const
+{
+	return ShowStreaming;
+}
+
+void InfoWriter::SetShowStreamOutput(bool logchanges)
+{
+	ShowStreaming = logchanges;
 }
 
 InfoWriterSettings *InfoWriter::GetSettings()
