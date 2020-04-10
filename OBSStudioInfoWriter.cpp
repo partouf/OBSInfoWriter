@@ -26,6 +26,7 @@ const char *setting_hotkey11text = "hotkey11text";
 const char *setting_hotkey12text = "hotkey12text";
 const char *setting_hotkey13text = "hotkey13text";
 const char *setting_hotkey14text = "hotkey14text";
+const char* setting_outputformat = "outputformat";
 const char *setting_shouldlogscenechanges = "logscenechanges";
 const char *setting_shouldlogstreaming = "logstreaming";
 
@@ -292,8 +293,13 @@ obs_properties_t *obstudio_infowriter_properties(void *unused)
 
    obs_properties_t *props = obs_properties_create();
 
-   obs_properties_add_path(props, setting_file, obs_module_text("Logfile"), OBS_PATH_FILE_SAVE, logfile_filter, NULL);
+   auto list = obs_properties_add_list(props, setting_outputformat, obs_module_text("Output format"), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
+   obs_property_list_add_string(list, "Default", "default");
+   obs_property_list_add_string(list, "CSV", "csv");
+   obs_property_list_add_string(list, "EDL", "edl");
+
    obs_properties_add_text(props, setting_format, obs_module_text("Format"), OBS_TEXT_DEFAULT);
+   obs_properties_add_path(props, setting_file, obs_module_text("Logfile"), OBS_PATH_FILE_SAVE, logfile_filter, NULL);
 
    obs_properties_add_text(props, setting_hotkey1text, obs_module_text("Hotkey 1 text"), OBS_TEXT_DEFAULT);
    obs_properties_add_text(props, setting_hotkey2text, obs_module_text("Hotkey 2 text"), OBS_TEXT_DEFAULT);
@@ -310,7 +316,6 @@ obs_properties_t *obstudio_infowriter_properties(void *unused)
    obs_properties_add_text(props, setting_hotkey13text, obs_module_text("Hotkey 13 text"), OBS_TEXT_DEFAULT);
    obs_properties_add_text(props, setting_hotkey14text, obs_module_text("Hotkey 14 text"), OBS_TEXT_DEFAULT);
 
-
    obs_properties_add_bool(props, setting_shouldlogscenechanges, obs_module_text("Log Scene changes"));
    obs_properties_add_bool(props, setting_shouldlogstreaming, obs_module_text("Log Streaming events"));
 
@@ -319,6 +324,7 @@ obs_properties_t *obstudio_infowriter_properties(void *unused)
 
 void obstudio_infowriter_get_defaults(obs_data_t *settings)
 {
+   obs_data_set_default_string(settings, setting_outputformat, "default");
    obs_data_set_default_string(settings, setting_file, "/tmp/log.txt");
    obs_data_set_default_string(settings, setting_format, "%d:%02d:%02d");
 
@@ -344,11 +350,14 @@ void obstudio_infowriter_update(void *data, obs_data_t *settings)
 {
    InfoWriter *Writer = static_cast<InfoWriter *>(data);
 
+   const char *outputformat = obs_data_get_string(settings, setting_outputformat);
+
    const char *file = obs_data_get_string(settings, setting_file);
    const char *format = obs_data_get_string(settings, setting_format);
 
    auto WriterSettings = Writer->GetSettings();
 
+   WriterSettings->SetOutputFormat(outputformat);
    WriterSettings->SetFilename(file);
    WriterSettings->SetFormat(format);
 

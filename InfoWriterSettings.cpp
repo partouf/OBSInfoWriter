@@ -1,5 +1,10 @@
 #include "InfoWriterSettings.h"
 
+std::string InfoWriterSettings::GetOutputFormat() const
+{
+   return OutputFormat;
+}
+
 std::string InfoWriterSettings::GetFilename() const
 {
    return Filename;
@@ -39,6 +44,11 @@ bool InfoWriterSettings::GetShouldLogSceneChanges() const
 bool InfoWriterSettings::GetShouldLogStreaming() const
 {
 	return ShouldLogStreaming;
+}
+
+void InfoWriterSettings::SetOutputFormat(std::string formatname)
+{
+   OutputFormat = formatname;
 }
 
 void InfoWriterSettings::SetFilename(std::string filename)

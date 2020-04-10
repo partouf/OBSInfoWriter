@@ -163,8 +163,16 @@ void InfoWriter::MarkStart(InfoMediaType AType)
    StartTime = Groundfloor::GetTimestamp();
    InitCurrentFilename(StartTime);
 
-	// todo: get format from settings
-	output = std::make_unique<OutputFormatCSV>(Settings, CurrentFilename);
+	auto outputformat = Settings.GetOutputFormat();
+	if (outputformat == "csv") {
+		output = std::make_unique<OutputFormatCSV>(Settings, CurrentFilename);
+	}
+	else if (outputformat == "edl") {
+		output = std::make_unique<OutputFormatEDL>(Settings, CurrentFilename);
+	}
+	else {
+		output = std::make_unique<OutputFormatDefault>(Settings, CurrentFilename);
+	}
 
 	output->Start();
 
