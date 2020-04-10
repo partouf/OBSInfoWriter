@@ -3,11 +3,11 @@
 OBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o OutputFormat/OutputFormat.Default.o OutputFormat/OutputFormat.CSV.o OutputFormat/OutputFormat.EDL.o $(RES)
 LINKOBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o OutputFormat/OutputFormat.Default.o OutputFormat/OutputFormat.CSV.o OutputFormat/OutputFormat.EDL.o $(RES)
 CONSOLELINKOBJ = main.o InfoWriter.o InfoWriterSettings.o OutputFormat/OutputFormat.Default.o OutputFormat/OutputFormat.CSV.o OutputFormat/OutputFormat.EDL.o$(RES)
-LIBS = -L"../Crosscables/libGroundfloor/" -L"../obs-binaries/" -lobs.0 -lobs-frontend-api -lGroundfloor
+LIBS = -L"../Crosscables/libGroundfloor/" -L"/Applications/OBS.app/Contents/Frameworks" -Wl,-rpath,/Applications/OBS.app/Contents/Plugins -lobs.0 -lobs-frontend-api -lGroundfloor
 CONSOLELIBS = -L"../Crosscables/libGroundfloor/" -lGroundfloor
 CXXINCS = -I"../include" -I"../obs-studio/libobs" -I"../obs-studio/UI" -I"../Crosscables/include"
 BIN  = libOBSInfoWriter.so
-CXXFLAGS = $(CXXINCS) -ansi -fexceptions -std=c++17 -g -fPIC
+CXXFLAGS = $(CXXINCS) -v -ansi -fexceptions -std=c++17 -stdlib=libc++ -fvisibility=default -fno-strict-aliasing
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
@@ -26,7 +26,7 @@ clean: clean-custom
 clean-custom:
 
 $(BIN): $(LINKOBJ)
-	$(CXX) -o $(BIN) $(LINKOBJ) $(LIBS) -shared
+	$(CXX) -o $(BIN) $(LINKOBJ) $(LIBS) -dynamiclib -undefined suppress -flat_namespace
 
 main: $(CONSOLELINKOBJ)
 	$(CXX) -o main $(CONSOLELINKOBJ) $(CONSOLELIBS)
