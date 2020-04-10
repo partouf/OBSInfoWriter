@@ -9,7 +9,7 @@ class OutputFormatCSV final : public IOutputFormat
 private:
    const InfoWriterSettings& settings;
    std::string currentFilename;
-   std::string OutputFormatCSV::SecsToHMSString(const int64_t totalseconds) const;
+   std::string SecsToHMSString(const int64_t totalseconds) const;
    void WriteCSVLine(const int64_t timestamp, const std::string text) const;
 
 public:
