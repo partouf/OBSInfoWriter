@@ -239,7 +239,7 @@ void InfoWriter::MarkPauseResume(const InfoMediaType AType)
 	auto CurrentTime = Groundfloor::GetTimestamp();
 	PausedTotalTime += (CurrentTime - PausedStartTime);
 
-	output->ResumedMarker(StartTime + CurrentTime, CurrentTime - PausedStartTime);
+	output->ResumedMarker(CurrentTime - StartTime, CurrentTime - PausedStartTime);
 }
 
 bool InfoWriter::HasStarted() const
