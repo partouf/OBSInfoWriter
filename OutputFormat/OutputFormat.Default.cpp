@@ -120,7 +120,7 @@ void OutputFormatDefault::ResumedMarker(const int64_t timestamp, const int64_t p
    auto MarkStr = Groundfloor::TimestampToStr(c_OutputDefaultTimestampNotation, startTime + timestamp);
 
    std::string Info;
-   Info = "EVENT:RECORDING RESUMED @ " + std::string(MarkStr->getValue()) + "(paused lasted for ";
+   Info = "EVENT:RECORDING RESUMED @ " + std::string(MarkStr->getValue()) + " (paused lasted for ";
    Info += SecsToHMSString(pauselength);
    Info += " seconds)";
 

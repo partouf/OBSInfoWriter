@@ -58,7 +58,7 @@ int64_t InfoWriter::getPausedTime(const int64_t currentTime) const
 
 void InfoWriter::WriteInfo(const std::string AExtraInfo) const
 {
-	if (!HasStarted()) return;
+	if (output == nullptr) return;
 
 	std::string Info;
 	auto currentTime = Groundfloor::GetTimestamp();
@@ -104,7 +104,7 @@ void InfoWriter::WriteInfo(const std::string AExtraInfo) const
 
 void InfoWriter::WriteInfo(const InfoHotkey AHotkey) const
 {
-    if (!HasStarted()) return;
+	if (output == nullptr) return;
 
     auto Now = Groundfloor::GetTimestamp();
     auto hotkey_text = Settings.GetHotkeyText(AHotkey);  
@@ -115,11 +115,13 @@ void InfoWriter::WriteInfo(const InfoHotkey AHotkey) const
 	 else {
 		 output->HotkeyMarker(Now - StartRecordTime - getPausedTime(Now), hotkey_text);
 	 }
+
+	 this->WriteInfo("");
 }
 
 void InfoWriter::WriteSceneChange(const std::string scenename) const
 {
-	if (!HasStarted()) return;
+	if (output == nullptr) return;
 
 	auto Now = Groundfloor::GetTimestamp();
 
@@ -139,6 +141,8 @@ void InfoWriter::WriteSceneChange(const std::string scenename) const
 			output->ScenechangeMarker(Now - StartRecordTime - getPausedTime(Now), scenename);
 		}
 	}
+
+	this->WriteInfo("");
 }
 
 void InfoWriter::InitCurrentFilename(int64_t timestamp)
@@ -187,11 +191,13 @@ void InfoWriter::MarkStart(InfoMediaType AType)
    }
 
    delete MarkStr;
+
+	this->WriteInfo("");
 }
 
 void InfoWriter::MarkStop(InfoMediaType AType)
 {
-	if (!HasStarted()) return;
+	if (output == nullptr) return;
 
 	auto Now = Groundfloor::GetTimestamp();
 	auto MarkStr = Groundfloor::TimestampToStr(c_TimestampNotation, Now);
@@ -223,23 +229,25 @@ void InfoWriter::MarkStop(InfoMediaType AType)
 
 void InfoWriter::MarkPauseStart(const InfoMediaType AType)
 {
-	if (!HasStarted()) return;
+	if (output == nullptr) return;
 
 	Paused = true;
    PausedStartTime = Groundfloor::GetTimestamp();
 
 	output->PausedMarker(PausedStartTime - StartTime);
+	this->WriteInfo("");
 }    
 
 void InfoWriter::MarkPauseResume(const InfoMediaType AType)
 {
-	if (!HasStarted()) return;
+	if (output == nullptr) return;
 
 	Paused = false;
 	auto CurrentTime = Groundfloor::GetTimestamp();
 	PausedTotalTime += (CurrentTime - PausedStartTime);
 
 	output->ResumedMarker(CurrentTime - StartTime, CurrentTime - PausedStartTime);
+	this->WriteInfo("");
 }
 
 bool InfoWriter::HasStarted() const
