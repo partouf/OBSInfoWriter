@@ -140,10 +140,17 @@
     <ClCompile Include="..\InfoWriter.cpp" />
     <ClCompile Include="..\InfoWriterSettings.cpp" />
     <ClCompile Include="..\OBSStudioInfoWriter.cpp" />
+    <ClCompile Include="..\OutputFormat\OutputFormat.CSV.cpp" />
+    <ClCompile Include="..\OutputFormat\OutputFormat.Default.cpp" />
+    <ClCompile Include="..\OutputFormat\OutputFormat.EDL.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\InfoWriter.h" />
     <ClInclude Include="..\InfoWriterSettings.h" />
+    <ClInclude Include="..\OutputFormat.h" />
+    <ClInclude Include="..\OutputFormat\OutputFormat.CSV.h" />
+    <ClInclude Include="..\OutputFormat\OutputFormat.Default.h" />
+    <ClInclude Include="..\OutputFormat\OutputFormat.EDL.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

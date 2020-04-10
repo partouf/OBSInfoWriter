@@ -5,6 +5,7 @@
 class InfoWriterSettings
 {
 protected:
+   std::string OutputFormat;
    std::string Filename;
    std::string Format;
 
@@ -27,6 +28,7 @@ protected:
    bool ShouldLogStreaming;
 
 public:
+   std::string GetOutputFormat() const;
    std::string GetFilename() const;
    std::string GetFormat() const;
    std::string GetHotkeyText(const int hotkeynum) const;
@@ -34,6 +36,7 @@ public:
    bool GetShouldLogSceneChanges() const;
    bool GetShouldLogStreaming() const;
 
+   void SetOutputFormat(std::string formatname);
    void SetFilename(std::string filename);
    void SetFormat(std::string format);
    void SetHotkeyText(const int hotkeynum, std::string text);
