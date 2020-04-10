@@ -26,7 +26,7 @@ clean: clean-custom
 clean-custom:
 
 $(BIN): $(LINKOBJ)
-	$(CXX) -o $(BIN) $(LINKOBJ) $(LIBS) -dynamiclib -undefined suppress -flat_namespace
+	$(CXX) -o $(BIN) $(LINKOBJ) $(LIBS) -dynamiclib
 
 main: $(CONSOLELINKOBJ)
 	$(CXX) -o main $(CONSOLELINKOBJ) $(CONSOLELIBS)
