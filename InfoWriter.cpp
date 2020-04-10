@@ -60,6 +60,8 @@ void InfoWriter::WriteInfo(const std::string AExtraInfo) const
 {
 	if (output == nullptr) return;
 
+	char crlf[] = GFNATIVENEXTLINE;
+
 	std::string Info;
 	auto currentTime = Groundfloor::GetTimestamp();
 	auto tmpTime = SecsToHMSString(0);
@@ -86,14 +88,14 @@ void InfoWriter::WriteInfo(const std::string AExtraInfo) const
 	if (Paused) record_info += " (recording is paused)";
 	if (!StreamStarted) stream_info += " (not streaming)";
 
-	record_info += "\n";
-	stream_info += "\n";
+	record_info += crlf;
+	stream_info += crlf;
 
 	if (AExtraInfo.length() != 0)
 	{
 		Info = "";
 		Info += AExtraInfo;
-		Info += "\n";
+		Info += crlf;
 	}
 
 	Info += record_info;
