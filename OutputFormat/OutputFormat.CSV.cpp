@@ -1,6 +1,7 @@
 #include "OutputFormat.CSV.h"
 #include <Groundfloor/Materials/FileWriter.h>
 #include <regex>
+#include <cmath>
 
 OutputFormatCSV::OutputFormatCSV(const InfoWriterSettings& settings, const std::string filename) : IOutputFormat(), settings(settings), currentFilename(filename)
 {

@@ -1,6 +1,7 @@
 #include "OutputFormat.EDL.h"
 #include <Groundfloor/Materials/FileWriter.h>
 #include <algorithm>
+#include <cmath>
 
 const int reelnameMaxlength = 5;
 
