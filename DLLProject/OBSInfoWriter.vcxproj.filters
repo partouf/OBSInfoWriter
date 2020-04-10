@@ -30,6 +30,9 @@
     <ClCompile Include="..\OutputFormat\OutputFormat.Default.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\OutputFormat\OutputFormat.CSV.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\InfoWriterSettings.h">
@@ -45,6 +48,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\OutputFormat\OutputFormat.Default.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OutputFormat\OutputFormat.CSV.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

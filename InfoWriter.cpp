@@ -7,8 +7,9 @@
 #include <memory>
 #include <regex>
 
-#include "OutputFormat/OutputFormat.EDL.h"
 #include "OutputFormat/OutputFormat.Default.h"
+#include "OutputFormat/OutputFormat.EDL.h"
+#include "OutputFormat/OutputFormat.CSV.h"
 
 const char* c_TimestampNotation = "%Y-%m-%d %H:%M:%S";
 
@@ -163,7 +164,7 @@ void InfoWriter::MarkStart(InfoMediaType AType)
    InitCurrentFilename(StartTime);
 
 	// todo: get format from settings
-	output = std::make_unique<OutputFormatDefault>(Settings, CurrentFilename);
+	output = std::make_unique<OutputFormatCSV>(Settings, CurrentFilename);
 
 	output->Start();
 

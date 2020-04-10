@@ -4,7 +4,7 @@
 #include "../InfoWriterSettings.h"
 #include <Groundfloor/Molecules/String.h>
 
-class OutputFormatEDL: public IOutputFormat {
+class OutputFormatEDL final : public IOutputFormat {
 private:
    int markercount;
    int64_t lastMarker;

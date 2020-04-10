@@ -4,7 +4,7 @@
 #include "../InfoWriterSettings.h"
 #include <Groundfloor/Molecules/String.h>
 
-class OutputFormatDefault : public IOutputFormat {
+class OutputFormatDefault final : public IOutputFormat {
 private:
    const InfoWriterSettings &settings;
    std::string currentFilename;
