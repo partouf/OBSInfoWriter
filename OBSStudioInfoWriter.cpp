@@ -217,14 +217,7 @@ void LogSceneChange(InfoWriter *Writer, const std::string scenename)
 
    if (WriterSettings->GetShouldLogSceneChanges())
    {
-      if (scenename == "")
-      {
-		  Writer->WriteInfo("EVENT: SCENE CHANGED @ " + Writer->NowTimeStamp());
-      }
-      else
-      {
-         Writer->WriteInfo("EVENT: SCENE CHANGED TO " + scenename + " @ " + Writer->NowTimeStamp());
-      }
+      Writer->WriteSceneChange(scenename);
    }
 }
 
