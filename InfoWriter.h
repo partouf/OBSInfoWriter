@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <Groundfloor/Molecules/String.h>
 #include "OutputFormat.h"
+#include <memory>
 
 enum InfoMediaType { imtUnknown = 0, imtStream = 1, imtRecording = 2, 
 					 imtRecordingPauseStart = 3, imtRecordingPauseResume = 4

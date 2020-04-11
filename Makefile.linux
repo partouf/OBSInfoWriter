@@ -1,11 +1,11 @@
 # Project: OBSInfoWriter
 
-OBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o $(RES)
-LINKOBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o $(RES)
-LIBS = -L"../Crosscables/libGroundfloor/" -lobs -lobs-frontend-api -lrt -lGroundfloor
+OBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o OutputFormat/OutputFormat.Default.o OutputFormat/OutputFormat.CSV.o OutputFormat/OutputFormat.EDL.o $(RES)
+LINKOBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o OutputFormat/OutputFormat.Default.o OutputFormat/OutputFormat.CSV.o OutputFormat/OutputFormat.EDL.o $(RES)
+LIBS = -L"../Crosscables/libGroundfloor/" -L"/snap/obs-studio/1056/usr/bin/64bit/" -lobs -lobs-frontend-api -lrt -lGroundfloor
 CXXINCS = -I"../include" -I"../obs-studio/libobs" -I"../obs-studio/UI" -I"../Crosscables/include"
 BIN  = libOBSInfoWriter.so
-CXXFLAGS = $(CXXINCS) -ansi -fexceptions -std=c++11 -g -fPIC
+CXXFLAGS = $(CXXINCS) -ansi -fexceptions -std=c++17 -fPIC
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
@@ -32,3 +32,12 @@ InfoWriter.o: InfoWriter.cpp
 
 InfoWriterSettings.o: InfoWriterSettings.cpp
 	$(CXX) -c InfoWriterSettings.cpp -o InfoWriterSettings.o $(CXXFLAGS)
+
+OutputFormat/OutputFormat.Default.o:
+	$(CXX) -c OutputFormat/OutputFormat.Default.cpp -o OutputFormat/OutputFormat.Default.o $(CXXFLAGS)
+
+OutputFormat/OutputFormat.CSV.o:
+	$(CXX) -c OutputFormat/OutputFormat.CSV.cpp -o OutputFormat/OutputFormat.CSV.o $(CXXFLAGS)
+
+OutputFormat/OutputFormat.EDL.o:
+	$(CXX) -c OutputFormat/OutputFormat.EDL.cpp -o OutputFormat/OutputFormat.EDL.o $(CXXFLAGS)
