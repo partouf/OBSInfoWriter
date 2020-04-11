@@ -2,7 +2,7 @@
 
 OBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o OutputFormat/OutputFormat.Default.o OutputFormat/OutputFormat.CSV.o OutputFormat/OutputFormat.EDL.o $(RES)
 LINKOBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o OutputFormat/OutputFormat.Default.o OutputFormat/OutputFormat.CSV.o OutputFormat/OutputFormat.EDL.o $(RES)
-LIBS = -L"../Crosscables/libGroundfloor/" -L"/snap/obs-studio/1056/usr/bin/64bit/" -lobs -lobs-frontend-api -lrt -lGroundfloor
+LIBS = -L"../Crosscables/libGroundfloor/" -L"/snap/obs-studio/current/usr/bin/64bit/" -lobs -lobs-frontend-api -lrt -lGroundfloor
 CXXINCS = -I"../include" -I"../obs-studio/libobs" -I"../obs-studio/UI" -I"../Crosscables/include"
 BIN  = libOBSInfoWriter.so
 CXXFLAGS = $(CXXINCS) -ansi -fexceptions -std=c++17 -fPIC
