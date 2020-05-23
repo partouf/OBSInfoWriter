@@ -26,6 +26,8 @@ protected:
 
    bool ShouldLogSceneChanges;
    bool ShouldLogStreaming;
+   bool ShouldLogAbsoluteTime;
+   bool ShouldLogHotkeySpecifics;
 
 public:
    std::string GetOutputFormat() const;
@@ -35,6 +37,8 @@ public:
 
    bool GetShouldLogSceneChanges() const;
    bool GetShouldLogStreaming() const;
+   bool GetShouldLogAbsoluteTime() const;
+   bool GetShouldLogHotkeySpecifics() const;
 
    void SetOutputFormat(std::string formatname);
    void SetFilename(std::string filename);
@@ -42,4 +46,6 @@ public:
    void SetHotkeyText(const int hotkeynum, std::string text);
    void SetShouldLogSceneChanges(bool logchanges);
    void SetShouldLogStreaming(bool logchanges);
+   void SetShouldLogAbsoluteTime(bool log);
+   void SetShouldLogHotkeySpecifics(bool log);
 };

@@ -14,8 +14,9 @@
 const char* c_TimestampNotation = "%Y-%m-%d %H:%M:%S";
 
 
-InfoWriter::InfoWriter()
+InfoWriter::InfoWriter() : Settings()
 {
+   lastInfoMediaType = imtUnknown;
    StartTime = 0;
    StartRecordTime = 0;
    StartStreamTime = 0;
@@ -23,7 +24,6 @@ InfoWriter::InfoWriter()
    PausedStartTime = 0;
    StreamStarted = false;
    RecordStarted = false;
-   ShowStreaming = false;
    Paused = false;
 }
 
@@ -100,7 +100,7 @@ void InfoWriter::WriteInfo(const std::string AExtraInfo) const
 	}
 
 	Info += record_info;
-	if (ShowStreaming) Info += stream_info;
+	if (this->Settings.GetShouldLogStreaming()) Info += stream_info;
 
 	output->TextMarker(Info);
 }
@@ -184,7 +184,7 @@ void InfoWriter::MarkStart(InfoMediaType AType)
    case imtStream:
 	   StartStreamTime = StartTime;
 	   StreamStarted = true;
-	   if (ShowStreaming)
+	   if (this->Settings.GetShouldLogStreaming())
 	   {
 		   MarkStr->prepend_ansi("EVENT:START STREAM @ ");
 	   }
@@ -198,6 +198,10 @@ void InfoWriter::MarkStart(InfoMediaType AType)
 	  RecordStarted = true;
 	  Paused = false;
 	  output->TextMarker(MarkStr->getValue());
+      break;
+   case imtRecordingPauseStart:
+      break;
+   case imtRecordingPauseResume:
       break;
    }
 
@@ -231,6 +235,10 @@ void InfoWriter::MarkStop(InfoMediaType AType)
 		Paused = false;
 		RecordStarted = false;
 		break;
+   case imtRecordingPauseStart:
+      break;
+   case imtRecordingPauseResume:
+      break;
 	}
 
 	WriteInfo(MarkStr->getValue());
@@ -271,16 +279,6 @@ bool InfoWriter::HasStarted() const
 bool InfoWriter::IsStreaming() const
 {
 	return StreamStarted;
-}
-
-bool InfoWriter::ShowStreamOutput() const
-{
-	return ShowStreaming;
-}
-
-void InfoWriter::SetShowStreamOutput(bool logchanges)
-{
-	ShowStreaming = logchanges;
 }
 
 std::string InfoWriter::NowTimeStamp() const

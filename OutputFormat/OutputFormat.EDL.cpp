@@ -5,7 +5,7 @@
 
 const int reelnameMaxlength = 5;
 
-OutputFormatEDL::OutputFormatEDL(const InfoWriterSettings &settings, const std::string filename) : IOutputFormat(), settings(settings), currentFilename(filename)
+OutputFormatEDL::OutputFormatEDL(const InfoWriterSettings &settings, const std::string filename) : IOutputFormat(), settings(settings), currentFilename(filename), markercount(0), lastMarker(0)
 {
 }
 

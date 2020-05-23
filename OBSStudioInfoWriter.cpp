@@ -29,6 +29,8 @@ const char *setting_hotkey14text = "hotkey14text";
 const char* setting_outputformat = "outputformat";
 const char *setting_shouldlogscenechanges = "logscenechanges";
 const char *setting_shouldlogstreaming = "logstreaming";
+const char* setting_shouldlogabsolutetime = "logabsolutetime";
+const char* setting_shouldloghotkeyspecifics = "loghotkeyspecifics";
 
 void obstudio_infowriter_write_hotkey1(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
 {
@@ -317,7 +319,9 @@ obs_properties_t *obstudio_infowriter_properties(void *unused)
    obs_properties_add_text(props, setting_hotkey14text, obs_module_text("Hotkey 14 text"), OBS_TEXT_DEFAULT);
 
    obs_properties_add_bool(props, setting_shouldlogscenechanges, obs_module_text("Log Scene changes"));
-   obs_properties_add_bool(props, setting_shouldlogstreaming, obs_module_text("Log Streaming events"));
+   obs_properties_add_bool(props, setting_shouldlogstreaming, obs_module_text("Log Streaming events (applies to default output)"));
+   obs_properties_add_bool(props, setting_shouldlogabsolutetime, obs_module_text("Log intermediate absolute times (applies to default output)"));
+   obs_properties_add_bool(props, setting_shouldloghotkeyspecifics, obs_module_text("Log hotkey specifics (applies to default output)"));
 
    return props;
 }
@@ -344,6 +348,9 @@ void obstudio_infowriter_get_defaults(obs_data_t *settings)
    obs_data_set_default_string(settings, setting_hotkey14text, "Hotkey 14 was pressed");
 
    obs_data_set_default_bool(settings, setting_shouldlogscenechanges, true);
+   obs_data_set_default_bool(settings, setting_shouldlogstreaming, false);
+   obs_data_set_default_bool(settings, setting_shouldlogabsolutetime, true);
+   obs_data_set_default_bool(settings, setting_shouldloghotkeyspecifics, true);
 }
 
 void obstudio_infowriter_update(void *data, obs_data_t *settings)
@@ -407,8 +414,8 @@ void obstudio_infowriter_update(void *data, obs_data_t *settings)
 
    WriterSettings->SetShouldLogSceneChanges(obs_data_get_bool(settings, setting_shouldlogscenechanges));
    WriterSettings->SetShouldLogStreaming(obs_data_get_bool(settings, setting_shouldlogstreaming));
-
-   Writer->SetShowStreamOutput(obs_data_get_bool(settings, setting_shouldlogstreaming)); //added thetawnyfool
+   WriterSettings->SetShouldLogAbsoluteTime(obs_data_get_bool(settings, setting_shouldlogabsolutetime));
+   WriterSettings->SetShouldLogHotkeySpecifics(obs_data_get_bool(settings, setting_shouldloghotkeyspecifics));
 }
 
 uint32_t obstudio_infowriter_get_width(void *data)

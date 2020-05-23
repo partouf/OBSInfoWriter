@@ -46,6 +46,16 @@ bool InfoWriterSettings::GetShouldLogStreaming() const
 	return ShouldLogStreaming;
 }
 
+bool InfoWriterSettings::GetShouldLogAbsoluteTime() const
+{
+   return this->ShouldLogAbsoluteTime;
+}
+
+bool InfoWriterSettings::GetShouldLogHotkeySpecifics() const
+{
+   return this->ShouldLogHotkeySpecifics;
+}
+
 void InfoWriterSettings::SetOutputFormat(std::string formatname)
 {
    OutputFormat = formatname;
@@ -88,4 +98,14 @@ void InfoWriterSettings::SetShouldLogSceneChanges(bool logchanges)
 void InfoWriterSettings::SetShouldLogStreaming(bool logchanges)
 {
 	ShouldLogStreaming = logchanges;
+}
+
+void InfoWriterSettings::SetShouldLogAbsoluteTime(bool log)
+{
+   this->ShouldLogAbsoluteTime = log;
+}
+
+void InfoWriterSettings::SetShouldLogHotkeySpecifics(bool log)
+{
+   this->ShouldLogHotkeySpecifics = log;
 }

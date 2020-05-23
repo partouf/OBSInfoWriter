@@ -6,7 +6,7 @@
 
 const char* c_OutputDefaultTimestampNotation = "%Y-%m-%d %H:%M:%S";
 
-OutputFormatDefault::OutputFormatDefault(const InfoWriterSettings &settings, const std::string filename) : IOutputFormat(), settings(settings), currentFilename(filename)
+OutputFormatDefault::OutputFormatDefault(const InfoWriterSettings &settings, const std::string filename) : IOutputFormat(), settings(settings), currentFilename(filename), startTime(0)
 {
 }
 
@@ -83,12 +83,21 @@ void OutputFormatDefault::Stop(const int64_t timestamp)
 
 void OutputFormatDefault::HotkeyMarker(const int64_t timestamp, const std::string text)
 {
-   auto MarkStr = Groundfloor::TimestampToStr(c_OutputDefaultTimestampNotation, startTime + timestamp);
-   auto hotkey_text = "HOTKEY:" + text + " @ " + MarkStr->getValue();
-
-   WriteToFile(hotkey_text);
-
-   delete MarkStr;
+   if (this->settings.GetShouldLogHotkeySpecifics())
+   {
+      if (this->settings.GetShouldLogAbsoluteTime())
+      {
+         auto MarkStr = Groundfloor::TimestampToStr(c_OutputDefaultTimestampNotation, startTime + timestamp);
+         auto hotkey_text = "HOTKEY:" + text + " @ " + MarkStr->getValue();
+         WriteToFile(hotkey_text);
+         delete MarkStr;
+      }
+      else
+      {
+         auto hotkey_text = "HOTKEY:" + text;
+         WriteToFile(hotkey_text);
+      }
+   }
 }
 
 void OutputFormatDefault::ScenechangeMarker(const int64_t timestamp, const std::string scenename)
