@@ -25,7 +25,6 @@ private:
    InfoWriterSettings Settings;
    bool StreamStarted;
    bool RecordStarted;  
-   bool ShowStreaming;
    bool Paused;
 
    std::string CurrentFilename;
@@ -48,8 +47,6 @@ public:
 
    bool HasStarted() const;
    bool IsStreaming() const;
-   bool ShowStreamOutput() const;
-   void SetShowStreamOutput(bool logchanges);
 
    std::string NowTimeStamp() const;
 
