@@ -299,6 +299,7 @@ obs_properties_t *obstudio_infowriter_properties(void *unused)
    obs_property_list_add_string(list, "Default", "default");
    obs_property_list_add_string(list, "CSV", "csv");
    obs_property_list_add_string(list, "EDL", "edl");
+   obs_property_list_add_string(list, "SRT", "srt");
 
    obs_properties_add_text(props, setting_format, obs_module_text("Format"), OBS_TEXT_DEFAULT);
    obs_properties_add_path(props, setting_file, obs_module_text("Logfile"), OBS_PATH_FILE_SAVE, logfile_filter, NULL);

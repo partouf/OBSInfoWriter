@@ -10,8 +10,9 @@
 #include "OutputFormat/OutputFormat.Default.h"
 #include "OutputFormat/OutputFormat.EDL.h"
 #include "OutputFormat/OutputFormat.CSV.h"
+#include "OutputFormat/OutputFormat.SRT.h"
 
-const char* c_TimestampNotation = "%Y-%m-%d %H:%M:%S";
+constexpr char* c_TimestampNotation = "%Y-%m-%d %H:%M:%S";
 
 
 InfoWriter::InfoWriter() : Settings()
@@ -169,6 +170,9 @@ void InfoWriter::MarkStart(InfoMediaType AType)
 	}
 	else if (outputformat == "edl") {
 		output = std::make_unique<OutputFormatEDL>(Settings, CurrentFilename);
+	}
+	else if (outputformat == "srt") {
+		output = std::make_unique<OutputFormatSRT>(Settings, CurrentFilename);
 	}
 	else {
 		output = std::make_unique<OutputFormatDefault>(Settings, CurrentFilename);
