@@ -10,19 +10,6 @@
 - Extract the .dylib binaries from the latest OBS for MAC build and place them in a folder called obs-binaries (right-click on OBS in Applications and choose "Show package contents")
 
 4. On Windows:
-- Make .lib files related to libobs.dll and obs-frontend-api.dll
-  - Open a Visual Studio Command Prompt and go to a new folder
-  - Run dumpbin /EXPORTS "C:\Program Files (x86)\obs-studio\bin\64bit\obs.dll" > obs.exports
-  - Run dumpbin /EXPORTS "C:\Program Files (x86)\obs-studio\bin\64bit\obs-frontend-api.dll" > obsfrontend.exports
-  - In a text editor, open the exports files and remove everything but the function names
-  - Put the word EXPORTS on top of the files
-  - Run lib /def:obs.exports /out:obs64.lib /machine:x64
-  - Run lib /def:obsfrontend.exports /out:obs-frontend-api64.lib /machine:x64
-  - Run lib /def:obs.exports /out:obs32.lib /machine:x86
-  - Run lib /def:obsfrontend.exports /out:obs-frontend-api32.lib /machine:x86
-- Copy the lib files to ..\obs-studio-bin\lib\x64 and ..\obs-studio-bin\lib\x86 from the OBSInfoWriter folder
-
-4.ALT. Another way to do step 4 above for Windows
 - Make .lib files for obs.dll and obs-frontend-api.dll
   - Open visual studio command prompt and copy obs.dll and obs-frontend-api.dll to a folder (no spaces in path)
   - Create a .bat file (make sure to execute in the visual studio command prompt) as follows
