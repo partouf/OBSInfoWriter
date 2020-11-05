@@ -25,7 +25,7 @@ std::string OutputFormatCSV::SecsToHMSString(const int64_t totalseconds) const
    return buffer;
 }
 
-void WriteGFStringToFile(const std::string filename, const std::string text)
+void OutputFormatCSV::WriteGFStringToFile(const std::string filename, const std::string text) const
 {
    Groundfloor::String line(text);
 

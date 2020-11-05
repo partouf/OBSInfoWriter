@@ -4,17 +4,19 @@
 #include "../InfoWriter.h"
 #include <string>
 
-class OutputFormatCSV final : public IOutputFormat
+class OutputFormatSRT final : public IOutputFormat
 {
 private:
    const InfoWriterSettings& settings;
    std::string currentFilename;
-   std::string SecsToHMSString(const int64_t totalseconds) const;
+   int subtitleCounter;
+   bool canAppend;
    void WriteGFStringToFile(const std::string filename, const std::string text) const;
-   void WriteCSVLine(const int64_t timestamp, const std::string text) const;
+   std::string SecsToHMSString(const int64_t totalseconds) const;
+   void WriteLines(const int64_t timestamp, const std::string text);
 
 public:
-   OutputFormatCSV(const InfoWriterSettings& settings, const std::string filename);
+   OutputFormatSRT(const InfoWriterSettings& settings, const std::string filename);
 
    void Start() override;
    void Stop(const int64_t timestamp) override;
