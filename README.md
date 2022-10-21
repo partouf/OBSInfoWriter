@@ -15,8 +15,9 @@ For the original OBS-classic version, go to https://github.com/partouf/ObsInfoPl
 - Place the 32bit dll file in your \obs-studio\obs-plugins\32bit folder
 
 ### Linux
-- Place the **libOBSInfoWriter.so** file into the `~/.config/obs-studio/plugins/OBSInfoWriter/bin/64bit/` folder
+- Place the **libOBSInfoWriter.so** file into the `/usr/lib/x86_64-linux-gnu/obs-plugins` folder
   - Note: the section "~/" indicates your _home folder_
+  - If you have an older OBS version, the install folder is `~/.config/obs-studio/plugins/OBSInfoWriter/bin/64bit/`
 
 ### MacOSX
 - Right-click on OBS in Applications and choose "Show package contents"
