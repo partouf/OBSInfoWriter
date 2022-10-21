@@ -1,8 +1,8 @@
 # Project: OBSInfoWriter
 
-OBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o OutputFormat/OutputFormat.Default.o OutputFormat/OutputFormat.CSV.o OutputFormat/OutputFormat.EDL.o $(RES)
-LINKOBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o OutputFormat/OutputFormat.Default.o OutputFormat/OutputFormat.CSV.o OutputFormat/OutputFormat.EDL.o $(RES)
-CONSOLELINKOBJ = main.o InfoWriter.o InfoWriterSettings.o OutputFormat/OutputFormat.Default.o OutputFormat/OutputFormat.CSV.o OutputFormat/OutputFormat.EDL.o$(RES)
+OBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o OutputFormat/OutputFormat.Default.o OutputFormat/OutputFormat.CSV.o OutputFormat/OutputFormat.EDL.o OutputFormat/OutputFormat.SRT.o $(RES)
+LINKOBJ  = OBSStudioInfoWriter.o InfoWriter.o InfoWriterSettings.o OutputFormat/OutputFormat.Default.o OutputFormat/OutputFormat.CSV.o OutputFormat/OutputFormat.EDL.o OutputFormat/OutputFormat.SRT.o $(RES)
+CONSOLELINKOBJ = main.o InfoWriter.o InfoWriterSettings.o OutputFormat/OutputFormat.Default.o OutputFormat/OutputFormat.CSV.o OutputFormat/OutputFormat.EDL.o OutputFormat/OutputFormat.SRT.o $(RES)
 LIBS = -L"../Crosscables/libGroundfloor/" -L"/Applications/OBS.app/Contents/Frameworks" -Wl,-rpath,/Applications/OBS.app/Contents/Plugins -lobs.0 -lobs-frontend-api -lGroundfloor
 CONSOLELIBS = -L"../Crosscables/libGroundfloor/" -lGroundfloor
 CXXINCS = -I"../include" -I"../obs-studio/libobs" -I"../obs-studio/UI" -I"../Crosscables/include"
@@ -48,6 +48,9 @@ OutputFormat/OutputFormat.CSV.o:
 
 OutputFormat/OutputFormat.EDL.o:
 	$(CXX) -c OutputFormat/OutputFormat.EDL.cpp -o OutputFormat/OutputFormat.EDL.o $(CXXFLAGS)
+
+OutputFormat/OutputFormat.SRT.o:
+	$(CXX) -c OutputFormat/OutputFormat.SRT.cpp -o OutputFormat/OutputFormat.SRT.o $(CXXFLAGS)
 
 main.o: main.cpp
 	$(CXX) -c main.cpp -o main.o $(CXXFLAGS)
