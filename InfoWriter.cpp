@@ -12,20 +12,19 @@
 #include "OutputFormat/OutputFormat.CSV.h"
 #include "OutputFormat/OutputFormat.SRT.h"
 
-const char* c_TimestampNotation = "%Y-%m-%d %H:%M:%S";
-
+const char *c_TimestampNotation = "%Y-%m-%d %H:%M:%S";
 
 InfoWriter::InfoWriter() : Settings()
 {
-   lastInfoMediaType = imtUnknown;
-   StartTime = 0;
-   StartRecordTime = 0;
-   StartStreamTime = 0;
-   PausedTotalTime = 0;
-   PausedStartTime = 0;
-   StreamStarted = false;
-   RecordStarted = false;
-   Paused = false;
+	lastInfoMediaType = imtUnknown;
+	StartTime = 0;
+	StartRecordTime = 0;
+	StartStreamTime = 0;
+	PausedTotalTime = 0;
+	PausedStartTime = 0;
+	StreamStarted = false;
+	RecordStarted = false;
+	Paused = false;
 }
 
 std::string InfoWriter::SecsToHMSString(const int64_t totalseconds) const
@@ -50,9 +49,9 @@ int64_t InfoWriter::getPausedTime(const int64_t currentTime) const
 {
 	auto PausedTmpTime = PausedTotalTime;
 
-	if (Paused)
-	{
-		PausedTmpTime = PausedTotalTime + (currentTime - PausedStartTime);
+	if (Paused) {
+		PausedTmpTime =
+			PausedTotalTime + (currentTime - PausedStartTime);
 	}
 
 	return PausedTmpTime;
@@ -60,7 +59,8 @@ int64_t InfoWriter::getPausedTime(const int64_t currentTime) const
 
 void InfoWriter::WriteInfo(const std::string AExtraInfo) const
 {
-	if (output == nullptr) return;
+	if (output == nullptr)
+		return;
 
 	char crlf[] = GFNATIVENEXTLINE;
 
@@ -70,15 +70,14 @@ void InfoWriter::WriteInfo(const std::string AExtraInfo) const
 
 	auto PausedTmpTime = getPausedTime(currentTime);
 
-	if (RecordStarted)
-	{
-		tmpTime = SecsToHMSString((currentTime - StartRecordTime) - PausedTmpTime);
+	if (RecordStarted) {
+		tmpTime = SecsToHMSString((currentTime - StartRecordTime) -
+					  PausedTmpTime);
 	}
 
 	std::string record_info = tmpTime;
 	tmpTime = SecsToHMSString(0);
-	if (StreamStarted)
-	{
+	if (StreamStarted) {
 		tmpTime = SecsToHMSString(currentTime - StartStreamTime);
 	}
 	auto stream_info = tmpTime;
@@ -86,63 +85,71 @@ void InfoWriter::WriteInfo(const std::string AExtraInfo) const
 	record_info += " Record Time Marker";
 	stream_info += " Stream Time Marker";
 
-	if (!RecordStarted) record_info += " (not recording)";
-	if (Paused) record_info += " (recording is paused)";
-	if (!StreamStarted) stream_info += " (not streaming)";
+	if (!RecordStarted)
+		record_info += " (not recording)";
+	if (Paused)
+		record_info += " (recording is paused)";
+	if (!StreamStarted)
+		stream_info += " (not streaming)";
 
 	record_info += crlf;
 	stream_info += crlf;
 
-	if (AExtraInfo.length() != 0)
-	{
+	if (AExtraInfo.length() != 0) {
 		Info = "";
 		Info += AExtraInfo;
 		Info += crlf;
 	}
 
 	Info += record_info;
-	if (this->Settings.GetShouldLogStreaming()) Info += stream_info;
+	if (this->Settings.GetShouldLogStreaming())
+		Info += stream_info;
 
 	output->TextMarker(Info);
 }
 
 void InfoWriter::WriteInfo(const InfoHotkey AHotkey) const
 {
-	if (output == nullptr) return;
+	if (output == nullptr)
+		return;
 
-    auto Now = Groundfloor::GetTimestamp();
-    auto hotkey_text = Settings.GetHotkeyText(AHotkey);  
+	auto Now = Groundfloor::GetTimestamp();
+	auto hotkey_text = Settings.GetHotkeyText(AHotkey);
 
-	 if (lastInfoMediaType == imtStream) {
-		 output->HotkeyMarker(Now - StartStreamTime, hotkey_text);
-	 }
-	 else {
-		 output->HotkeyMarker(Now - StartRecordTime - getPausedTime(Now), hotkey_text);
-	 }
+	if (lastInfoMediaType == imtStream) {
+		output->HotkeyMarker(Now - StartStreamTime, hotkey_text);
+	} else {
+		output->HotkeyMarker(Now - StartRecordTime - getPausedTime(Now),
+				     hotkey_text);
+	}
 
-	 this->WriteInfo("");
+	this->WriteInfo("");
 }
 
 void InfoWriter::WriteSceneChange(const std::string scenename) const
 {
-	if (output == nullptr) return;
+	if (output == nullptr)
+		return;
 
 	auto Now = Groundfloor::GetTimestamp();
 
 	if (lastInfoMediaType == imtStream) {
 		if (scenename == "") {
-			output->ScenechangeMarker(Now - StartStreamTime, "UNKNO");
+			output->ScenechangeMarker(Now - StartStreamTime,
+						  "UNKNO");
+		} else {
+			output->ScenechangeMarker(Now - StartStreamTime,
+						  scenename);
 		}
-		else {
-			output->ScenechangeMarker(Now - StartStreamTime, scenename);
-		}
-	}
-	else {
+	} else {
 		if (scenename == "") {
-			output->ScenechangeMarker(Now - StartRecordTime - getPausedTime(Now), "UNKNO");
-		}
-		else {
-			output->ScenechangeMarker(Now - StartRecordTime - getPausedTime(Now), scenename);
+			output->ScenechangeMarker(Now - StartRecordTime -
+							  getPausedTime(Now),
+						  "UNKNO");
+		} else {
+			output->ScenechangeMarker(Now - StartRecordTime -
+							  getPausedTime(Now),
+						  scenename);
 		}
 	}
 
@@ -151,73 +158,76 @@ void InfoWriter::WriteSceneChange(const std::string scenename) const
 
 void InfoWriter::InitCurrentFilename(int64_t timestamp)
 {
-  CurrentFilename = Settings.GetFilename();
-  if (CurrentFilename.find('%') != 0) {
-      auto filename = Groundfloor::TimestampToStr(CurrentFilename.c_str(), StartTime);
-      CurrentFilename = filename->getValue();
-      delete filename;
-  }
+	CurrentFilename = Settings.GetFilename();
+	if (CurrentFilename.find('%') != 0) {
+		auto filename = Groundfloor::TimestampToStr(
+			CurrentFilename.c_str(), StartTime);
+		CurrentFilename = filename->getValue();
+		delete filename;
+	}
 }
 
 void InfoWriter::MarkStart(InfoMediaType AType)
 {
-   StartTime = Groundfloor::GetTimestamp();
-   InitCurrentFilename(StartTime);
+	StartTime = Groundfloor::GetTimestamp();
+	InitCurrentFilename(StartTime);
 
 	auto outputformat = Settings.GetOutputFormat();
 	if (outputformat == "csv") {
-		output = std::make_unique<OutputFormatCSV>(Settings, CurrentFilename);
-	}
-	else if (outputformat == "edl") {
-		output = std::make_unique<OutputFormatEDL>(Settings, CurrentFilename);
-	}
-	else if (outputformat == "srt") {
-		output = std::make_unique<OutputFormatSRT>(Settings, CurrentFilename);
-	}
-	else {
-		output = std::make_unique<OutputFormatDefault>(Settings, CurrentFilename);
+		output = std::make_unique<OutputFormatCSV>(Settings,
+							   CurrentFilename);
+	} else if (outputformat == "edl") {
+		output = std::make_unique<OutputFormatEDL>(Settings,
+							   CurrentFilename);
+	} else if (outputformat == "srt") {
+		output = std::make_unique<OutputFormatSRT>(Settings,
+							   CurrentFilename);
+	} else {
+		output = std::make_unique<OutputFormatDefault>(Settings,
+							       CurrentFilename);
 	}
 
 	output->Start();
 
-   auto MarkStr = Groundfloor::TimestampToStr(c_TimestampNotation, StartTime);
+	auto MarkStr =
+		Groundfloor::TimestampToStr(c_TimestampNotation, StartTime);
 
 	lastInfoMediaType = AType;
 
-   switch (AType) {
-   case imtStream:
-	   StartStreamTime = StartTime;
-	   StreamStarted = true;
-	   if (this->Settings.GetShouldLogStreaming())
-	   {
-		   MarkStr->prepend_ansi("EVENT:START STREAM @ ");
-	   }
+	switch (AType) {
+	case imtStream:
+		StartStreamTime = StartTime;
+		StreamStarted = true;
+		if (this->Settings.GetShouldLogStreaming()) {
+			MarkStr->prepend_ansi("EVENT:START STREAM @ ");
+		}
 		output->TextMarker(MarkStr->getValue());
-      break;
-   case imtUnknown:
-      MarkStr->prepend_ansi(" (WARNING:Unsure how we STARTED) ");
-	  break;
-   case imtRecording:
-      MarkStr->prepend_ansi("EVENT:START RECORDING @ ");
-	  StartRecordTime = StartTime;
-	  RecordStarted = true;
-	  Paused = false;
-	  output->TextMarker(MarkStr->getValue());
-      break;
-   case imtRecordingPauseStart:
-      break;
-   case imtRecordingPauseResume:
-      break;
-   }
+		break;
+	case imtUnknown:
+		MarkStr->prepend_ansi(" (WARNING:Unsure how we STARTED) ");
+		break;
+	case imtRecording:
+		MarkStr->prepend_ansi("EVENT:START RECORDING @ ");
+		StartRecordTime = StartTime;
+		RecordStarted = true;
+		Paused = false;
+		output->TextMarker(MarkStr->getValue());
+		break;
+	case imtRecordingPauseStart:
+		break;
+	case imtRecordingPauseResume:
+		break;
+	}
 
-   delete MarkStr;
+	delete MarkStr;
 
 	this->WriteInfo("");
 }
 
 void InfoWriter::MarkStop(InfoMediaType AType)
 {
-	if (output == nullptr) return;
+	if (output == nullptr)
+		return;
 
 	auto Now = Groundfloor::GetTimestamp();
 	auto MarkStr = Groundfloor::TimestampToStr(c_TimestampNotation, Now);
@@ -226,7 +236,7 @@ void InfoWriter::MarkStop(InfoMediaType AType)
 	case imtStream:
 		output->Stop(Now - StartStreamTime);
 		MarkStr->prepend_ansi("EVENT:STOP STREAM @ ");
-		MarkStr->append(" Stream Time Marker Reset to 0");	
+		MarkStr->append(" Stream Time Marker Reset to 0");
 		StreamStarted = false;
 		StartStreamTime = 0;
 		break;
@@ -235,15 +245,15 @@ void InfoWriter::MarkStop(InfoMediaType AType)
 		output->Stop(Now - StartRecordTime - getPausedTime(Now));
 		MarkStr->prepend_ansi("EVENT:STOP RECORDING @ ");
 		MarkStr->append(" Record Time Marker Reset to 0");
-		StartRecordTime = 0;  //reset times 
+		StartRecordTime = 0; //reset times
 		PausedTotalTime = 0;
 		Paused = false;
 		RecordStarted = false;
 		break;
-   case imtRecordingPauseStart:
-      break;
-   case imtRecordingPauseResume:
-      break;
+	case imtRecordingPauseStart:
+		break;
+	case imtRecordingPauseResume:
+		break;
 	}
 
 	WriteInfo(MarkStr->getValue());
@@ -253,31 +263,36 @@ void InfoWriter::MarkStop(InfoMediaType AType)
 
 void InfoWriter::MarkPauseStart(const InfoMediaType AType)
 {
-	if (output == nullptr) return;
+	if (output == nullptr)
+		return;
 
 	Paused = true;
-   PausedStartTime = Groundfloor::GetTimestamp();
+	PausedStartTime = Groundfloor::GetTimestamp();
 
 	output->PausedMarker(PausedStartTime - StartTime);
 	this->WriteInfo("");
-}    
+}
 
 void InfoWriter::MarkPauseResume(const InfoMediaType AType)
 {
-	if (output == nullptr) return;
+	if (output == nullptr)
+		return;
 
 	Paused = false;
 	auto CurrentTime = Groundfloor::GetTimestamp();
 	PausedTotalTime += (CurrentTime - PausedStartTime);
 
-	output->ResumedMarker(CurrentTime - StartTime, CurrentTime - PausedStartTime);
+	output->ResumedMarker(CurrentTime - StartTime,
+			      CurrentTime - PausedStartTime);
 	this->WriteInfo("");
 }
 
 bool InfoWriter::HasStarted() const
 {
-	if (StreamStarted) return true;
-	if (RecordStarted) return true;
+	if (StreamStarted)
+		return true;
+	if (RecordStarted)
+		return true;
 	return false;
 }
 
@@ -288,11 +303,12 @@ bool InfoWriter::IsStreaming() const
 
 std::string InfoWriter::NowTimeStamp() const
 {
-	auto NowStr = Groundfloor::TimestampToStr(c_TimestampNotation, StartTime);
+	auto NowStr =
+		Groundfloor::TimestampToStr(c_TimestampNotation, StartTime);
 	return NowStr->getValue();
 }
 
 InfoWriterSettings *InfoWriter::GetSettings()
 {
-   return &Settings;
+	return &Settings;
 }

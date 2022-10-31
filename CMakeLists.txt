@@ -47,13 +47,12 @@ target_compile_features(${CMAKE_PROJECT_NAME} PRIVATE cxx_std_17)
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE rt)
 
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE build/_deps/crosscables-src/include)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/_deps/crosscables-src/include)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE libGroundfloor)
 
 # /!\ TAKE NOTE: No need to edit things past this point /!\
 
 # --- Platform-independent build settings ---
-
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs)
@@ -63,7 +62,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs)
 # --- Windows-specific build settings and tasks ---
 if(OS_WINDOWS)
   configure_file(cmake/bundle/windows/installer-Windows.iss.in
-                 ${CMAKE_BINARY_DIR}/installer-Windows.generated.iss)
+    ${CMAKE_BINARY_DIR}/installer-Windows.generated.iss)
 
   configure_file(cmake/bundle/windows/resource.rc.in ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.rc)
   target_sources(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.rc)
@@ -71,24 +70,26 @@ if(OS_WINDOWS)
   if(MSVC)
     target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE /W4)
   endif()
-  # --- End of section ---
 
-  # -- macOS specific build settings and tasks --
+# --- End of section ---
+
+# -- macOS specific build settings and tasks --
 elseif(OS_MACOS)
   configure_file(cmake/bundle/macos/installer-macos.pkgproj.in
-                 ${CMAKE_BINARY_DIR}/installer-macos.generated.pkgproj)
+    ${CMAKE_BINARY_DIR}/installer-macos.generated.pkgproj)
 
   set(MACOSX_PLUGIN_GUI_IDENTIFIER "${MACOS_BUNDLEID}")
   set(MACOSX_PLUGIN_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}")
   set(MACOSX_PLUGIN_SHORT_VERSION_STRING "1")
 
   target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall)
-  # --- End of section ---
 
-  # --- Linux-specific build settings and tasks ---
+# --- End of section ---
+
+# --- Linux-specific build settings and tasks ---
 else()
   target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-unused-parameter)
 endif()
-# --- End of section ---
 
+# --- End of section ---
 setup_plugin_target(${CMAKE_PROJECT_NAME})

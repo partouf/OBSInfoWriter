@@ -1,9 +1,0 @@
-{
-  "Packages": [
-    {
-      "Folder": "Crosscables",
-      "Repository": "https://github.com/partouf/Crosscables.git",
-      "Branch": "master"
-    }
-  ]
-}
