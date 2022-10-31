@@ -3,21 +3,21 @@ name: Plugin Build
 on:
   push:
     paths-ignore:
-      - '**.md'
+      - "**.md"
     branches:
       - master
       - main
     tags:
-      - '*'
+      - "*"
   pull_request:
     paths-ignore:
-      - '**.md'
+      - "**.md"
     branches:
       - master
       - main
 
 env:
-  PLUGIN_NAME: 'obs-plugintemplate'
+  PLUGIN_NAME: "OBSInfoWriter"
 
 jobs:
   clang_check:
@@ -53,9 +53,9 @@ jobs:
     outputs:
       commitHash: ${{ steps.setup.outputs.commitHash }}
     env:
-      CODESIGN_IDENT: '-'
-      CODESIGN_IDENT_INSTALLER: ''
-      MACOSX_DEPLOYMENT_TARGET: '10.15'
+      CODESIGN_IDENT: "-"
+      CODESIGN_IDENT_INSTALLER: ""
+      MACOSX_DEPLOYMENT_TARGET: "10.15"
     defaults:
       run:
         shell: zsh {0}
@@ -69,7 +69,7 @@ jobs:
       - name: Checkout obs-studio
         uses: actions/checkout@v3
         with:
-          repository: 'obsproject/obs-studio'
+          repository: "obsproject/obs-studio"
           path: obs-studio
           fetch-depth: 0
           submodules: recursive
@@ -148,7 +148,7 @@ jobs:
           workingDirectory: ${{ github.workspace }}/plugin
           target: ${{ matrix.arch }}
           config: RelWithDebInfo
-          codesign: 'true'
+          codesign: "true"
           codesignIdent: ${{ env.CODESIGN_IDENT }}
 
       - name: Package Plugin
@@ -195,7 +195,7 @@ jobs:
       - name: Checkout obs-studio
         uses: actions/checkout@v3
         with:
-          repository: 'obsproject/obs-studio'
+          repository: "obsproject/obs-studio"
           path: obs-studio
           fetch-depth: 0
           submodules: recursive
@@ -273,7 +273,7 @@ jobs:
       - name: Checkout obs-studio
         uses: actions/checkout@v3
         with:
-          repository: 'obsproject/obs-studio'
+          repository: "obsproject/obs-studio"
           path: obs-studio
           fetch-depth: 0
           submodules: recursive
@@ -313,7 +313,7 @@ jobs:
           workingDirectory: ${{ github.workspace }}/plugin
           target: ${{ matrix.arch }}
           config: RelWithDebInfo
-          visualStudio: 'Visual Studio 17 2022'
+          visualStudio: "Visual Studio 17 2022"
 
       - name: Package Plugin
         uses: ./plugin/.github/actions/package-plugin

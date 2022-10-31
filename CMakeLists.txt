@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.16...3.21)
 
-# Change obs-plugintemplate to your plugin's name in a machine-readable format (e.g.:
-# obs-myawesomeplugin) and set
 project(OBSInfoWriter VERSION 1.0.0)
 add_library(${CMAKE_PROJECT_NAME} MODULE)
 
