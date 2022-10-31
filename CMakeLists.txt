@@ -19,7 +19,7 @@ set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE ALWAYS)
 
 include(FetchContent)
 FetchContent_Declare(
-  crosscables
+  Crosscables
   OVERRIDE_FIND_PACKAGE
   GIT_REPOSITORY https://github.com/partouf/Crosscables.git
   GIT_TAG master
@@ -48,9 +48,8 @@ target_compile_features(${CMAKE_PROJECT_NAME} PRIVATE cxx_std_17)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE rt)
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/_deps/crosscables-src)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE libGroundfloor)
-
-find_package(crosscables REQUIRED)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Groundfloor)
+find_package(Crosscables REQUIRED)
 
 # /!\ TAKE NOTE: No need to edit things past this point /!\
 
