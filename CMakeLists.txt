@@ -29,7 +29,7 @@ FetchContent_Declare(
 # e.g. in Xcode or Visual Studio
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
   OutputFormat/OutputFormat.SRT.cpp
-  OutputFormat/OutputFormat.CSV.h
+  OutputFormat/OutputFormat.CSV.cpp
   OutputFormat/OutputFormat.EDL.cpp
   OutputFormat/OutputFormat.Default.cpp
   InfoWriter.cpp
