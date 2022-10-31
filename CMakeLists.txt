@@ -20,15 +20,10 @@ set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE ALWAYS)
 include(FetchContent)
 FetchContent_Declare(
   Crosscables
+  OVERRIDE_FIND_PACKAGE
   GIT_REPOSITORY https://github.com/partouf/Crosscables.git
   GIT_TAG noexternals
 )
-
-FetchContent_MakeAvailable(Crosscables)
-
-if(NOT crosscables_POPULATED)
-  FetchContent_Populate(Crosscables)
-endif()
 
 # Add your custom source files here - header files are optional and only required for visibility
 # e.g. in Xcode or Visual Studio
@@ -55,6 +50,12 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE rt)
 find_package(Crosscables REQUIRED)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/_deps/crosscables-src/include)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE libGroundfloor)
+
+FetchContent_MakeAvailable(Crosscables)
+
+if(NOT crosscables_POPULATED)
+  FetchContent_Populate(Crosscables)
+endif()
 
 # /!\ TAKE NOTE: No need to edit things past this point /!\
 
