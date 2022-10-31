@@ -42,7 +42,7 @@ std::string OutputFormatEDL::SecsToHMSString(const int64_t totalseconds) const
 std::string FilterReelName(const std::string text) {
    std::string reelname = "";
 
-   for (int idx = 0; idx < reelnameMaxlength; idx++) {
+   for (size_t idx = 0; idx < reelnameMaxlength; idx++) {
       if (idx < text.length()) {
          auto ch = text.at(idx);
 

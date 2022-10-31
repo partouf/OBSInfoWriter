@@ -12,7 +12,7 @@
 #include "OutputFormat/OutputFormat.CSV.h"
 #include "OutputFormat/OutputFormat.SRT.h"
 
-constexpr char* c_TimestampNotation = "%Y-%m-%d %H:%M:%S";
+const char* c_TimestampNotation = "%Y-%m-%d %H:%M:%S";
 
 
 InfoWriter::InfoWriter() : Settings()
@@ -196,6 +196,7 @@ void InfoWriter::MarkStart(InfoMediaType AType)
       break;
    case imtUnknown:
       MarkStr->prepend_ansi(" (WARNING:Unsure how we STARTED) ");
+	  break;
    case imtRecording:
       MarkStr->prepend_ansi("EVENT:START RECORDING @ ");
 	  StartRecordTime = StartTime;

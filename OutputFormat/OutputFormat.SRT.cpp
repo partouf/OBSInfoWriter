@@ -4,7 +4,7 @@
 #include <regex>
 #include <cmath>
 
-constexpr char* c_TimestampNotation = "%Y-%m-%d %H:%M:%S";
+const char* c_TimestampNotation = "%Y-%m-%d %H:%M:%S";
 
 OutputFormatSRT::OutputFormatSRT(const InfoWriterSettings& settings, const std::string filename) : IOutputFormat(), settings(settings), currentFilename(filename), subtitleCounter(0), canAppend(false)
 {
