@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16...3.21)
+cmake_minimum_required(VERSION 3.24)
 
 project(OBSInfoWriter VERSION 1.0.0)
 add_library(${CMAKE_PROJECT_NAME} MODULE)
@@ -19,10 +19,10 @@ set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE ALWAYS)
 
 include(FetchContent)
 FetchContent_Declare(
-  libGroundfloor
+  crosscables
   OVERRIDE_FIND_PACKAGE
   GIT_REPOSITORY https://github.com/partouf/Crosscables.git
-  GIT_TAG noexternals
+  GIT_TAG master
 )
 
 # Add your custom source files here - header files are optional and only required for visibility
@@ -50,7 +50,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE rt)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/_deps/crosscables-src)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE libGroundfloor)
 
-find_package(libGroundfloor REQUIRED)
+find_package(crosscables REQUIRED)
 
 # /!\ TAKE NOTE: No need to edit things past this point /!\
 
