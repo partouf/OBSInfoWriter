@@ -45,8 +45,6 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::obs-frontend-api)
 
 target_compile_features(${CMAKE_PROJECT_NAME} PRIVATE cxx_std_17)
 
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE rt)
-
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/_deps/crosscables-src)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Groundfloor)
 find_package(Crosscables REQUIRED)
@@ -83,12 +81,16 @@ elseif(OS_MACOS)
   set(MACOSX_PLUGIN_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}")
   set(MACOSX_PLUGIN_SHORT_VERSION_STRING "1")
 
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE rt)
+
   target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wno-unused-parameter -Wno-unused-private-field)
 
 # --- End of section ---
 
 # --- Linux-specific build settings and tasks ---
 else()
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE rt)
+
   target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wno-unused-parameter -Wno-unused-private-field)
 endif()
 
