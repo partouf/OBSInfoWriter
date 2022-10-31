@@ -4,7 +4,7 @@
 #include <regex>
 #include <cmath>
 
-const char *c_TimestampNotation = "%Y-%m-%d %H:%M:%S";
+const char *c_TimestampNotation_SRT = "%Y-%m-%d %H:%M:%S";
 
 OutputFormatSRT::OutputFormatSRT(const InfoWriterSettings &settings,
 				 const std::string filename)
@@ -76,7 +76,7 @@ void OutputFormatSRT::Start()
 {
 	this->subtitleCounter = 1;
 	std::string timestr =
-		Groundfloor::TimestampToStr(c_TimestampNotation,
+		Groundfloor::TimestampToStr(c_TimestampNotation_SRT,
 					    Groundfloor::GetTimestamp())
 			->getValue();
 	std::string line = "START @ " + timestr;
@@ -88,7 +88,7 @@ void OutputFormatSRT::Start()
 void OutputFormatSRT::Stop(const int64_t timestamp)
 {
 	std::string timestr =
-		Groundfloor::TimestampToStr(c_TimestampNotation,
+		Groundfloor::TimestampToStr(c_TimestampNotation_SRT,
 					    Groundfloor::GetTimestamp())
 			->getValue();
 	std::string line = "STOP @ " + timestr;
