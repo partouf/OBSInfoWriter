@@ -4,6 +4,8 @@
 
 class IOutputFormat {
 public:
+	virtual ~IOutputFormat() = default;
+
 	virtual void Start() = 0;
 	virtual void Stop(const int64_t timestamp) = 0;
 
