@@ -41,6 +41,10 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(Crosscables)
 
+if(NOT crosscables_POPULATED)
+  FetchContent_Populate(Crosscables)
+endif()
+
 target_compile_features(${CMAKE_PROJECT_NAME} PRIVATE cxx_std_17)
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE rt)
