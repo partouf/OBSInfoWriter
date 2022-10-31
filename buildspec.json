@@ -49,6 +49,10 @@
                 "windows-x64": "60e5b1d2bc4d7c431bc05f14e3b1e85e088788c372fa85f58717cd6c49555a46",
                 "windows-x86": "f34d1a89fc85d92913bd6c7f75ec5c28471d74db708c98161100bc8b75f8fc63"
             }
+        },
+        "Crosscables": {
+            "repository": "https://github.com/partouf/Crosscables.git",
+            "branch": "noexternals"
         }
     },
     "platformConfig": {
