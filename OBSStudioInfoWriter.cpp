@@ -2,7 +2,7 @@
 // note: the external symbols are defined in obs-module.h
 
 #include <obs-module.h>
-#include <obs-frontend-api/obs-frontend-api.h>
+#include <obs-frontend-api.h>
 #include <Groundfloor/Materials/FileWriter.h>
 #include <Groundfloor/Materials/Functions.h>
 #include <Groundfloor/Atoms/Defines.h>
