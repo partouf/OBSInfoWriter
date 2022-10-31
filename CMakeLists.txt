@@ -81,8 +81,6 @@ elseif(OS_MACOS)
   set(MACOSX_PLUGIN_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}")
   set(MACOSX_PLUGIN_SHORT_VERSION_STRING "1")
 
-  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE rt)
-
   target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wno-unused-parameter -Wno-unused-private-field)
 
 # --- End of section ---
