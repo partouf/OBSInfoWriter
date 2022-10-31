@@ -69,7 +69,7 @@ if(OS_WINDOWS)
   target_sources(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.rc)
 
   if(MSVC)
-    target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE /W4)
+    target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE /W0)
   endif()
 
 # --- End of section ---
@@ -83,13 +83,13 @@ elseif(OS_MACOS)
   set(MACOSX_PLUGIN_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}")
   set(MACOSX_PLUGIN_SHORT_VERSION_STRING "1")
 
-  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wno-unused-parameter)
+  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wno-unused-parameter -Wno-unused-private-field)
 
 # --- End of section ---
 
 # --- Linux-specific build settings and tasks ---
 else()
-  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wno-unused-parameter)
+  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wno-unused-parameter -Wno-unused-private-field)
 endif()
 
 # --- End of section ---
