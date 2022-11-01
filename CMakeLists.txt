@@ -22,19 +22,19 @@ FetchContent_Declare(
   Crosscables
   OVERRIDE_FIND_PACKAGE
   GIT_REPOSITORY https://github.com/partouf/Crosscables.git
-  GIT_TAG master
-)
+  GIT_TAG master)
 
 # Add your custom source files here - header files are optional and only required for visibility
 # e.g. in Xcode or Visual Studio
-target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-  OutputFormat/OutputFormat.SRT.cpp
-  OutputFormat/OutputFormat.CSV.cpp
-  OutputFormat/OutputFormat.EDL.cpp
-  OutputFormat/OutputFormat.Default.cpp
-  InfoWriter.cpp
-  InfoWriterSettings.cpp
-  OBSStudioInfoWriter.cpp)
+target_sources(
+  ${CMAKE_PROJECT_NAME}
+  PRIVATE OutputFormat/OutputFormat.SRT.cpp
+          OutputFormat/OutputFormat.CSV.cpp
+          OutputFormat/OutputFormat.EDL.cpp
+          OutputFormat/OutputFormat.Default.cpp
+          InfoWriter.cpp
+          InfoWriterSettings.cpp
+          OBSStudioInfoWriter.cpp)
 
 # Import libobs as main plugin dependency
 find_package(libobs REQUIRED)
@@ -61,7 +61,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs)
 # --- Windows-specific build settings and tasks ---
 if(OS_WINDOWS)
   configure_file(cmake/bundle/windows/installer-Windows.iss.in
-    ${CMAKE_BINARY_DIR}/installer-Windows.generated.iss)
+                 ${CMAKE_BINARY_DIR}/installer-Windows.generated.iss)
 
   configure_file(cmake/bundle/windows/resource.rc.in ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.rc)
   target_sources(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.rc)
@@ -70,26 +70,28 @@ if(OS_WINDOWS)
     target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE /W0)
   endif()
 
-# --- End of section ---
+  # --- End of section ---
 
-# -- macOS specific build settings and tasks --
+  # -- macOS specific build settings and tasks --
 elseif(OS_MACOS)
   configure_file(cmake/bundle/macos/installer-macos.pkgproj.in
-    ${CMAKE_BINARY_DIR}/installer-macos.generated.pkgproj)
+                 ${CMAKE_BINARY_DIR}/installer-macos.generated.pkgproj)
 
   set(MACOSX_PLUGIN_GUI_IDENTIFIER "${MACOS_BUNDLEID}")
   set(MACOSX_PLUGIN_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}")
   set(MACOSX_PLUGIN_SHORT_VERSION_STRING "1")
 
-  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wno-unused-parameter -Wno-unused-private-field)
+  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wno-unused-parameter
+                                                       -Wno-unused-private-field)
 
-# --- End of section ---
+  # --- End of section ---
 
-# --- Linux-specific build settings and tasks ---
+  # --- Linux-specific build settings and tasks ---
 else()
   target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE rt)
 
-  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wno-unused-parameter -Wno-unused-private-field)
+  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wno-unused-parameter
+                                                       -Wno-unused-private-field)
 endif()
 
 # --- End of section ---
