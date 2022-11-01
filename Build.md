@@ -1,5 +1,7 @@
 # Building OBSInfoWriter
 
+Note: These instructions are out of date since the switch to CMake
+
 1. Setup a directory where you can clone all the projects in
 
 2. Clone the latest OBS-Studio
