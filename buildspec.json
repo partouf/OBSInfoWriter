@@ -40,5 +40,8 @@
     "version": "1.0.0",
     "author": "Partouf",
     "website": "https://github.com/partouf/OBSInfoWriter",
-    "email": "partouf@gmail.com"
+    "email": "partouf@gmail.com",
+    "uuids": {
+        "windowsApp": "00000000-0000-0000-0000-000000000000"
+    }
 }
