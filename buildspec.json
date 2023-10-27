@@ -33,11 +33,12 @@
     },
     "platformConfig": {
         "macos": {
-            "bundleId": "com.example.obs-plugintemplate"
+            "bundleId": "com.example.OBSInfoWriter"
         }
     },
     "name": "OBSInfoWriter",
     "version": "1.0.0",
     "author": "Partouf",
-    "website": "https://github.com/partouf/OBSInfoWriter"
+    "website": "https://github.com/partouf/OBSInfoWriter",
+    "email": "partouf@gmail.com"
 }

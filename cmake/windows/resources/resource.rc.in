@@ -19,7 +19,7 @@ BEGIN
             VALUE "FileDescription", "${PROJECT_NAME}"
             VALUE "FileVersion", "${PROJECT_VERSION}"
             VALUE "InternalName", "${PROJECT_NAME}"
-            VALUE "LegalCopyright", "(C) ${PLUGIN_AUTHOR}"
+            VALUE "LegalCopyright", "(C) ${CURRENT_YEAR} ${PLUGIN_AUTHOR}"
             VALUE "OriginalFilename", "${PROJECT_NAME}"
             VALUE "ProductName", "${PROJECT_NAME}"
             VALUE "ProductVersion", "${PROJECT_VERSION}"
