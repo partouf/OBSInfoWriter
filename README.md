@@ -10,6 +10,8 @@ For the original OBS-classic version, go to https://github.com/partouf/ObsInfoPl
 
 ## Installation
 
+Just use the installer...
+
 ### Windows
 - Place the 64bit **OBSInfoWriter.dll** in your \obs-studio\obs-plugins\64bit folder
 - Place the 32bit dll file in your \obs-studio\obs-plugins\32bit folder
