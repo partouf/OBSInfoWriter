@@ -1,388 +1,263 @@
-name: Plugin Build
-
+name: Build Project
 on:
-  push:
-    paths-ignore:
-      - "**.md"
-    branches:
-      - master
-      - main
-    tags:
-      - "*"
-  pull_request:
-    paths-ignore:
-      - "**.md"
-    branches:
-      - master
-      - main
-
-env:
-  PLUGIN_NAME: "OBSInfoWriter"
-
+  workflow_call:
 jobs:
-  clang_check:
-    name: 01 - Code Format Check
+  check-event:
+    name: Check GitHub Event Data 📡
     runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Install clang-format
-        run: sudo apt-get install -y clang-format-13
-
-      - name: Run clang-format
-        run: ./.github/scripts/check-format.sh && ./.github/scripts/check-changes.sh
-
-      - name: Install cmake-format
-        run: sudo pip install cmakelang
-
-      - name: Run cmake-format
-        run: ./.github/scripts/check-cmake.sh
-
-  macos_build:
-    name: 02 - macOS
-    runs-on: macos-12
-    strategy:
-      fail-fast: true
-      matrix:
-        arch: [x86_64, arm64, universal]
-    if: always()
-    needs: [clang_check]
-    outputs:
-      commitHash: ${{ steps.setup.outputs.commitHash }}
-    env:
-      CODESIGN_IDENT: "-"
-      CODESIGN_IDENT_INSTALLER: ""
-      MACOSX_DEPLOYMENT_TARGET: "10.15"
     defaults:
       run:
-        shell: zsh {0}
+        shell: bash
+    outputs:
+      package: ${{ steps.setup.outputs.package }}
+      codesign: ${{ steps.setup.outputs.codesign }}
+      notarize: ${{ steps.setup.outputs.notarize }}
+      config: ${{ steps.setup.outputs.config }}
+      commitHash: ${{ steps.setup.outputs.commitHash }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
         with:
-          path: plugin
-          submodules: recursive
-
-      - name: Checkout obs-studio
-        uses: actions/checkout@v3
-        with:
-          repository: "obsproject/obs-studio"
-          path: obs-studio
           fetch-depth: 0
-          submodules: recursive
-
-      - name: Setup Environment
+      - name: Check Event Data ☑️
         id: setup
-        working-directory: ${{ github.workspace }}/plugin
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          ## SETUP ENVIRONMENT SCRIPT
+          : Check Event Data ☑️
+          if [[ "${RUNNER_DEBUG}" ]]; then set -x; fi
+
+          case "${GITHUB_EVENT_NAME}" in
+            pull_request)
+              config_data=('codesign:false' 'notarize:false' 'package:false' 'config:RelWithDebInfo')
+              if gh pr view --json labels \
+                | jq -e -r '.labels[] | select(.name == "Seeking Testers")' > /dev/null; then
+                config_data[0]='codesign:true'
+                config_data[2]='package:true'
+              fi
+              ;;
+            push)
+              config_data=('codesign:true' 'notarize:false' 'package:true' 'config:RelWithDebInfo')
+              if [[ ${GITHUB_REF_NAME} =~ [0-9]+.[0-9]+.[0-9]+(-(rc|beta).+)? ]]; then
+                config_data[1]='notarize:true'
+                config_data[3]='config:Release'
+              fi
+              ;;
+            workflow_dispatch)
+              config_data=('codesign:true' 'notarize:false' 'package:false' 'config:RelWithDebInfo')
+              ;;
+            schedule)
+              config_data=('codesign:true' 'notarize:false' 'package:true' 'config:RelWithDebInfo')
+              ;;
+            *) ;;
+          esac
+
+          for config in "${config_data[@]}"; do
+            IFS=':' read -r key value <<< "${config}"
+            echo "${key}=${value}" >> $GITHUB_OUTPUT
+          done
+          echo "commitHash=${GITHUB_SHA:0:9}" >> $GITHUB_OUTPUT
+
+  macos-build:
+    name: Build for macOS 🍏
+    runs-on: macos-13
+    needs: check-event
+    defaults:
+      run:
+        shell: zsh --no-rcs --errexit --pipefail {0}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set Up Environment 🔧
+        id: setup
+        run: |
+          : Set Up Environment 🔧
+          if (( ${+RUNNER_DEBUG} )) setopt XTRACE
+
           print '::group::Clean Homebrew Environment'
           typeset -a to_remove=()
-
-          for formula (speexdsp curl php) {
-            if [[ -d ${HOMEBREW_PREFIX}/opt/${formula} ]] to_remove+=(${formula})
-          }
 
           if (( #to_remove > 0 )) brew uninstall --ignore-dependencies ${to_remove}
           print '::endgroup::'
 
-          print '::group::Set up code signing'
-          if [[ '${{ secrets.MACOS_SIGNING_APPLICATION_IDENTITY }}' != '' && \
-                '${{ secrets.MACOS_SIGNING_INSTALLER_IDENTITY }}' != '' && \
-                '${{ secrets.MACOS_SIGNING_CERT }}' != '' ]] {
-            print 'haveCodesignIdent=true' >> $GITHUB_OUTPUT
-          } else {
-            print 'haveCodesignIdent=false' >> $GITHUB_OUTPUT
-          }
+          local product_name
+          local product_version
+          read -r product_name product_version <<< \
+            "$(jq -r '. | {name, version} | join(" ")' buildspec.json)"
 
-          if [[ '${{ secrets.MACOS_NOTARIZATION_USERNAME }}' != '' && \
-                '${{ secrets.MACOS_NOTARIZATION_PASSWORD }}' != '' ]] {
-            print 'haveNotarizationUser=true' >> $GITHUB_OUTPUT
-          } else {
-            print 'haveNotarizationUser=false' >> $GITHUB_OUTPUT
-          }
-          print '::endgroup::'
+          print "pluginName=${product_name}" >> $GITHUB_OUTPUT
+          print "pluginVersion=${product_version}" >> $GITHUB_OUTPUT
 
-          print "ccacheDate=$(date +"%Y-%m-%d")" >> $GITHUB_OUTPUT
-          print "commitHash=${"$(git rev-parse HEAD)"[0,9]}" >> $GITHUB_OUTPUT
-
-      - name: Restore Compilation Cache
+      - uses: actions/cache@v3
         id: ccache-cache
-        uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/.ccache
-          key: macos-${{ matrix.arch }}-ccache-plugin-${{ steps.setup.outputs.ccacheDate }}
+          key: ${{ runner.os }}-ccache-${{ needs.check-event.outputs.config }}
           restore-keys: |
-            macos-${{ matrix.arch }}-ccache-plugin-
+            ${{ runner.os }}-ccache-
 
-      - name: Check for GitHub Labels
-        id: seekingTesters
-        if: ${{ github.event_name == 'pull_request' }}
-        run: |
-          if [[ -n "$(curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -s "${{ github.event.pull_request.url }}" | jq -e '.labels[] | select(.name == "Seeking Testers")')" ]] {
-            print 'found=true' >> $GITHUB_OUTPUT
-          } else {
-            print 'found=false' >> $GITHUB_OUTPUT
-          }
-
-      - name: Install Apple Developer Certificate
-        if: ${{ github.event_name != 'pull_request' && steps.setup.outputs.haveCodesignIdent == 'true' }}
-        uses: apple-actions/import-codesign-certs@253ddeeac23f2bdad1646faac5c8c2832e800071
+      - name: Set Up Codesigning 🔑
+        uses: ./.github/actions/setup-macos-codesigning
+        if: ${{ fromJSON(needs.check-event.outputs.codesign) }}
+        id: codesign
         with:
-          keychain-password: ${{ github.run_id }}
-          p12-file-base64: ${{ secrets.MACOS_SIGNING_CERT }}
-          p12-password: ${{ secrets.MACOS_SIGNING_CERT_PASSWORD }}
+          codesignIdentity: ${{ secrets.MACOS_SIGNING_APPLICATION_IDENTITY }}
+          installerIdentity: ${{ secrets.MACOS_SIGNING_INSTALLER_IDENTITY }}
+          codesignCertificate: ${{ secrets.MACOS_SIGNING_CERT }}
+          certificatePassword: ${{ secrets.MACOS_SIGNING_CERT_PASSWORD }}
+          keychainPassword: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
+          provisioningProfile: ${{ secrets.MACOS_SIGNING_PROVISIONING_PROFILE }}
+          notarizationUser: ${{ secrets.MACOS_NOTARIZATION_USERNAME }}
+          notarizationPassword: ${{ secrets.MACOS_NOTARIZATION_PASSWORD }}
 
-      - name: Set Signing Identity
-        if: ${{ github.event_name != 'pull_request' && steps.setup.outputs.haveCodesignIdent == 'true' }}
-        run: |
-          print "CODESIGN_IDENT=${{ secrets.MACOS_SIGNING_APPLICATION_IDENTITY }}" >> $GITHUB_ENV
-          print "CODESIGN_IDENT_INSTALLER=${{ secrets.MACOS_SIGNING_INSTALLER_IDENTITY }}" >> $GITHUB_ENV
-
-      - name: Build Plugin
-        uses: ./plugin/.github/actions/build-plugin
+      - name: Build Plugin 🧱
+        uses: ./.github/actions/build-plugin
         with:
-          workingDirectory: ${{ github.workspace }}/plugin
-          target: ${{ matrix.arch }}
-          config: RelWithDebInfo
-          codesign: "true"
-          codesignIdent: ${{ env.CODESIGN_IDENT }}
+          target: macos-universal
+          config: ${{ needs.check-event.outputs.config }}
+          codesign: ${{ fromJSON(needs.check-event.outputs.codesign) }}
+          codesignIdent: ${{ steps.codesign.outputs.codesignIdent }}
 
-      - name: Package Plugin
-        uses: ./plugin/.github/actions/package-plugin
+      - name: Package Plugin 📀
+        uses: ./.github/actions/package-plugin
         with:
-          workingDirectory: ${{ github.workspace }}/plugin
-          target: ${{ matrix.arch }}
-          config: RelWithDebInfo
-          codesign: ${{ github.event_name != 'pull_request' && steps.setup.outputs.haveCodesignIdent == 'true' }}
-          notarize: ${{ startsWith(github.ref, 'refs/tags/') && github.event_name != 'pull_request' && steps.setup.outputs.haveNotarizationUser == 'true' }}
-          codesignIdent: ${{ env.CODESIGN_IDENT }}
-          installerIdent: ${{ env.CODESIGN_IDENT_INSTALLER }}
+          target: macos-universal
+          config: ${{ needs.check-event.outputs.config }}
+          package: ${{ fromJSON(needs.check-event.outputs.package) }}
+          codesign: ${{ fromJSON(needs.check-event.outputs.codesign) && fromJSON(steps.codesign.outputs.haveCodesignIdent) }}
+          codesignIdent: ${{ steps.codesign.outputs.codesignIdent }}
+          installerIdent: ${{ steps.codesign.outputs.installerIdent }}
+          codesignTeam: ${{ steps.codesign.outputs.codesignTeam }}
+          notarize: ${{ fromJSON(needs.check-event.outputs.notarize) && fromJSON(steps.codesign.outputs.haveNotarizationUser) }}
           codesignUser: ${{ secrets.MACOS_NOTARIZATION_USERNAME }}
           codesignPass: ${{ secrets.MACOS_NOTARIZATION_PASSWORD }}
 
-      - name: Upload Build Artifact
-        if: ${{ success() && (github.event_name != 'pull_request' || steps.seekingTesters.outputs.found == 'true') }}
+      - name: Upload Artifacts 📡
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.PLUGIN_NAME }}-macos-${{ matrix.arch }}-${{ steps.setup.outputs.commitHash }}
-          path: ${{ github.workspace }}/plugin/release/${{ env.PLUGIN_NAME }}-*-macos-${{ matrix.arch }}.pkg
+          name: ${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-macos-universal-${{ needs.check-event.outputs.commitHash }}
+          path: ${{ github.workspace }}/release/${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-macos-universal.*
 
-  linux_build:
-    name: 02 - Linux
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: true
-      matrix:
-        arch: [x86_64]
-    if: always()
-    needs: [clang_check]
-    outputs:
-      commitHash: ${{ steps.setup.outputs.commitHash }}
+      - name: Upload Debug Symbol Artifacts 🪲
+        uses: actions/upload-artifact@v3
+        if: ${{ needs.check-event.outputs.config == 'Release' }}
+        with:
+          name: ${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-macos-universal-${{ needs.check-event.outputs.commitHash }}-dSYMs
+          path: ${{ github.workspace }}/release/${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-macos-universal-dSYMs.*
+
+  ubuntu-build:
+    name: Build for Ubuntu 🐧
+    runs-on: ubuntu-20.04
+    needs: check-event
     defaults:
       run:
         shell: bash
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
         with:
-          path: plugin
           submodules: recursive
-
-      - name: Checkout obs-studio
-        uses: actions/checkout@v3
-        with:
-          repository: "obsproject/obs-studio"
-          path: obs-studio
           fetch-depth: 0
-          submodules: recursive
 
-      - name: Setup Environment
-        working-directory: ${{ github.workspace }}/plugin
+      - name: Set Up Environment 🔧
         id: setup
         run: |
-          ## SETUP ENVIRONMENT SCRIPT
-          echo "ccacheDate=$(date +"%Y-%m-%d")" >> $GITHUB_OUTPUT
-          echo "commitHash=$(git rev-parse HEAD | cut -c1-9)" >> $GITHUB_OUTPUT
+          : Set Up Environment 🔧
+          if [[ "${RUNNER_DEBUG}" ]]; then set -x; fi
 
-      - name: Restore Compilation Cache
+          read -r product_name product_version <<< \
+            "$(jq -r '. | {name, version} | join(" ")' buildspec.json)"
+
+          echo "pluginName=${product_name}" >> $GITHUB_OUTPUT
+          echo "pluginVersion=${product_version}" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
         id: ccache-cache
-        uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/.ccache
-          key: linux-${{ matrix.arch }}-ccache-plugin-${{ steps.setup.outputs.ccacheDate }}
+          key: ${{ runner.os }}-ccache-x86_64-${{ needs.check-event.outputs.config }}
           restore-keys: |
-            linux-${{ matrix.arch }}-ccache-plugin-
+            ${{ runner.os }}-ccache-x86_64-
 
-      - name: Check for GitHub Labels
-        id: seekingTesters
-        if: ${{ github.event_name == 'pull_request' }}
-        run: |
-          ## GITHUB LABEL SCRIPT
-          if [[ -n "$(curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -s "${{ github.event.pull_request.url }}" | jq -e '.labels[] | select(.name == "Seeking Testers")')" ]]; then
-            echo 'found=true' >> $GITHUB_OUTPUT
-          else
-            echo 'found=false' >> $GITHUB_OUTPUT
-          fi
+      - name: Set up Homebrew 🍺
+        uses: Homebrew/actions/setup-homebrew@master
 
-      - name: Build Plugin
-        uses: ./plugin/.github/actions/build-plugin
+      - name: Build Plugin 🧱
+        uses: ./.github/actions/build-plugin
         with:
-          workingDirectory: ${{ github.workspace }}/plugin
-          target: ${{ matrix.arch }}
-          config: RelWithDebInfo
+          target: x86_64
+          config: ${{ needs.check-event.outputs.config }}
 
-      - name: Package Plugin
-        uses: ./plugin/.github/actions/package-plugin
+      - name: Package Plugin 📀
+        uses: ./.github/actions/package-plugin
         with:
-          workingDirectory: ${{ github.workspace }}/plugin
-          target: ${{ matrix.arch }}
-          config: RelWithDebInfo
+          package: ${{ fromJSON(needs.check-event.outputs.package) }}
+          target: x86_64
+          config: ${{ needs.check-event.outputs.config }}
 
-      - name: Upload Build Artifact
-        if: ${{ success() && (github.event_name != 'pull_request' || steps.seekingTesters.outputs.found == 'true') }}
+      - name: Upload Source Tarball 🗜️
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.PLUGIN_NAME }}-linux-${{ matrix.arch }}-${{ steps.setup.outputs.commitHash }}
-          path: ${{ github.workspace }}/plugin/release/${{ env.PLUGIN_NAME }}-*-linux-${{ matrix.arch }}.*
+          name: ${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-sources-${{ needs.check-event.outputs.commitHash }}
+          path: ${{ github.workspace }}/release/${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-source.*
 
-  windows_build:
-    name: 02 - Windows
+      - name: Upload Artifacts 📡
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-ubuntu-22.04-x86_64-${{ needs.check-event.outputs.commitHash }}
+          path: ${{ github.workspace }}/release/${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-x86_64*.*
+
+      - name: Upload debug symbol artifacts 🪲
+        uses: actions/upload-artifact@v3
+        if: ${{ fromJSON(needs.check-event.outputs.package) }}
+        with:
+          name: ${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-ubuntu-22.04-x86_64-${{ needs.check-event.outputs.commitHash }}-dbgsym
+          path: ${{ github.workspace }}/release/${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-x86_64*-dbgsym.ddeb
+
+  windows-build:
+    name: Build for Windows 🪟
     runs-on: windows-2022
-    strategy:
-      fail-fast: true
-      matrix:
-        arch: [x64]
-    if: always()
-    needs: [clang_check]
-    outputs:
-      commitHash: ${{ steps.setup.outputs.commitHash }}
+    needs: check-event
     defaults:
       run:
         shell: pwsh
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
         with:
-          path: plugin
           submodules: recursive
-
-      - name: Checkout obs-studio
-        uses: actions/checkout@v3
-        with:
-          repository: "obsproject/obs-studio"
-          path: obs-studio
           fetch-depth: 0
-          submodules: recursive
 
-      - name: Setup Environment
-        working-directory: ${{ github.workspace }}/plugin
+      - name: Set Up Environment 🔧
         id: setup
         run: |
-          ## SETUP ENVIRONMENT SCRIPT
-          $CommitHash = (git rev-parse HEAD)[0..8] -join ''
-          "commitHash=${CommitHash}" >> $env:GITHUB_OUTPUT
-
-      - name: Check for GitHub Labels
-        id: seekingTesters
-        working-directory: ${{ github.workspace }}/plugin
-        if: ${{ github.event_name == 'pull_request' }}
-        run: |
-          ## GITHUB LABEL SCRIPT
-          $LabelFound = try {
-            $Params = @{
-              Authentication = 'Bearer'
-              Token = (ConvertTo-SecureString '${{ secrets.GITHUB_TOKEN }}' -AsPlainText)
-              Uri = '${{ github.event.pull_request.url }}'
-              UseBasicParsing = $true
-            }
-
-            (Invoke-RestMethod @Params).labels.name.contains('Seeking Testers')
-          } catch {
-            $false
+          # Set Up Environment 🔧
+          if ( $Env:RUNNER_DEBUG -ne $null ) {
+            Set-PSDebug -Trace 1
           }
 
-          "found=$(([string]${LabelFound}).ToLower())" >> $env:GITHUB_OUTPUT
+          $BuildSpec = Get-Content -Path buildspec.json -Raw | ConvertFrom-Json
+          $ProductName = $BuildSpec.name
+          $ProductVersion = $BuildSpec.version
 
-      - name: Build Plugin
-        uses: ./plugin/.github/actions/build-plugin
+          "pluginName=${ProductName}" >> $env:GITHUB_OUTPUT
+          "pluginVersion=${ProductVersion}" >> $env:GITHUB_OUTPUT
+
+      - name: Build Plugin 🧱
+        uses: ./.github/actions/build-plugin
         with:
-          workingDirectory: ${{ github.workspace }}/plugin
-          target: ${{ matrix.arch }}
-          config: RelWithDebInfo
-          visualStudio: "Visual Studio 17 2022"
+          target: x64
+          config: ${{ needs.check-event.outputs.config }}
 
-      - name: Package Plugin
-        uses: ./plugin/.github/actions/package-plugin
+      - name: Package Plugin 📀
+        uses: ./.github/actions/package-plugin
         with:
-          workingDirectory: ${{ github.workspace }}/plugin
-          target: ${{ matrix.arch }}
-          config: RelWithDebInfo
+          target: x64
+          config: ${{ needs.check-event.outputs.config }}
+          package: ${{ fromJSON(needs.check-event.outputs.package) }}
 
-      - name: Upload Build Artifact
-        if: ${{ success() && (github.event_name != 'pull_request' || steps.seekingTesters.outputs.found == 'true') }}
+      - name: Upload Artifacts 📡
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.PLUGIN_NAME }}-windows-${{ matrix.arch }}-${{ steps.setup.outputs.commitHash }}
-          path: ${{ github.workspace }}/plugin/release/${{ env.PLUGIN_NAME }}-*.zip
-
-      - name: Package Plugin Installer
-        if: ${{ startsWith(github.ref, 'refs/tags/') && github.event_name != 'pull_request' }}
-        uses: ./plugin/.github/actions/package-plugin
-        with:
-          workingDirectory: ${{ github.workspace }}/plugin
-          target: ${{ matrix.arch }}
-          config: RelWithDebInfo
-          createInstaller: true
-
-      - name: Upload Installer Artifact
-        if: ${{ startsWith(github.ref, 'refs/tags/') && github.event_name != 'pull_request' }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.PLUGIN_NAME }}-windows-${{ matrix.arch }}-${{ steps.setup.outputs.commitHash }}-installer
-          path: ${{ github.workspace }}/plugin/release/${{ env.PLUGIN_NAME }}-*.exe
-
-  make-release:
-    name: 03 - Create and upload release
-    runs-on: ubuntu-22.04
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
-    needs: [macos_build, linux_build, windows_build]
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - name: Get Metadata
-        id: metadata
-        run: |
-          ## METADATA SCRIPT
-          echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v3
-
-      - name: Generate Checksums
-        run: |
-          ## CHECKSUM GENERATION SCRIPT
-          shopt -s extglob
-          echo "### Checksums" > ${{ github.workspace }}/CHECKSUMS.txt
-          for file in ${{ github.workspace }}/**/@(*.pkg|*.exe|*.deb|*.zip); do
-            echo "    ${file##*/}: $(sha256sum "${file}" | cut -d " " -f 1)" >> ${{ github.workspace }}/CHECKSUMS.txt
-          done
-
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5
-        with:
-          draft: false
-          prerelease: ${{ contains(steps.metadata.outputs.version, 'rc') || contains(steps.metadata.outputs.version, 'beta') }}
-          tag_name: ${{ steps.metadata.outputs.version }}
-          name: "${{ env.PLUGIN_NAME }} ${{ steps.metadata.outputs.version }}"
-          body_path: ${{ github.workspace }}/CHECKSUMS.txt
-          files: |
-            ${{ github.workspace }}/**/*.zip
-            ${{ github.workspace }}/**/*.exe
-            ${{ github.workspace }}/**/*.deb
-            ${{ github.workspace }}/**/*.pkg
+          name: ${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-windows-x64-${{ needs.check-event.outputs.commitHash }}
+          path: ${{ github.workspace }}/release/${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-windows-x64*.*
