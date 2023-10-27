@@ -13,8 +13,8 @@ include(helpers)
 
 add_library(${CMAKE_PROJECT_NAME} MODULE)
 
-# Replace `com.example.obs-plugin-template` with a unique Bundle ID for macOS releases (used both in
-# the installer and when submitting the installer for notarization)
+# Replace `com.example.obs-plugin-template` with a unique Bundle ID for macOS releases (used both in the installer and
+# when submitting the installer for notarization)
 set(MACOS_BUNDLEID "com.example.${CMAKE_PROJECT_NAME}")
 
 # Replace `me@contoso.com` with the maintainer email address you want to put in Linux packages
@@ -30,8 +30,8 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/partouf/Crosscables.git
   GIT_TAG master)
 
-# Add your custom source files here - header files are optional and only required for visibility
-# e.g. in Xcode or Visual Studio
+# Add your custom source files here - header files are optional and only required for visibility e.g. in Xcode or Visual
+# Studio
 target_sources(
   ${CMAKE_PROJECT_NAME}
   PRIVATE OutputFormat/OutputFormat.SRT.cpp

@@ -30,6 +30,4 @@ add_compile_definitions(UNICODE _UNICODE _CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO
 add_link_options("$<$<NOT:$<CONFIG:Debug>>:/OPT:REF>" "$<$<CONFIG:Debug>:/INCREMENTAL:NO>"
                  "$<$<CONFIG:RelWithDebInfo>:/INCREMENTAL:NO>" "$<$<CONFIG:RelWithDebInfo>:/OPT:ICF>")
 
-# if(CMAKE_COMPILE_WARNING_AS_ERROR)
-#   add_link_options(/WX)
-# endif()
+# if(CMAKE_COMPILE_WARNING_AS_ERROR) add_link_options(/WX) endif()
