@@ -37,7 +37,7 @@
         }
     },
     "name": "OBSInfoWriter",
-    "version": "1.0.0"
+    "version": "1.0.0",
     "author": "Partouf",
-    "website": "https://github.com/partouf/OBSInfoWriter",
+    "website": "https://github.com/partouf/OBSInfoWriter"
 }
