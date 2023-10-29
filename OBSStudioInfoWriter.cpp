@@ -8,7 +8,7 @@
 #include <Groundfloor/Atoms/Defines.h>
 #include "InfoWriter.h"
 
-const char *infowriter_idname = "infowriter";
+const char *infowriter_idname = "Info Writer";
 const char *logfile_filter = "All formats (*.*)";
 const char *setting_file = "file";
 const char *setting_format = "format";
