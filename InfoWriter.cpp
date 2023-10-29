@@ -1,5 +1,6 @@
 #include "InfoWriter.h"
 
+#include <obs-frontend-api.h>
 #include <Groundfloor/Atoms/Defines.h>
 #include <Groundfloor/Materials/Functions.h>
 #include <cstdint>
@@ -158,12 +159,44 @@ void InfoWriter::WriteSceneChange(const std::string scenename) const
 
 void InfoWriter::InitCurrentFilename(int64_t timestamp)
 {
-	CurrentFilename = Settings.GetFilename();
-	if (CurrentFilename.find('%') != 0) {
-		auto filename = Groundfloor::TimestampToStr(
-			CurrentFilename.c_str(), StartTime);
-		CurrentFilename = filename->getValue();
-		delete filename;
+	bool currentname_set = false;
+
+	if (Settings.GetShouldSyncNameAndPathWithVideo()) {
+		obs_output_t *output = obs_frontend_get_recording_output();
+		if (output) {
+			obs_data_t *outputSettings =
+				obs_output_get_settings(output);
+
+			obs_data_item_t *item =
+				obs_data_item_byname(outputSettings, "url");
+			if (!item) {
+				item = obs_data_item_byname(outputSettings,
+							    "path");
+			}
+
+			if (item) {
+				CurrentFilename =
+					obs_data_item_get_string(item);
+				size_t videoextensionstart =
+					CurrentFilename.find_last_of('.') + 1;
+				CurrentFilename.replace(
+					videoextensionstart,
+					CurrentFilename.length(),
+					Settings.GetAutomaticOutputExtension()
+						.c_str());
+				currentname_set = true;
+			}
+		}
+	}
+
+	if (!currentname_set) {
+		CurrentFilename = Settings.GetFilename();
+		if (CurrentFilename.find('%') != 0) {
+			auto filename = Groundfloor::TimestampToStr(
+				CurrentFilename.c_str(), StartTime);
+			CurrentFilename = filename->getValue();
+			delete filename;
+		}
 	}
 }
 

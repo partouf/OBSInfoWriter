@@ -10,8 +10,10 @@
 
 const char *infowriter_idname = "infowriter";
 const char *logfile_filter = "All formats (*.*)";
+const char *setting_automaticoutputextension = "automaticoutputextension";
 const char *setting_file = "file";
 const char *setting_format = "format";
+const char *setting_syncnameandpathwithvideo = "syncnameandpathwithvideo";
 const char *setting_hotkey1text = "hotkey1text";
 const char *setting_hotkey2text = "hotkey2text";
 const char *setting_hotkey3text = "hotkey3text";
@@ -31,6 +33,24 @@ const char *setting_shouldlogscenechanges = "logscenechanges";
 const char *setting_shouldlogstreaming = "logstreaming";
 const char *setting_shouldlogabsolutetime = "logabsolutetime";
 const char *setting_shouldloghotkeyspecifics = "loghotkeyspecifics";
+
+bool obstudio_infowriter_syncnameandpathwithvideo_property_modified(
+	obs_properties_t *props, obs_property_t *property, obs_data_t *settings)
+{
+	obs_property_t *prop_setting_file =
+		obs_properties_get(props, setting_file);
+	const bool previously_enabled = obs_property_enabled(prop_setting_file);
+	const bool sync_selected =
+		obs_data_get_bool(settings, setting_syncnameandpathwithvideo);
+
+	obs_property_set_enabled(prop_setting_file, !sync_selected);
+
+	obs_property_t *prop_automaticoutputextension =
+		obs_properties_get(props, setting_automaticoutputextension);
+	obs_property_set_visible(prop_automaticoutputextension, sync_selected);
+
+	return (previously_enabled != obs_property_enabled(prop_setting_file));
+}
 
 void obstudio_infowriter_write_hotkey1(void *data, obs_hotkey_id id,
 				       obs_hotkey_t *hotkey, bool pressed)
@@ -308,6 +328,14 @@ obs_properties_t *obstudio_infowriter_properties(void *unused)
 
 	obs_properties_add_text(props, setting_format,
 				obs_module_text("Format"), OBS_TEXT_DEFAULT);
+	obs_property *prop_syncnameandpathwithvideo =
+		obs_properties_add_bool(props, setting_syncnameandpathwithvideo,
+					"Sync with video file name and path");
+	obs_property_set_modified_callback(
+		prop_syncnameandpathwithvideo,
+		obstudio_infowriter_syncnameandpathwithvideo_property_modified);
+	obs_properties_add_text(props, setting_automaticoutputextension,
+				"Automatic file extension", OBS_TEXT_DEFAULT);
 	obs_properties_add_path(props, setting_file, obs_module_text("Logfile"),
 				OBS_PATH_FILE_SAVE, logfile_filter, NULL);
 
@@ -375,6 +403,9 @@ obs_properties_t *obstudio_infowriter_properties(void *unused)
 void obstudio_infowriter_get_defaults(obs_data_t *settings)
 {
 	obs_data_set_default_string(settings, setting_outputformat, "default");
+	obs_data_set_default_bool(settings, setting_syncnameandpathwithvideo,
+				  false);
+	obs_data_set_default_string(settings, setting_automaticoutputextension, "txt");
 	obs_data_set_default_string(settings, setting_file, "/tmp/log.txt");
 	obs_data_set_default_string(settings, setting_format, "%d:%02d:%02d");
 
@@ -422,12 +453,17 @@ void obstudio_infowriter_update(void *data, obs_data_t *settings)
 	const char *outputformat =
 		obs_data_get_string(settings, setting_outputformat);
 
+	const char *automaticextension =
+		obs_data_get_string(settings, setting_automaticoutputextension);
 	const char *file = obs_data_get_string(settings, setting_file);
 	const char *format = obs_data_get_string(settings, setting_format);
 
 	auto WriterSettings = Writer->GetSettings();
 
 	WriterSettings->SetOutputFormat(outputformat);
+	WriterSettings->SetShouldSyncNameAndPathWithVideo(
+		obs_data_get_bool(settings, setting_syncnameandpathwithvideo));
+	WriterSettings->SetAutomaticOutputExtension(automaticextension);
 	WriterSettings->SetFilename(file);
 	WriterSettings->SetFormat(format);
 
