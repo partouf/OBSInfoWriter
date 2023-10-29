@@ -57,6 +57,14 @@ Contributed by https://github.com/RetroGamer74
 ## Checkbox to log streaming events
       Allows turning on and off logging relating to streaming. Recommend to leave off if not streaming, and or not wanting to log timers relating to streaming.
 
+-----
 
+## Building
 
+You can quickly start working on this project by building it locally.
 
+First, you need to ensure to have necessary dependencies.
+OBSInfoWriter is dependent on OBS Studio project that can be found at https://github.com/obsproject/obs-studio
+You should have OBS Studio available locally.
+Necessary instruction is available at https://github.com/obsproject/obs-studio/wiki/Building-OBS-Studio but keep in mind that platform specific instructions are available on separate wiki pages.
+Other dependencies are downloaded automatically when generating the project using CMake.
