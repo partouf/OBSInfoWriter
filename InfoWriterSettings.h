@@ -5,6 +5,8 @@
 class InfoWriterSettings {
 protected:
 	std::string OutputFormat;
+	bool ShouldSyncNameAndPathWithVideo;
+	std::string AutomaticOutputExtension;
 	std::string Filename;
 	std::string Format;
 
@@ -30,6 +32,8 @@ protected:
 
 public:
 	std::string GetOutputFormat() const;
+	bool GetShouldSyncNameAndPathWithVideo() const;
+	std::string GetAutomaticOutputExtension() const;
 	std::string GetFilename() const;
 	std::string GetFormat() const;
 	std::string GetHotkeyText(const int hotkeynum) const;
@@ -40,6 +44,8 @@ public:
 	bool GetShouldLogHotkeySpecifics() const;
 
 	void SetOutputFormat(std::string formatname);
+	void SetShouldSyncNameAndPathWithVideo(bool sync);
+	void SetAutomaticOutputExtension(std::string extension);
 	void SetFilename(std::string filename);
 	void SetFormat(std::string format);
 	void SetHotkeyText(const int hotkeynum, std::string text);

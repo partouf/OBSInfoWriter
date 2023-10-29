@@ -28,7 +28,9 @@ Just use the installer...
 ## Configuration
 - Add the InfoWriter Source to 1 scene (the scene doesn't have to be always active).
 - Configure the Source and select the text file where you want the timestamps to be written to.
-  ![configure the source](http://i.imgur.com/wJ2E18M.png)
+  ![configure the source](sample_logfile.png)
+  Alternatively, you may sync both name and path with the video and specify automatic text file extension.
+  ![sync both name and path with the video](synced_name_and_path_with_the_video.png)
 - Set the hotkeys you want to use in File -> Settings -> Hotkeys
   ![set the hotkeys](http://i.imgur.com/53I2Je1.png)
 

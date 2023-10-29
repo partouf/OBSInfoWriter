@@ -5,6 +5,16 @@ std::string InfoWriterSettings::GetOutputFormat() const
 	return OutputFormat;
 }
 
+bool InfoWriterSettings::GetShouldSyncNameAndPathWithVideo() const
+{
+	return ShouldSyncNameAndPathWithVideo;
+}
+
+std::string InfoWriterSettings::GetAutomaticOutputExtension() const
+{
+	return AutomaticOutputExtension;
+}
+
 std::string InfoWriterSettings::GetFilename() const
 {
 	return Filename;
@@ -73,6 +83,16 @@ bool InfoWriterSettings::GetShouldLogHotkeySpecifics() const
 void InfoWriterSettings::SetOutputFormat(std::string formatname)
 {
 	OutputFormat = formatname;
+}
+
+void InfoWriterSettings::SetShouldSyncNameAndPathWithVideo(bool sync)
+{
+	ShouldSyncNameAndPathWithVideo = sync;
+}
+
+void InfoWriterSettings::SetAutomaticOutputExtension(std::string extension)
+{
+	AutomaticOutputExtension = extension;
 }
 
 void InfoWriterSettings::SetFilename(std::string filename)
