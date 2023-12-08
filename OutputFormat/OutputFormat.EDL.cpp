@@ -2,6 +2,7 @@
 #include <Groundfloor/Materials/FileWriter.h>
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 
 const int reelnameMaxlength = 5;
 

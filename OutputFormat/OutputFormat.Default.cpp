@@ -3,6 +3,7 @@
 #include <Groundfloor/Materials/FileWriter.h>
 #include <regex>
 #include <cmath>
+#include <cstdint>
 
 const char *c_OutputDefaultTimestampNotation = "%Y-%m-%d %H:%M:%S";
 
