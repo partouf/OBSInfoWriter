@@ -33,13 +33,15 @@
     },
     "platformConfig": {
         "macos": {
-            "bundleId": "com.example.plugintemplate-for-obs"
+            "bundleId": "com.example.OBSInfoWriter"
         }
     },
-    "name": "plugintemplate-for-obs",
-    "displayName": "Plugin Template for OBS",
-    "version": "1.0.0",
-    "author": "Your Name Here",
-    "website": "https://example.com",
-    "email": "me@example.com"
+    "name": "OBSInfoWriter",
+    "version": "2.7.0",
+    "author": "Partouf",
+    "website": "https://github.com/partouf/OBSInfoWriter",
+    "email": "partouf@gmail.com",
+    "uuids": {
+        "windowsApp": "00000000-0000-0000-0000-000000000000"
+    }
 }
