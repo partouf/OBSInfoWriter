@@ -1,6 +1,5 @@
 #include "InfoWriter.h"
 
-#include <obs-frontend-api.h>
 #include <Groundfloor/Atoms/Defines.h>
 #include <Groundfloor/Materials/Functions.h>
 #include <cstdint>
@@ -12,6 +11,8 @@
 #include "OutputFormat/OutputFormat.EDL.h"
 #include "OutputFormat/OutputFormat.CSV.h"
 #include "OutputFormat/OutputFormat.SRT.h"
+
+#include "InfoWriterObsUtils.h"
 
 const char *c_TimestampNotation = "%Y-%m-%d %H:%M:%S";
 
@@ -162,31 +163,9 @@ void InfoWriter::InitCurrentFilename(int64_t timestamp)
 	bool currentname_set = false;
 
 	if (Settings.GetShouldSyncNameAndPathWithVideo()) {
-		obs_output_t *output = obs_frontend_get_recording_output();
-		if (output) {
-			obs_data_t *outputSettings =
-				obs_output_get_settings(output);
-
-			obs_data_item_t *item =
-				obs_data_item_byname(outputSettings, "url");
-			if (!item) {
-				item = obs_data_item_byname(outputSettings,
-							    "path");
-			}
-
-			if (item) {
-				CurrentFilename =
-					obs_data_item_get_string(item);
-				size_t videoextensionstart =
-					CurrentFilename.find_last_of('.') + 1;
-				CurrentFilename.replace(
-					videoextensionstart,
-					CurrentFilename.length(),
-					Settings.GetAutomaticOutputExtension()
-						.c_str());
-				currentname_set = true;
-			}
-		}
+		auto filename = get_filename_from_recording_path(Settings);
+		if (filename)
+			CurrentFilename = filename.value();
 	}
 
 	if (!currentname_set) {

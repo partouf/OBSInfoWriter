@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.24)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/common/bootstrap.cmake" NO_POLICY_SCOPE)
 
-project(OBSInfoWriter VERSION 1.0.0)
+project(OBSInfoWriter VERSION 2.7.0)
 
 option(ENABLE_FRONTEND_API "Use obs-frontend-api for UI functionality" OFF)
 option(ENABLE_QT "Use Qt functionality" OFF)
@@ -40,6 +40,7 @@ target_sources(
           OutputFormat/OutputFormat.Default.cpp
           InfoWriter.cpp
           InfoWriterSettings.cpp
+          InfoWriterObsUtils.cpp
           OBSStudioInfoWriter.cpp)
 
 # Import libobs as main plugin dependency
@@ -61,3 +62,21 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs)
 # --- End of section ---
 
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})
+
+
+add_executable(testconsole)
+target_sources(
+  testconsole
+  PRIVATE OutputFormat/OutputFormat.SRT.cpp
+          OutputFormat/OutputFormat.CSV.cpp
+          OutputFormat/OutputFormat.EDL.cpp
+          OutputFormat/OutputFormat.Default.cpp
+          InfoWriter.cpp
+          InfoWriterSettings.cpp
+          DummyUtils.cpp
+          main.cpp)
+target_compile_features(testconsole PRIVATE cxx_std_17)
+
+target_include_directories(testconsole PRIVATE ${CMAKE_BINARY_DIR}/_deps/crosscables-src)
+target_link_libraries(testconsole PRIVATE Groundfloor)
+target_include_directories(testconsole PRIVATE ${CMAKE_SOURCE_DIR}/src)
