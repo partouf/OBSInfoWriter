@@ -35,7 +35,8 @@ const char *setting_shouldlogabsolutetime = "logabsolutetime";
 const char *setting_shouldloghotkeyspecifics = "loghotkeyspecifics";
 
 bool obstudio_infowriter_syncnameandpathwithvideo_property_modified(
-	obs_properties_t *props, obs_property_t *property, obs_data_t *settings)
+	obs_properties_t *props, [[maybe_unused]] obs_property_t *property,
+	obs_data_t *settings)
 {
 	obs_property_t *prop_setting_file =
 		obs_properties_get(props, setting_file);
@@ -405,7 +406,8 @@ void obstudio_infowriter_get_defaults(obs_data_t *settings)
 	obs_data_set_default_string(settings, setting_outputformat, "default");
 	obs_data_set_default_bool(settings, setting_syncnameandpathwithvideo,
 				  false);
-	obs_data_set_default_string(settings, setting_automaticoutputextension, "txt");
+	obs_data_set_default_string(settings, setting_automaticoutputextension,
+				    "txt");
 	obs_data_set_default_string(settings, setting_file, "/tmp/log.txt");
 	obs_data_set_default_string(settings, setting_format, "%d:%02d:%02d");
 

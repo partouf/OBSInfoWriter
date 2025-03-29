@@ -168,7 +168,7 @@ void InfoWriter::WriteSceneChange(const std::string scenename) const
 	this->WriteInfo("");
 }
 
-void InfoWriter::InitCurrentFilename(int64_t timestamp)
+void InfoWriter::InitCurrentFilename()
 {
 	bool currentname_set = false;
 
@@ -192,7 +192,7 @@ void InfoWriter::InitCurrentFilename(int64_t timestamp)
 void InfoWriter::MarkStart(InfoMediaType AType)
 {
 	StartTime = Groundfloor::GetTimestamp();
-	InitCurrentFilename(StartTime);
+	InitCurrentFilename();
 
 	auto outputformat = Settings.GetOutputFormat();
 	if (outputformat == "csv") {
@@ -286,7 +286,7 @@ void InfoWriter::MarkStop(InfoMediaType AType)
 	WriteInfo(MarkStr->getValue());
 }
 
-void InfoWriter::MarkPauseStart(const InfoMediaType AType)
+void InfoWriter::MarkPauseStart([[maybe_unused]] const InfoMediaType AType)
 {
 	if (output == nullptr)
 		return;
@@ -298,7 +298,7 @@ void InfoWriter::MarkPauseStart(const InfoMediaType AType)
 	this->WriteInfo("");
 }
 
-void InfoWriter::MarkPauseResume(const InfoMediaType AType)
+void InfoWriter::MarkPauseResume([[maybe_unused]] const InfoMediaType AType)
 {
 	if (output == nullptr)
 		return;
