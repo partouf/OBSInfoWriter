@@ -3,9 +3,10 @@
 #include <regex>
 #include <cmath>
 
-OutputFormatCSV::OutputFormatCSV(const InfoWriterSettings &settings,
-				 const std::string filename)
-	: IOutputFormat(), settings(settings), currentFilename(filename)
+OutputFormatCSV::OutputFormatCSV(const InfoWriterSettings &settings, const std::string filename)
+	: IOutputFormat(),
+	  settings(settings),
+	  currentFilename(filename)
 {
 }
 
@@ -27,8 +28,7 @@ std::string OutputFormatCSV::SecsToHMSString(const int64_t totalseconds) const
 	return buffer;
 }
 
-void OutputFormatCSV::WriteGFStringToFile(const std::string filename,
-					  const std::string text) const
+void OutputFormatCSV::WriteGFStringToFile(const std::string filename, const std::string text) const
 {
 	Groundfloor::String line(text);
 
@@ -49,8 +49,7 @@ void OutputFormatCSV::Start() {}
 
 void OutputFormatCSV::Stop([[maybe_unused]] const int64_t timestamp) {}
 
-void OutputFormatCSV::WriteCSVLine(const int64_t timestamp,
-				   const std::string text) const
+void OutputFormatCSV::WriteCSVLine(const int64_t timestamp, const std::string text) const
 {
 	char crlf[] = GFNATIVENEXTLINE;
 
@@ -61,14 +60,12 @@ void OutputFormatCSV::WriteCSVLine(const int64_t timestamp,
 	WriteGFStringToFile(currentFilename, line);
 }
 
-void OutputFormatCSV::HotkeyMarker(const int64_t timestamp,
-				   const std::string text)
+void OutputFormatCSV::HotkeyMarker(const int64_t timestamp, const std::string text)
 {
 	WriteCSVLine(timestamp, text);
 }
 
-void OutputFormatCSV::ScenechangeMarker(const int64_t timestamp,
-					const std::string scenename)
+void OutputFormatCSV::ScenechangeMarker(const int64_t timestamp, const std::string scenename)
 {
 	WriteCSVLine(timestamp, scenename);
 }

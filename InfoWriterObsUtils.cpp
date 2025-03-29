@@ -2,8 +2,7 @@
 
 #include <obs-frontend-api.h>
 
-std::optional<std::string>
-get_filename_from_recording_path(const InfoWriterSettings &Settings)
+std::optional<std::string> get_filename_from_recording_path(const InfoWriterSettings &Settings)
 {
 	obs_output_t *output = obs_frontend_get_recording_output();
 	if (!output)
@@ -21,7 +20,6 @@ get_filename_from_recording_path(const InfoWriterSettings &Settings)
 	std::string CurrentFilename = obs_data_item_get_string(item);
 	size_t videoextensionstart = CurrentFilename.find_last_of('.') + 1;
 	auto extension = Settings.GetAutomaticOutputExtension();
-	CurrentFilename.replace(videoextensionstart, CurrentFilename.length(),
-				extension);
+	CurrentFilename.replace(videoextensionstart, CurrentFilename.length(), extension);
 	return CurrentFilename;
 }

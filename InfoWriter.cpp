@@ -52,8 +52,7 @@ int64_t InfoWriter::getPausedTime(const int64_t currentTime) const
 	auto PausedTmpTime = PausedTotalTime;
 
 	if (Paused) {
-		PausedTmpTime =
-			PausedTotalTime + (currentTime - PausedStartTime);
+		PausedTmpTime = PausedTotalTime + (currentTime - PausedStartTime);
 	}
 
 	return PausedTmpTime;
@@ -73,8 +72,7 @@ void InfoWriter::WriteInfo(const std::string AExtraInfo) const
 	auto PausedTmpTime = getPausedTime(currentTime);
 
 	if (RecordStarted) {
-		tmpTime = SecsToHMSString((currentTime - StartRecordTime) -
-					  PausedTmpTime);
+		tmpTime = SecsToHMSString((currentTime - StartRecordTime) - PausedTmpTime);
 	}
 
 	std::string record_info = tmpTime;
@@ -127,8 +125,7 @@ void InfoWriter::WriteInfo(const InfoHotkey AHotkey) const
 		if (StartRecordTime == 0)
 			return;
 
-		output->HotkeyMarker(Now - StartRecordTime - getPausedTime(Now),
-				     hotkey_text);
+		output->HotkeyMarker(Now - StartRecordTime - getPausedTime(Now), hotkey_text);
 	}
 
 	this->WriteInfo("");
@@ -145,23 +142,17 @@ void InfoWriter::WriteSceneChange(const std::string scenename) const
 		if (StartStreamTime == 0)
 			return;
 		if (scenename == "") {
-			output->ScenechangeMarker(Now - StartStreamTime,
-						  "UNKNO");
+			output->ScenechangeMarker(Now - StartStreamTime, "UNKNO");
 		} else {
-			output->ScenechangeMarker(Now - StartStreamTime,
-						  scenename);
+			output->ScenechangeMarker(Now - StartStreamTime, scenename);
 		}
 	} else {
 		if (StartRecordTime == 0)
 			return;
 		if (scenename == "") {
-			output->ScenechangeMarker(Now - StartRecordTime -
-							  getPausedTime(Now),
-						  "UNKNO");
+			output->ScenechangeMarker(Now - StartRecordTime - getPausedTime(Now), "UNKNO");
 		} else {
-			output->ScenechangeMarker(Now - StartRecordTime -
-							  getPausedTime(Now),
-						  scenename);
+			output->ScenechangeMarker(Now - StartRecordTime - getPausedTime(Now), scenename);
 		}
 	}
 
@@ -181,8 +172,7 @@ void InfoWriter::InitCurrentFilename()
 	if (!currentname_set) {
 		CurrentFilename = Settings.GetFilename();
 		if (CurrentFilename.find('%') != 0) {
-			auto filename = Groundfloor::TimestampToStr(
-				CurrentFilename.c_str(), StartTime);
+			auto filename = Groundfloor::TimestampToStr(CurrentFilename.c_str(), StartTime);
 			CurrentFilename = filename->getValue();
 			delete filename;
 		}
@@ -196,23 +186,18 @@ void InfoWriter::MarkStart(InfoMediaType AType)
 
 	auto outputformat = Settings.GetOutputFormat();
 	if (outputformat == "csv") {
-		output = std::make_unique<OutputFormatCSV>(Settings,
-							   CurrentFilename);
+		output = std::make_unique<OutputFormatCSV>(Settings, CurrentFilename);
 	} else if (outputformat == "edl") {
-		output = std::make_unique<OutputFormatEDL>(Settings,
-							   CurrentFilename);
+		output = std::make_unique<OutputFormatEDL>(Settings, CurrentFilename);
 	} else if (outputformat == "srt") {
-		output = std::make_unique<OutputFormatSRT>(Settings,
-							   CurrentFilename);
+		output = std::make_unique<OutputFormatSRT>(Settings, CurrentFilename);
 	} else {
-		output = std::make_unique<OutputFormatDefault>(Settings,
-							       CurrentFilename);
+		output = std::make_unique<OutputFormatDefault>(Settings, CurrentFilename);
 	}
 
 	output->Start();
 
-	auto MarkStr =
-		Groundfloor::TimestampToStr(c_TimestampNotation, StartTime);
+	auto MarkStr = Groundfloor::TimestampToStr(c_TimestampNotation, StartTime);
 
 	lastInfoMediaType = AType;
 
@@ -252,8 +237,7 @@ void InfoWriter::MarkStop(InfoMediaType AType)
 		return;
 
 	auto Now = Groundfloor::GetTimestamp();
-	auto MarkStr = std::unique_ptr<Groundfloor::String>{
-		Groundfloor::TimestampToStr(c_TimestampNotation, Now)};
+	auto MarkStr = std::unique_ptr<Groundfloor::String>{Groundfloor::TimestampToStr(c_TimestampNotation, Now)};
 
 	switch (AType) {
 	case imtStream:
@@ -307,8 +291,7 @@ void InfoWriter::MarkPauseResume([[maybe_unused]] const InfoMediaType AType)
 	auto CurrentTime = Groundfloor::GetTimestamp();
 	PausedTotalTime += (CurrentTime - PausedStartTime);
 
-	output->ResumedMarker(CurrentTime - StartTime,
-			      CurrentTime - PausedStartTime);
+	output->ResumedMarker(CurrentTime - StartTime, CurrentTime - PausedStartTime);
 	this->WriteInfo("");
 }
 
@@ -328,8 +311,7 @@ bool InfoWriter::IsStreaming() const
 
 std::string InfoWriter::NowTimeStamp() const
 {
-	auto NowStr =
-		Groundfloor::TimestampToStr(c_TimestampNotation, StartTime);
+	auto NowStr = Groundfloor::TimestampToStr(c_TimestampNotation, StartTime);
 	return NowStr->getValue();
 }
 
