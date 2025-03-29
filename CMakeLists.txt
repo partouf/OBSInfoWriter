@@ -6,6 +6,7 @@ project(OBSInfoWriter VERSION 2.7.0)
 
 option(ENABLE_FRONTEND_API "Use obs-frontend-api for UI functionality" OFF)
 option(ENABLE_QT "Use Qt functionality" OFF)
+option(DISABLE_JUMPROPES "Optional Jumpropes library" ON)
 
 include(compilerconfig)
 include(defaults)
@@ -24,6 +25,7 @@ set(LINUX_MAINTAINER_EMAIL "partouf@gmail.com")
 set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE ALWAYS)
 
 include(FetchContent)
+
 FetchContent_Declare(
   Crosscables
   OVERRIDE_FIND_PACKAGE
