@@ -28,20 +28,23 @@ FetchContent_Declare(
   Crosscables
   OVERRIDE_FIND_PACKAGE
   GIT_REPOSITORY https://github.com/partouf/Crosscables.git
-  GIT_TAG master)
+  GIT_TAG master
+)
 
 # Add your custom source files here - header files are optional and only required for visibility e.g. in Xcode or Visual
 # Studio
 target_sources(
   ${CMAKE_PROJECT_NAME}
-  PRIVATE OutputFormat/OutputFormat.SRT.cpp
-          OutputFormat/OutputFormat.CSV.cpp
-          OutputFormat/OutputFormat.EDL.cpp
-          OutputFormat/OutputFormat.Default.cpp
-          InfoWriter.cpp
-          InfoWriterSettings.cpp
-          InfoWriterObsUtils.cpp
-          OBSStudioInfoWriter.cpp)
+  PRIVATE
+    OutputFormat/OutputFormat.SRT.cpp
+    OutputFormat/OutputFormat.CSV.cpp
+    OutputFormat/OutputFormat.EDL.cpp
+    OutputFormat/OutputFormat.Default.cpp
+    InfoWriter.cpp
+    InfoWriterSettings.cpp
+    InfoWriterObsUtils.cpp
+    OBSStudioInfoWriter.cpp
+)
 
 # Import libobs as main plugin dependency
 find_package(libobs REQUIRED)
@@ -66,14 +69,16 @@ set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_nam
 add_executable(testconsole)
 target_sources(
   testconsole
-  PRIVATE OutputFormat/OutputFormat.SRT.cpp
-          OutputFormat/OutputFormat.CSV.cpp
-          OutputFormat/OutputFormat.EDL.cpp
-          OutputFormat/OutputFormat.Default.cpp
-          InfoWriter.cpp
-          InfoWriterSettings.cpp
-          DummyUtils.cpp
-          main.cpp)
+  PRIVATE
+    OutputFormat/OutputFormat.SRT.cpp
+    OutputFormat/OutputFormat.CSV.cpp
+    OutputFormat/OutputFormat.EDL.cpp
+    OutputFormat/OutputFormat.Default.cpp
+    InfoWriter.cpp
+    InfoWriterSettings.cpp
+    DummyUtils.cpp
+    main.cpp
+)
 target_compile_features(testconsole PRIVATE cxx_std_17)
 
 target_include_directories(testconsole PRIVATE ${CMAKE_BINARY_DIR}/_deps/crosscables-src)
