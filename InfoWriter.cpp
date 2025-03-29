@@ -119,8 +119,14 @@ void InfoWriter::WriteInfo(const InfoHotkey AHotkey) const
 	auto hotkey_text = Settings.GetHotkeyText(AHotkey);
 
 	if (lastInfoMediaType == imtStream) {
+		if (StartStreamTime == 0)
+			return;
+
 		output->HotkeyMarker(Now - StartStreamTime, hotkey_text);
 	} else {
+		if (StartRecordTime == 0)
+			return;
+
 		output->HotkeyMarker(Now - StartRecordTime - getPausedTime(Now),
 				     hotkey_text);
 	}
@@ -136,6 +142,8 @@ void InfoWriter::WriteSceneChange(const std::string scenename) const
 	auto Now = Groundfloor::GetTimestamp();
 
 	if (lastInfoMediaType == imtStream) {
+		if (StartStreamTime == 0)
+			return;
 		if (scenename == "") {
 			output->ScenechangeMarker(Now - StartStreamTime,
 						  "UNKNO");
@@ -144,6 +152,8 @@ void InfoWriter::WriteSceneChange(const std::string scenename) const
 						  scenename);
 		}
 	} else {
+		if (StartRecordTime == 0)
+			return;
 		if (scenename == "") {
 			output->ScenechangeMarker(Now - StartRecordTime -
 							  getPausedTime(Now),
@@ -242,10 +252,13 @@ void InfoWriter::MarkStop(InfoMediaType AType)
 		return;
 
 	auto Now = Groundfloor::GetTimestamp();
-	auto MarkStr = Groundfloor::TimestampToStr(c_TimestampNotation, Now);
+	auto MarkStr = std::unique_ptr<Groundfloor::String>{
+		Groundfloor::TimestampToStr(c_TimestampNotation, Now)};
 
 	switch (AType) {
 	case imtStream:
+		if (StartStreamTime == 0)
+			return;
 		output->Stop(Now - StartStreamTime);
 		MarkStr->prepend_ansi("EVENT:STOP STREAM @ ");
 		MarkStr->append(" Stream Time Marker Reset to 0");
@@ -254,6 +267,8 @@ void InfoWriter::MarkStop(InfoMediaType AType)
 		break;
 	case imtUnknown:
 	case imtRecording:
+		if (StartRecordTime == 0)
+			return;
 		output->Stop(Now - StartRecordTime - getPausedTime(Now));
 		MarkStr->prepend_ansi("EVENT:STOP RECORDING @ ");
 		MarkStr->append(" Record Time Marker Reset to 0");
@@ -269,8 +284,6 @@ void InfoWriter::MarkStop(InfoMediaType AType)
 	}
 
 	WriteInfo(MarkStr->getValue());
-
-	delete MarkStr;
 }
 
 void InfoWriter::MarkPauseStart(const InfoMediaType AType)

@@ -10,7 +10,7 @@ int main()
 
 	auto Settings = Writer.GetSettings();
 	Settings->SetFilename("./log %Y-%m-%d %H%M%S.txt");
-	Settings->SetOutputFormat("srt");
+	Settings->SetOutputFormat("edl");
 	Settings->SetFormat("\\t%d:%02d:%02d");
 	Settings->SetHotkeyText(1, "ONE");
 	Settings->SetHotkeyText(2, "TWO");
