@@ -131,11 +131,11 @@ void OutputFormatEDL::ScenechangeMarker(const int64_t timestamp,
 	markercount++;
 }
 
-void OutputFormatEDL::PausedMarker(const int64_t timestamp) {}
+void OutputFormatEDL::PausedMarker([[maybe_unused]] const int64_t timestamp) {}
 
-void OutputFormatEDL::ResumedMarker(const int64_t timestamp,
-				    const int64_t pauselength)
+void OutputFormatEDL::ResumedMarker([[maybe_unused]] const int64_t timestamp,
+				    [[maybe_unused]] const int64_t pauselength)
 {
 }
 
-void OutputFormatEDL::TextMarker(const std::string text) {}
+void OutputFormatEDL::TextMarker([[maybe_unused]] const std::string text) {}

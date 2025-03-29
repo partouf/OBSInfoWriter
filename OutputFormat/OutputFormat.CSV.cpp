@@ -47,7 +47,7 @@ void OutputFormatCSV::WriteGFStringToFile(const std::string filename,
 
 void OutputFormatCSV::Start() {}
 
-void OutputFormatCSV::Stop(const int64_t timestamp) {}
+void OutputFormatCSV::Stop([[maybe_unused]] const int64_t timestamp) {}
 
 void OutputFormatCSV::WriteCSVLine(const int64_t timestamp,
 				   const std::string text) const
@@ -73,11 +73,11 @@ void OutputFormatCSV::ScenechangeMarker(const int64_t timestamp,
 	WriteCSVLine(timestamp, scenename);
 }
 
-void OutputFormatCSV::PausedMarker(const int64_t timestamp) {}
+void OutputFormatCSV::PausedMarker([[maybe_unused]] const int64_t timestamp) {}
 
-void OutputFormatCSV::ResumedMarker(const int64_t timestamp,
-				    const int64_t pauselength)
+void OutputFormatCSV::ResumedMarker([[maybe_unused]] const int64_t timestamp,
+				    [[maybe_unused]] const int64_t pauselength)
 {
 }
 
-void OutputFormatCSV::TextMarker(const std::string text) {}
+void OutputFormatCSV::TextMarker([[maybe_unused]] const std::string text) {}

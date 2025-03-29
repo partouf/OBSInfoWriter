@@ -113,11 +113,11 @@ void OutputFormatSRT::ScenechangeMarker(const int64_t timestamp,
 	this->subtitleCounter++;
 }
 
-void OutputFormatSRT::PausedMarker(const int64_t timestamp) {}
+void OutputFormatSRT::PausedMarker([[maybe_unused]] const int64_t timestamp) {}
 
-void OutputFormatSRT::ResumedMarker(const int64_t timestamp,
-				    const int64_t pauselength)
+void OutputFormatSRT::ResumedMarker([[maybe_unused]] const int64_t timestamp,
+				    [[maybe_unused]] const int64_t pauselength)
 {
 }
 
-void OutputFormatSRT::TextMarker(const std::string text) {}
+void OutputFormatSRT::TextMarker([[maybe_unused]] const std::string text) {}

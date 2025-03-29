@@ -84,7 +84,7 @@ void OutputFormatDefault::Start()
 	startTime = Groundfloor::GetTimestamp();
 }
 
-void OutputFormatDefault::Stop(const int64_t timestamp) {}
+void OutputFormatDefault::Stop([[maybe_unused]] const int64_t timestamp) {}
 
 void OutputFormatDefault::HotkeyMarker(const int64_t timestamp,
 				       const std::string text)
