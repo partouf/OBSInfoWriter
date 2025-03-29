@@ -35,7 +35,7 @@ private:
 	std::unique_ptr<IOutputFormat> output;
 
 	int64_t getPausedTime(const int64_t currentTime) const;
-	void InitCurrentFilename(int64_t timestamp);
+	void InitCurrentFilename();
 	std::string SecsToHMSString(const int64_t totalseconds) const;
 
 public:

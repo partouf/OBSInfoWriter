@@ -6,8 +6,7 @@
 
 const int reelnameMaxlength = 5;
 
-OutputFormatEDL::OutputFormatEDL(const InfoWriterSettings &settings,
-				 const std::string filename)
+OutputFormatEDL::OutputFormatEDL(const InfoWriterSettings &settings, const std::string filename)
 	: IOutputFormat(),
 	  markercount(0),
 	  lastMarker(0),
@@ -74,8 +73,7 @@ std::string FilterReelName(const std::string text)
 	return reelname;
 }
 
-void OutputFormatEDL::writeMarker(const int64_t start, const int64_t stop,
-				  const std::string text) const
+void OutputFormatEDL::writeMarker(const int64_t start, const int64_t stop, const std::string text) const
 {
 	char crlf[] = GFNATIVENEXTLINE;
 
@@ -86,9 +84,8 @@ void OutputFormatEDL::writeMarker(const int64_t start, const int64_t stop,
 
 	const char *edlformat = "%03d  %s V     C        %s %s %s %s";
 	char line[200];
-	sprintf(&line[0], edlformat, markercount, markername.c_str(),
-		formattedStartTime.c_str(), formattedStopTime.c_str(),
-		formattedStartTime.c_str(), formattedStopTime.c_str());
+	sprintf(&line[0], edlformat, markercount, markername.c_str(), formattedStartTime.c_str(),
+		formattedStopTime.c_str(), formattedStartTime.c_str(), formattedStopTime.c_str());
 
 	Groundfloor::String EdlMarkerLine(line);
 	EdlMarkerLine.append_ansi(crlf);
@@ -109,8 +106,7 @@ void OutputFormatEDL::Stop(const int64_t timestamp)
 	writeMarker(lastMarker, timestamp - 1, lastMarkerText);
 }
 
-void OutputFormatEDL::HotkeyMarker(const int64_t timestamp,
-				   const std::string text)
+void OutputFormatEDL::HotkeyMarker(const int64_t timestamp, const std::string text)
 {
 	writeMarker(lastMarker, timestamp, lastMarkerText);
 
@@ -120,8 +116,7 @@ void OutputFormatEDL::HotkeyMarker(const int64_t timestamp,
 	markercount++;
 }
 
-void OutputFormatEDL::ScenechangeMarker(const int64_t timestamp,
-					const std::string scenename)
+void OutputFormatEDL::ScenechangeMarker(const int64_t timestamp, const std::string scenename)
 {
 	writeMarker(lastMarker, timestamp, lastMarkerText);
 
@@ -131,11 +126,11 @@ void OutputFormatEDL::ScenechangeMarker(const int64_t timestamp,
 	markercount++;
 }
 
-void OutputFormatEDL::PausedMarker(const int64_t timestamp) {}
+void OutputFormatEDL::PausedMarker([[maybe_unused]] const int64_t timestamp) {}
 
-void OutputFormatEDL::ResumedMarker(const int64_t timestamp,
-				    const int64_t pauselength)
+void OutputFormatEDL::ResumedMarker([[maybe_unused]] const int64_t timestamp,
+				    [[maybe_unused]] const int64_t pauselength)
 {
 }
 
-void OutputFormatEDL::TextMarker(const std::string text) {}
+void OutputFormatEDL::TextMarker([[maybe_unused]] const std::string text) {}

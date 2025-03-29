@@ -9,23 +9,17 @@ private:
 	const InfoWriterSettings &settings;
 	std::string currentFilename;
 	std::string SecsToHMSString(const int64_t totalseconds) const;
-	void WriteGFStringToFile(const std::string filename,
-				 const std::string text) const;
-	void WriteCSVLine(const int64_t timestamp,
-			  const std::string text) const;
+	void WriteGFStringToFile(const std::string filename, const std::string text) const;
+	void WriteCSVLine(const int64_t timestamp, const std::string text) const;
 
 public:
-	OutputFormatCSV(const InfoWriterSettings &settings,
-			const std::string filename);
+	OutputFormatCSV(const InfoWriterSettings &settings, const std::string filename);
 
 	void Start() override;
 	void Stop(const int64_t timestamp) override;
-	void HotkeyMarker(const int64_t timestamp,
-			  const std::string text) override;
-	void ScenechangeMarker(const int64_t timestamp,
-			       const std::string scenename) override;
+	void HotkeyMarker(const int64_t timestamp, const std::string text) override;
+	void ScenechangeMarker(const int64_t timestamp, const std::string scenename) override;
 	void PausedMarker(const int64_t timestamp) override;
-	void ResumedMarker(const int64_t timestamp,
-			   const int64_t pauselength) override;
+	void ResumedMarker(const int64_t timestamp, const int64_t pauselength) override;
 	void TextMarker(const std::string text) override;
 };

@@ -6,8 +6,7 @@
 
 const char *c_TimestampNotation_SRT = "%Y-%m-%d %H:%M:%S";
 
-OutputFormatSRT::OutputFormatSRT(const InfoWriterSettings &settings,
-				 const std::string filename)
+OutputFormatSRT::OutputFormatSRT(const InfoWriterSettings &settings, const std::string filename)
 	: IOutputFormat(),
 	  settings(settings),
 	  currentFilename(filename),
@@ -32,8 +31,7 @@ std::string OutputFormatSRT::SecsToHMSString(const int64_t totalseconds) const
 	return buffer;
 }
 
-void OutputFormatSRT::WriteGFStringToFile(const std::string filename,
-					  const std::string text) const
+void OutputFormatSRT::WriteGFStringToFile(const std::string filename, const std::string text) const
 {
 	Groundfloor::String line(text);
 
@@ -50,8 +48,7 @@ void OutputFormatSRT::WriteGFStringToFile(const std::string filename,
 	Writer.close();
 }
 
-void OutputFormatSRT::WriteLines(const int64_t timestamp,
-				 const std::string text)
+void OutputFormatSRT::WriteLines(const int64_t timestamp, const std::string text)
 {
 	char crlf[] = GFNATIVENEXTLINE;
 
@@ -59,8 +56,7 @@ void OutputFormatSRT::WriteLines(const int64_t timestamp,
 	sprintf(&buffer[0], "%d", this->subtitleCounter);
 
 	std::string line1 = buffer;
-	std::string line2 = SecsToHMSString(timestamp) + " --> " +
-			    SecsToHMSString(timestamp + 5);
+	std::string line2 = SecsToHMSString(timestamp) + " --> " + SecsToHMSString(timestamp + 5);
 
 	WriteGFStringToFile(currentFilename, line1 + crlf);
 	WriteGFStringToFile(currentFilename, line2 + crlf);
@@ -76,9 +72,7 @@ void OutputFormatSRT::Start()
 {
 	this->subtitleCounter = 1;
 	std::string timestr =
-		Groundfloor::TimestampToStr(c_TimestampNotation_SRT,
-					    Groundfloor::GetTimestamp())
-			->getValue();
+		Groundfloor::TimestampToStr(c_TimestampNotation_SRT, Groundfloor::GetTimestamp())->getValue();
 	std::string line = "START @ " + timestr;
 	WriteLines(0, line);
 
@@ -88,36 +82,32 @@ void OutputFormatSRT::Start()
 void OutputFormatSRT::Stop(const int64_t timestamp)
 {
 	std::string timestr =
-		Groundfloor::TimestampToStr(c_TimestampNotation_SRT,
-					    Groundfloor::GetTimestamp())
-			->getValue();
+		Groundfloor::TimestampToStr(c_TimestampNotation_SRT, Groundfloor::GetTimestamp())->getValue();
 	std::string line = "STOP @ " + timestr;
 	WriteLines(timestamp, line);
 
 	this->subtitleCounter++;
 }
 
-void OutputFormatSRT::HotkeyMarker(const int64_t timestamp,
-				   const std::string text)
+void OutputFormatSRT::HotkeyMarker(const int64_t timestamp, const std::string text)
 {
 	WriteLines(timestamp, text);
 
 	this->subtitleCounter++;
 }
 
-void OutputFormatSRT::ScenechangeMarker(const int64_t timestamp,
-					const std::string scenename)
+void OutputFormatSRT::ScenechangeMarker(const int64_t timestamp, const std::string scenename)
 {
 	WriteLines(timestamp, scenename);
 
 	this->subtitleCounter++;
 }
 
-void OutputFormatSRT::PausedMarker(const int64_t timestamp) {}
+void OutputFormatSRT::PausedMarker([[maybe_unused]] const int64_t timestamp) {}
 
-void OutputFormatSRT::ResumedMarker(const int64_t timestamp,
-				    const int64_t pauselength)
+void OutputFormatSRT::ResumedMarker([[maybe_unused]] const int64_t timestamp,
+				    [[maybe_unused]] const int64_t pauselength)
 {
 }
 
-void OutputFormatSRT::TextMarker(const std::string text) {}
+void OutputFormatSRT::TextMarker([[maybe_unused]] const std::string text) {}

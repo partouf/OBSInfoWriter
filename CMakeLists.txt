@@ -1,11 +1,12 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.28...3.30)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/common/bootstrap.cmake" NO_POLICY_SCOPE)
 
-project(OBSInfoWriter VERSION 1.0.0)
+project(OBSInfoWriter VERSION 2.7.0)
 
 option(ENABLE_FRONTEND_API "Use obs-frontend-api for UI functionality" OFF)
 option(ENABLE_QT "Use Qt functionality" OFF)
+option(DISABLE_JUMPROPES "Disable Jumpropes (networking) library (not actually used)" ON)
 
 include(compilerconfig)
 include(defaults)
@@ -24,23 +25,28 @@ set(LINUX_MAINTAINER_EMAIL "partouf@gmail.com")
 set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE ALWAYS)
 
 include(FetchContent)
+
 FetchContent_Declare(
   Crosscables
   OVERRIDE_FIND_PACKAGE
   GIT_REPOSITORY https://github.com/partouf/Crosscables.git
-  GIT_TAG master)
+  GIT_TAG master
+)
 
 # Add your custom source files here - header files are optional and only required for visibility e.g. in Xcode or Visual
 # Studio
 target_sources(
   ${CMAKE_PROJECT_NAME}
-  PRIVATE OutputFormat/OutputFormat.SRT.cpp
-          OutputFormat/OutputFormat.CSV.cpp
-          OutputFormat/OutputFormat.EDL.cpp
-          OutputFormat/OutputFormat.Default.cpp
-          InfoWriter.cpp
-          InfoWriterSettings.cpp
-          OBSStudioInfoWriter.cpp)
+  PRIVATE
+    OutputFormat/OutputFormat.SRT.cpp
+    OutputFormat/OutputFormat.CSV.cpp
+    OutputFormat/OutputFormat.EDL.cpp
+    OutputFormat/OutputFormat.Default.cpp
+    InfoWriter.cpp
+    InfoWriterSettings.cpp
+    InfoWriterObsUtils.cpp
+    OBSStudioInfoWriter.cpp
+)
 
 # Import libobs as main plugin dependency
 find_package(libobs REQUIRED)
@@ -61,3 +67,22 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs)
 # --- End of section ---
 
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})
+
+add_executable(testconsole)
+target_sources(
+  testconsole
+  PRIVATE
+    OutputFormat/OutputFormat.SRT.cpp
+    OutputFormat/OutputFormat.CSV.cpp
+    OutputFormat/OutputFormat.EDL.cpp
+    OutputFormat/OutputFormat.Default.cpp
+    InfoWriter.cpp
+    InfoWriterSettings.cpp
+    DummyUtils.cpp
+    main.cpp
+)
+target_compile_features(testconsole PRIVATE cxx_std_17)
+
+target_include_directories(testconsole PRIVATE ${CMAKE_BINARY_DIR}/_deps/crosscables-src)
+target_link_libraries(testconsole PRIVATE Groundfloor)
+target_include_directories(testconsole PRIVATE ${CMAKE_SOURCE_DIR}/src)
