@@ -6,7 +6,7 @@ project(OBSInfoWriter VERSION 2.7.0)
 
 option(ENABLE_FRONTEND_API "Use obs-frontend-api for UI functionality" OFF)
 option(ENABLE_QT "Use Qt functionality" OFF)
-option(DISABLE_JUMPROPES "Optional Jumpropes library" ON)
+option(DISABLE_JUMPROPES "Disable Jumpropes (networking) library (not actually used)" ON)
 
 include(compilerconfig)
 include(defaults)
