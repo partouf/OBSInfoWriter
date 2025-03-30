@@ -268,6 +268,10 @@ void InfoWriter::MarkStop(InfoMediaType AType)
 	}
 
 	WriteInfo(MarkStr->getValue());
+
+	if (!IsStreaming() && !IsRecording()) {
+		output = nullptr;
+	}
 }
 
 void InfoWriter::MarkPauseStart([[maybe_unused]] const InfoMediaType AType)
