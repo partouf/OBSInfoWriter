@@ -68,19 +68,19 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs)
 
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})
 
-add_executable(testconsole)
-target_sources(
-  testconsole
-  PRIVATE
-    OutputFormat/OutputFormat.SRT.cpp
-    OutputFormat/OutputFormat.CSV.cpp
-    OutputFormat/OutputFormat.EDL.cpp
-    OutputFormat/OutputFormat.Default.cpp
-    InfoWriter.cpp
-    InfoWriterSettings.cpp
-    DummyUtils.cpp
-    main.cpp
-)
-target_compile_features(testconsole PRIVATE cxx_std_17)
+# add_executable(testconsole)
+# target_sources(
+#   testconsole
+#   PRIVATE
+#     OutputFormat/OutputFormat.SRT.cpp
+#     OutputFormat/OutputFormat.CSV.cpp
+#     OutputFormat/OutputFormat.EDL.cpp
+#     OutputFormat/OutputFormat.Default.cpp
+#     InfoWriter.cpp
+#     InfoWriterSettings.cpp
+#     DummyUtils.cpp
+#     main.cpp
+# )
+# target_compile_features(testconsole PRIVATE cxx_std_17)
 
-target_link_libraries(testconsole PRIVATE Groundfloor)
+# target_link_libraries(testconsole PRIVATE Groundfloor)
