@@ -53,8 +53,8 @@ public:
 	bool HasStarted() const;
 	bool IsStreaming() const;
 	bool IsRecording() const;
-	bool IsChangingScene() const;
 
+	bool IsChangingScene() const;
 	void SetSceneIsChanging(bool yesno);
 
 	std::string NowTimeStamp() const;
