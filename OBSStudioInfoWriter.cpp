@@ -50,6 +50,41 @@ bool obstudio_infowriter_syncnameandpathwithvideo_property_modified(obs_properti
 	return (previously_enabled != obs_property_enabled(prop_setting_file));
 }
 
+void obstudio_infowriter_source_show_callback(void *data, calldata_t *calldata)
+{
+	InfoWriter *Writer = static_cast<InfoWriter *>(data);
+
+	if (calldata) {
+		struct obs_source *source;
+
+		if (calldata_get_ptr(calldata, "source", &source)) {
+			if (!obs_source_is_scene(source)) {
+				if (Writer && !Writer->IsChangingScene()) {
+					const char *source_name = obs_source_get_name(source);
+
+					std::string logtxt = "source show event, source: ";
+					logtxt += source_name;
+					Writer->WriteInfo(logtxt);
+				}
+			} else {
+				Writer->SetSceneIsChanging(true);
+			}
+		}
+	}
+}
+
+void obstudio_infowriter_source_hide_callback(void *data, calldata_t *calldata)
+{
+	InfoWriter *Writer = static_cast<InfoWriter *>(data);
+
+	if (calldata) {
+		struct obs_source *source;
+
+		if (calldata_get_ptr(calldata, "source", &source)) {
+		}
+	}
+}
+
 void obstudio_infowriter_write_hotkey1(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
 {
 	UNUSED_PARAMETER(id);
@@ -220,6 +255,8 @@ const char *obstudio_infowriter_get_name(void *type_data)
 
 void LogSceneChange(InfoWriter *Writer, const std::string scenename)
 {
+	Writer->SetSceneIsChanging(false);
+
 	auto WriterSettings = Writer->GetSettings();
 
 	if (WriterSettings->GetShouldLogSceneChanges()) {
@@ -280,6 +317,10 @@ void *obstudio_infowriter_create(obs_data_t *settings, obs_source_t *source)
 				   Writer);
 
 	obs_frontend_add_event_callback(obsstudio_infowriter_frontend_event_callback, Writer);
+
+	signal_handler_t *handler = obs_get_signal_handler();
+	signal_handler_connect(handler, "source_show", obstudio_infowriter_source_show_callback, Writer);
+	signal_handler_connect(handler, "source_hide", obstudio_infowriter_source_hide_callback, Writer);
 
 	return Writer;
 }
@@ -450,6 +491,12 @@ void obstudio_infowriter_destroy(void *data)
 	if (Writer != nullptr) {
 		if (Writer->HasStarted()) {
 			Writer->MarkStop(imtUnknown);
+		}
+
+		signal_handler_t *handler = obs_get_signal_handler();
+		if (handler) {
+			signal_handler_disconnect(handler, "source_show", obstudio_infowriter_source_show_callback,
+						  Writer);
 		}
 
 		obs_frontend_remove_event_callback(obsstudio_infowriter_frontend_event_callback, Writer);
