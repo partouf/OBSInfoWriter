@@ -51,6 +51,7 @@ public:
 
 	bool HasStarted() const;
 	bool IsStreaming() const;
+	bool IsRecording() const;
 
 	std::string NowTimeStamp() const;
 
