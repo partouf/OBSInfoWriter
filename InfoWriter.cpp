@@ -318,7 +318,6 @@ bool InfoWriter::IsRecording() const
 	return RecordStarted;
 }
 
-
 std::string InfoWriter::NowTimeStamp() const
 {
 	auto NowStr = Groundfloor::TimestampToStr(c_TimestampNotation, StartTime);
