@@ -83,6 +83,4 @@ target_sources(
 )
 target_compile_features(testconsole PRIVATE cxx_std_17)
 
-target_include_directories(testconsole PRIVATE ${CMAKE_BINARY_DIR}/_deps/crosscables-src)
 target_link_libraries(testconsole PRIVATE Groundfloor)
-target_include_directories(testconsole PRIVATE ${CMAKE_SOURCE_DIR}/src)
