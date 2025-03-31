@@ -53,7 +53,7 @@ bool obstudio_infowriter_syncnameandpathwithvideo_property_modified(obs_properti
 void obsstudio_infowriter_source_show_callback(void *data, calldata_t *calldata)
 {
 	InfoWriter *Writer = static_cast<InfoWriter *>(data);
-	if (calldata) {
+	if (calldata && Writer) {
 		struct obs_source *source;
 
 		if (calldata_get_ptr(calldata, "source", &source)) {
@@ -62,7 +62,7 @@ void obsstudio_infowriter_source_show_callback(void *data, calldata_t *calldata)
 				return;
 			}
 
-			if (Writer && !Writer->IsChangingScene()) {
+			if (!Writer->IsChangingScene()) {
 				const char *source_name = obs_source_get_name(source);
 
 				std::string logtxt = "source show event, source: ";
@@ -73,11 +73,26 @@ void obsstudio_infowriter_source_show_callback(void *data, calldata_t *calldata)
 	}
 }
 
+bool obsstudio_is_source_in_scene(obs_source_t *scene, const char *source_name)
+{
+	obs_scene_t *scene_source = obs_scene_from_source(scene);
+	if (!scene_source)
+		return false;
+
+	obs_sceneitem_t *item = obs_scene_find_source_recursive(scene_source, source_name);
+	if (!item) {
+		obs_source_release(scene);
+		return false;
+	}
+
+	return true;
+}
+
 void obsstudio_infowriter_source_hide_callback(void *data, calldata_t *calldata)
 {
 	InfoWriter *Writer = static_cast<InfoWriter *>(data);
 
-	if (calldata) {
+	if (calldata && Writer) {
 		struct obs_source *source;
 
 		if (calldata_get_ptr(calldata, "source", &source)) {
@@ -86,14 +101,17 @@ void obsstudio_infowriter_source_hide_callback(void *data, calldata_t *calldata)
 
 			const char *source_name = obs_source_get_name(source);
 
-			obs_source_t *scene = obs_frontend_get_current_scene();
-			obs_scene_t *scene_source = obs_scene_from_source(scene);
-			if (!scene_source)
-				return;
-			obs_sceneitem_t *item = obs_scene_find_source_recursive(scene_source, source_name);
-			if (!item) {
-				obs_source_release(scene);
-				return;
+			obs_source_t *current_scene = obs_frontend_get_current_scene();
+			if (obs_frontend_preview_program_mode_active()) {
+				obs_source_t *preview_scene = obs_frontend_get_current_preview_scene();
+				if (!obsstudio_is_source_in_scene(preview_scene, source_name) &&
+				    !obsstudio_is_source_in_scene(current_scene, source_name)) {
+					return;
+				}
+			} else {
+				if (!obsstudio_is_source_in_scene(current_scene, source_name)) {
+					return;
+				}
 			}
 
 			std::string logtxt = "source hide event, source: ";
