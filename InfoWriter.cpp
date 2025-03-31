@@ -27,6 +27,7 @@ InfoWriter::InfoWriter() : Settings()
 	StreamStarted = false;
 	RecordStarted = false;
 	Paused = false;
+	SceneIsChanging = false;
 }
 
 std::string InfoWriter::SecsToHMSString(const int64_t totalseconds) const
@@ -131,6 +132,11 @@ void InfoWriter::WriteInfo(const InfoHotkey AHotkey) const
 	this->WriteInfo("");
 }
 
+void InfoWriter::SetSceneIsChanging(bool yesno)
+{
+	this->SceneIsChanging = yesno;
+}
+
 void InfoWriter::WriteSceneChange(const std::string scenename) const
 {
 	if (output == nullptr)
@@ -197,7 +203,8 @@ void InfoWriter::MarkStart(InfoMediaType AType)
 
 	output->Start();
 
-	auto MarkStr = Groundfloor::TimestampToStr(c_TimestampNotation, StartTime);
+	auto MarkStr =
+		std::unique_ptr<Groundfloor::String>{Groundfloor::TimestampToStr(c_TimestampNotation, StartTime)};
 
 	lastInfoMediaType = AType;
 
@@ -225,8 +232,6 @@ void InfoWriter::MarkStart(InfoMediaType AType)
 	case imtRecordingPauseResume:
 		break;
 	}
-
-	delete MarkStr;
 
 	this->WriteInfo("");
 }
@@ -316,6 +321,11 @@ bool InfoWriter::IsStreaming() const
 bool InfoWriter::IsRecording() const
 {
 	return RecordStarted;
+}
+
+bool InfoWriter::IsChangingScene() const
+{
+	return SceneIsChanging;
 }
 
 std::string InfoWriter::NowTimeStamp() const
