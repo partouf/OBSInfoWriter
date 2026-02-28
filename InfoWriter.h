@@ -5,6 +5,7 @@
 #include <Groundfloor/Molecules/String.h>
 #include "OutputFormat.h"
 #include <memory>
+#include <chrono>
 
 enum InfoMediaType {
 	imtUnknown = 0,
@@ -23,6 +24,11 @@ private:
 	int64_t PausedTotalTime;
 	int64_t PausedStartTime;
 
+	std::chrono::time_point<std::chrono::steady_clock> StartTimePoint;
+	std::chrono::time_point<std::chrono::steady_clock> StartStreamTimePoint;
+	std::chrono::time_point<std::chrono::steady_clock> StartRecordTimePoint;
+	std::chrono::time_point<std::chrono::steady_clock> StartPausedTimePoint;
+
 	InfoMediaType lastInfoMediaType;
 
 	InfoWriterSettings Settings;
@@ -37,6 +43,7 @@ private:
 	int64_t getPausedTime(const int64_t currentTime) const;
 	void InitCurrentFilename();
 	std::string SecsToHMSString(const int64_t totalseconds) const;
+	std::string SecsToHMSSzzztring(const std::chrono::duration<double> totalseconds) const;
 
 public:
 	InfoWriter();

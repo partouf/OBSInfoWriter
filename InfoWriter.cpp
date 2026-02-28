@@ -47,6 +47,26 @@ std::string InfoWriter::SecsToHMSString(const int64_t totalseconds) const
 	return buffer;
 }
 
+std::string InfoWriter::SecsToHMSSzzztring(const std::chrono::duration<double> totalseconds) const
+{
+	uint32_t just_seconds = trunc(totalseconds.count());
+	uint32_t hr = (uint32_t)trunc(just_seconds / 60.0 / 60.0);
+	uint32_t min = (uint32_t)trunc(just_seconds / 60.0) - (hr * 60);
+	uint32_t sec = just_seconds % 60;
+	uint32_t zzz = (uint32_t)trunc((totalseconds.count() - just_seconds) * 1000.0);
+
+	std::string format = Settings.GetFormat();
+	std::string replacement = "\t";
+	std::regex tabregex("(\\\\t)");
+	format = std::regex_replace(format, tabregex, replacement);
+	format += "\0\0\0\0";
+
+	char buffer[1024];
+	sprintf(&buffer[0], format.c_str(), hr, min, sec, zzz);
+
+	return buffer;
+}
+
 int64_t InfoWriter::getPausedTime(const int64_t currentTime) const
 {
 	auto PausedTmpTime = PausedTotalTime;
@@ -182,6 +202,8 @@ void InfoWriter::InitCurrentFilename()
 void InfoWriter::MarkStart(InfoMediaType AType)
 {
 	StartTime = Groundfloor::GetTimestamp();
+	StartTimePoint = std::chrono::steady_clock::now();
+
 	InitCurrentFilename();
 
 	auto outputformat = Settings.GetOutputFormat();
@@ -204,7 +226,7 @@ void InfoWriter::MarkStart(InfoMediaType AType)
 	switch (AType) {
 	case imtStream:
 		StartStreamTime = StartTime;
-		StreamStarted = true;
+		StartStreamTimePoint = StartTimePoint;
 		if (this->Settings.GetShouldLogStreaming()) {
 			MarkStr->prepend_ansi("EVENT:START STREAM @ ");
 		}
@@ -216,6 +238,7 @@ void InfoWriter::MarkStart(InfoMediaType AType)
 	case imtRecording:
 		MarkStr->prepend_ansi("EVENT:START RECORDING @ ");
 		StartRecordTime = StartTime;
+		StartRecordTimePoint = StartTimePoint;
 		RecordStarted = true;
 		Paused = false;
 		output->TextMarker(MarkStr->getValue());
