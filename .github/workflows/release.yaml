@@ -1,0 +1,59 @@
+name: Release
+run-name: Release ${{ inputs.version }} 🚀
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 2.8.0 or 2.8.0-beta1)'
+        required: true
+        type: string
+permissions:
+  contents: write
+jobs:
+  release:
+    name: Bump Version and Tag 🏷️
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Validate Version Format ☑️
+        run: |
+          : Validate Version Format ☑️
+          if [[ ! "${{ inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(beta|rc)[0-9]*)?$ ]]; then
+            echo "::error::Invalid version format '${{ inputs.version }}'. Expected: X.Y.Z or X.Y.Z-beta1/X.Y.Z-rc1"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - name: Check Tag Does Not Exist ☑️
+        run: |
+          : Check Tag Does Not Exist ☑️
+          if git rev-parse "refs/tags/${{ inputs.version }}" &>/dev/null; then
+            echo "::error::Tag '${{ inputs.version }}' already exists"
+            exit 1
+          fi
+
+      - name: Update Version in buildspec.json 📝
+        run: |
+          : Update Version in buildspec.json 📝
+          jq --arg v "${{ inputs.version }}" '.version = $v' buildspec.json > buildspec.tmp
+          mv buildspec.tmp buildspec.json
+
+      - name: Update Version in CMakeLists.txt 📝
+        run: |
+          : Update Version in CMakeLists.txt 📝
+          cmake_version="${{ inputs.version }}"
+          cmake_version="${cmake_version%%-*}"
+          sed -i "s/\(project(OBSInfoWriter VERSION \)[0-9]\+\.[0-9]\+\.[0-9]\+)/\1${cmake_version})/" CMakeLists.txt
+
+      - name: Commit and Tag 🏷️
+        run: |
+          : Commit and Tag 🏷️
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add buildspec.json CMakeLists.txt
+          git commit -m "Release ${{ inputs.version }}"
+          git tag "${{ inputs.version }}"
+          git push origin HEAD "${{ inputs.version }}"
