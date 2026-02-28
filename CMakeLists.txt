@@ -31,6 +31,7 @@ FetchContent_Declare(
   OVERRIDE_FIND_PACKAGE
   GIT_REPOSITORY https://github.com/partouf/Crosscables.git
   GIT_TAG master
+  EXCLUDE_FROM_ALL
 )
 
 # Add your custom source files here - header files are optional and only required for visibility e.g. in Xcode or Visual
