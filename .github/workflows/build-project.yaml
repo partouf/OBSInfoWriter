@@ -1,6 +1,17 @@
 name: Build Project
 on:
   workflow_call:
+    inputs:
+      ref:
+        description: 'Git ref to check out (defaults to triggering ref)'
+        required: false
+        type: string
+        default: ''
+      release:
+        description: 'Build as a release (package, codesign, notarize, Release config)'
+        required: false
+        type: boolean
+        default: false
     outputs:
       pluginName:
         description: Project name detected by parsing build spec file
@@ -22,6 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.ref || '' }}
           fetch-depth: 0
       - name: Check Event Data ☑️
         id: setup
@@ -31,6 +43,9 @@ jobs:
           : Check Event Data ☑️
           if [[ "${RUNNER_DEBUG}" ]]; then set -x; fi
 
+          if [[ "${{ inputs.release }}" == "true" ]]; then
+            config_data=('codesign:true' 'notarize:true' 'package:true' 'config:Release')
+          else
           case "${GITHUB_EVENT_NAME}" in
             pull_request)
               config_data=('codesign:false' 'notarize:false' 'package:false' 'config:RelWithDebInfo')
@@ -55,6 +70,7 @@ jobs:
               ;;
             *) ;;
           esac
+          fi
 
           for config in "${config_data[@]}"; do
             IFS=':' read -r key value <<< "${config}"
@@ -81,6 +97,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.ref || '' }}
           submodules: recursive
           fetch-depth: 0
 
@@ -188,6 +205,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.ref || '' }}
           submodules: recursive
           fetch-depth: 0
 
@@ -259,6 +277,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.ref || '' }}
           submodules: recursive
           fetch-depth: 0
 
