@@ -165,8 +165,10 @@ void InfoWriter::InitCurrentFilename()
 
 	if (Settings.GetShouldSyncNameAndPathWithVideo()) {
 		auto filename = get_filename_from_recording_path(Settings);
-		if (filename)
+		if (filename) {
 			CurrentFilename = filename.value();
+			currentname_set = true;
+		}
 	}
 
 	if (!currentname_set) {
