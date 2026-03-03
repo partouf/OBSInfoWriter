@@ -50,6 +50,89 @@ bool obstudio_infowriter_syncnameandpathwithvideo_property_modified(obs_properti
 	return (previously_enabled != obs_property_enabled(prop_setting_file));
 }
 
+void obsstudio_infowriter_source_show_callback(void *data, calldata_t *calldata)
+{
+	InfoWriter *Writer = static_cast<InfoWriter *>(data);
+	if (calldata && Writer) {
+		struct obs_source *source;
+
+		if (calldata_get_ptr(calldata, "source", &source)) {
+			if (obs_source_is_scene(source)) {
+				Writer->SetSceneIsChanging(true);
+				return;
+			}
+
+			if (!Writer->IsChangingScene()) {
+				const char *source_name = obs_source_get_name(source);
+
+				std::string logtxt = "source show event, source: ";
+				logtxt += source_name;
+				Writer->WriteInfo(logtxt);
+			}
+		}
+	}
+}
+
+bool obsstudio_is_source_in_scene(obs_source_t *scene, const char *source_name)
+{
+	obs_scene_t *scene_source = obs_scene_from_source(scene);
+	if (!scene_source)
+		return false;
+
+	obs_sceneitem_t *item = obs_scene_find_source_recursive(scene_source, source_name);
+	if (!item) {
+		obs_source_release(scene);
+		return false;
+	}
+
+	return true;
+}
+
+void obsstudio_infowriter_source_hide_callback(void *data, calldata_t *calldata)
+{
+	InfoWriter *Writer = static_cast<InfoWriter *>(data);
+
+	if (calldata && Writer) {
+		struct obs_source *source;
+
+		if (calldata_get_ptr(calldata, "source", &source)) {
+			if (obs_source_is_scene(source))
+				return;
+
+			const char *source_name = obs_source_get_name(source);
+
+			obs_source_t *current_scene = obs_frontend_get_current_scene();
+			if (obs_frontend_preview_program_mode_active()) {
+				obs_source_t *preview_scene = obs_frontend_get_current_preview_scene();
+				if (!obsstudio_is_source_in_scene(preview_scene, source_name) &&
+				    !obsstudio_is_source_in_scene(current_scene, source_name)) {
+					return;
+				}
+			} else {
+				if (!obsstudio_is_source_in_scene(current_scene, source_name)) {
+					return;
+				}
+			}
+
+			std::string logtxt = "source hide event, source: ";
+			logtxt += source_name;
+			Writer->WriteInfo(logtxt);
+		}
+	}
+}
+
+std::string get_current_scene_name()
+{
+	std::string name;
+
+	auto scene = obs_frontend_get_current_scene();
+	auto scene_name = obs_source_get_name(scene);
+	name = scene_name;
+	obs_source_release(scene);
+
+	return name;
+}
+
 void obstudio_infowriter_write_hotkey1(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
 {
 	UNUSED_PARAMETER(id);
@@ -220,6 +303,8 @@ const char *obstudio_infowriter_get_name(void *type_data)
 
 void LogSceneChange(InfoWriter *Writer, const std::string scenename)
 {
+	Writer->SetSceneIsChanging(false);
+
 	auto WriterSettings = Writer->GetSettings();
 
 	if (WriterSettings->GetShouldLogSceneChanges()) {
@@ -245,11 +330,7 @@ void obsstudio_infowriter_frontend_event_callback(enum obs_frontend_event event,
 	} else if (event == OBS_FRONTEND_EVENT_RECORDING_UNPAUSED) {
 		Writer->MarkPauseResume(imtRecordingPauseResume);
 	} else if (event == OBS_FRONTEND_EVENT_SCENE_CHANGED) {
-		auto scene = obs_frontend_get_current_scene();
-		std::string scenename = obs_source_get_name(scene);
-		obs_source_release(scene);
-
-		LogSceneChange(Writer, scenename);
+		LogSceneChange(Writer, get_current_scene_name());
 	}
 }
 
@@ -280,6 +361,10 @@ void *obstudio_infowriter_create(obs_data_t *settings, obs_source_t *source)
 				   Writer);
 
 	obs_frontend_add_event_callback(obsstudio_infowriter_frontend_event_callback, Writer);
+
+	signal_handler_t *handler = obs_get_signal_handler();
+	signal_handler_connect(handler, "source_show", obsstudio_infowriter_source_show_callback, Writer);
+	signal_handler_connect(handler, "source_hide", obsstudio_infowriter_source_hide_callback, Writer);
 
 	return Writer;
 }
@@ -450,6 +535,14 @@ void obstudio_infowriter_destroy(void *data)
 	if (Writer != nullptr) {
 		if (Writer->HasStarted()) {
 			Writer->MarkStop(imtUnknown);
+		}
+
+		signal_handler_t *handler = obs_get_signal_handler();
+		if (handler) {
+			signal_handler_disconnect(handler, "source_show", obsstudio_infowriter_source_show_callback,
+						  Writer);
+			signal_handler_disconnect(handler, "source_hide", obsstudio_infowriter_source_hide_callback,
+						  Writer);
 		}
 
 		obs_frontend_remove_event_callback(obsstudio_infowriter_frontend_event_callback, Writer);
