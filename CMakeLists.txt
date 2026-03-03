@@ -94,7 +94,8 @@ set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_nam
 # target_link_libraries(testconsole PRIVATE Groundfloor)
 
 if(BUILD_TESTS)
-  add_executable(test_infowriter
+  add_executable(
+    test_infowriter
     tests/test_filename_format.cpp
     OutputFormat/OutputFormat.SRT.cpp
     OutputFormat/OutputFormat.CSV.cpp
@@ -106,11 +107,7 @@ if(BUILD_TESTS)
   )
   target_compile_features(test_infowriter PRIVATE cxx_std_17)
   target_include_directories(test_infowriter PRIVATE ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}/_deps/crosscables-src)
-  FetchContent_Declare(
-    Catch2
-    GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-    GIT_TAG        v3.5.0
-  )
+  FetchContent_Declare(Catch2 GIT_REPOSITORY https://github.com/catchorg/Catch2.git GIT_TAG v3.5.0)
   FetchContent_MakeAvailable(Catch2)
 
   target_link_libraries(test_infowriter PRIVATE Groundfloor Catch2::Catch2WithMain)
