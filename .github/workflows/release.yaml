@@ -1,0 +1,153 @@
+name: Release
+run-name: Release ${{ inputs.version }} 🚀
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 2.8.0 or 2.8.0-beta1)'
+        required: true
+        type: string
+permissions:
+  contents: write
+jobs:
+  bump-version:
+    name: Bump Version and Tag 🏷️
+    runs-on: ubuntu-24.04
+    outputs:
+      prerelease: ${{ steps.check.outputs.prerelease }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Validate Version Format ☑️
+        run: |
+          : Validate Version Format ☑️
+          if [[ ! "${{ inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(beta|rc)[0-9]*)?$ ]]; then
+            echo "::error::Invalid version format '${{ inputs.version }}'. Expected: X.Y.Z or X.Y.Z-beta1/X.Y.Z-rc1"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - name: Check Tag Does Not Exist ☑️
+        id: check
+        run: |
+          : Check Tag Does Not Exist ☑️
+          if git rev-parse "refs/tags/${{ inputs.version }}" &>/dev/null; then
+            echo "::error::Tag '${{ inputs.version }}' already exists"
+            exit 1
+          fi
+
+          shopt -s extglob
+          case "${{ inputs.version }}" in
+            +([0-9]).+([0-9]).+([0-9]) )
+              echo 'prerelease=false' >> $GITHUB_OUTPUT
+              ;;
+            * )
+              echo 'prerelease=true' >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+      - name: Update Version in buildspec.json 📝
+        run: |
+          : Update Version in buildspec.json 📝
+          jq --arg v "${{ inputs.version }}" '.version = $v' buildspec.json > buildspec.tmp
+          mv buildspec.tmp buildspec.json
+
+      - name: Update Version in CMakeLists.txt 📝
+        run: |
+          : Update Version in CMakeLists.txt 📝
+          cmake_version="${{ inputs.version }}"
+          cmake_version="${cmake_version%%-*}"
+          sed -i "s/\(project(OBSInfoWriter VERSION \)[0-9]\+\.[0-9]\+\.[0-9]\+)/\1${cmake_version})/" CMakeLists.txt
+
+      - name: Commit and Tag 🏷️
+        run: |
+          : Commit and Tag 🏷️
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add buildspec.json CMakeLists.txt
+          git commit -m "Release ${{ inputs.version }}"
+          git tag "${{ inputs.version }}"
+          git push origin HEAD "${{ inputs.version }}"
+
+  build-project:
+    name: Build Project 🧱
+    needs: bump-version
+    uses: ./.github/workflows/build-project.yaml
+    with:
+      ref: ${{ inputs.version }}
+      release: true
+    secrets: inherit
+
+  create-release:
+    name: Create Release 🛫
+    needs: [bump-version, build-project]
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Download Build Artifacts 📥
+        uses: actions/download-artifact@v4
+
+      - name: Rename Files 🏷️
+        run: |
+          : Rename Files 🏷️
+          if [[ "${RUNNER_DEBUG}" ]]; then set -x; fi
+          shopt -s extglob
+          shopt -s nullglob
+
+          root_dir="$(pwd)"
+          commit_hash="${GITHUB_SHA:0:9}"
+
+          variants=(
+            'windows-x64;zip|exe'
+            'macos-universal;tar.xz|pkg'
+            'ubuntu-24.04-x86_64;tar.xz|deb|ddeb'
+            'sources;tar.xz'
+          )
+
+          for variant_data in "${variants[@]}"; do
+            IFS=';' read -r variant suffix <<< "${variant_data}"
+
+            candidates=(*-${variant}-${commit_hash}/@(*|*-dbgsym).@(${suffix}))
+
+            for candidate in "${candidates[@]}"; do
+              mv "${candidate}" "${root_dir}"
+            done
+          done
+
+      - name: Generate Checksums 🪪
+        run: |
+          : Generate Checksums 🪪
+          if [[ "${RUNNER_DEBUG}" ]]; then set -x; fi
+          shopt -s extglob
+
+          echo "### Checksums" > ${{ github.workspace }}/CHECKSUMS.txt
+          for file in ${{ github.workspace }}/@(*.exe|*.deb|*.ddeb|*.pkg|*.tar.xz|*.zip); do
+            echo "    ${file##*/}: $(sha256sum "${file}" | cut -d " " -f 1)" >> ${{ github.workspace }}/CHECKSUMS.txt
+          done
+
+      - name: Create Release 🛫
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          : Create Release 🛫
+          if [[ "${RUNNER_DEBUG}" ]]; then set -x; fi
+          shopt -s extglob nullglob
+
+          files=(${{ github.workspace }}/@(*.exe|*.zip|*.pkg|*.deb|*.ddeb|*.tar.xz))
+
+          prerelease_flag=""
+          if [[ "${{ needs.bump-version.outputs.prerelease }}" == "true" ]]; then
+            prerelease_flag="--prerelease"
+          fi
+
+          gh release create "${{ inputs.version }}" \
+            --repo "${{ github.repository }}" \
+            --draft \
+            ${prerelease_flag} \
+            --title "${{ needs.build-project.outputs.pluginName }} ${{ inputs.version }}" \
+            --notes-file "${{ github.workspace }}/CHECKSUMS.txt" \
+            "${files[@]}"
