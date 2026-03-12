@@ -12,26 +12,29 @@ static InfoWriter make_writer(const std::string &filename)
 	return writer;
 }
 
-// Issue #82: invalid strftime specifiers crash OBS because
-// Groundfloor::TimestampToStr throws std::runtime_error and
-// InfoWriter::InitCurrentFilename does not catch it.
+// Issue #82: invalid strftime specifiers used to crash OBS because
+// Groundfloor::TimestampToStr throws std::runtime_error.
+// Now InitCurrentFilename catches it and falls back gracefully.
 
-TEST_CASE("Invalid strftime specifier %s in filename throws", "[filename][issue82]")
+TEST_CASE("Invalid strftime specifier %s in filename does not crash", "[filename][issue82]")
 {
 	auto writer = make_writer("./log %s.txt");
-	REQUIRE_THROWS_AS(writer.MarkStart(imtStream), std::runtime_error);
+	REQUIRE_NOTHROW(writer.MarkStart(imtStream));
+	writer.MarkStop(imtStream);
 }
 
-TEST_CASE("Invalid strftime specifier %k in filename throws", "[filename][issue82]")
+TEST_CASE("Invalid strftime specifier %k in filename does not crash", "[filename][issue82]")
 {
 	auto writer = make_writer("./log %k.txt");
-	REQUIRE_THROWS_AS(writer.MarkStart(imtStream), std::runtime_error);
+	REQUIRE_NOTHROW(writer.MarkStart(imtStream));
+	writer.MarkStop(imtStream);
 }
 
-TEST_CASE("Incomplete % at end of filename throws", "[filename][issue82]")
+TEST_CASE("Incomplete % at end of filename does not crash", "[filename][issue82]")
 {
 	auto writer = make_writer("log %");
-	REQUIRE_THROWS_AS(writer.MarkStart(imtStream), std::runtime_error);
+	REQUIRE_NOTHROW(writer.MarkStart(imtStream));
+	writer.MarkStop(imtStream);
 }
 
 TEST_CASE("Valid strftime specifiers in filename do not throw", "[filename]")

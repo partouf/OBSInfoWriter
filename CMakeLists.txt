@@ -53,6 +53,7 @@ target_sources(
     InfoWriter.cpp
     InfoWriterSettings.cpp
     InfoWriterObsUtils.cpp
+    FormatUtils.cpp
     OBSStudioInfoWriter.cpp
 )
 
@@ -97,12 +98,14 @@ if(BUILD_TESTS)
   add_executable(
     test_infowriter
     tests/test_filename_format.cpp
+    tests/test_format_utils.cpp
     OutputFormat/OutputFormat.SRT.cpp
     OutputFormat/OutputFormat.CSV.cpp
     OutputFormat/OutputFormat.EDL.cpp
     OutputFormat/OutputFormat.Default.cpp
     InfoWriter.cpp
     InfoWriterSettings.cpp
+    FormatUtils.cpp
     DummyUtils.cpp
     DummyPlatform.cpp
   )

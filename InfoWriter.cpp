@@ -3,9 +3,7 @@
 #include <Groundfloor/Atoms/Defines.h>
 #include <Groundfloor/Materials/Functions.h>
 #include <cstdint>
-#include <cmath>
 #include <memory>
-#include <regex>
 
 #include "OutputFormat/OutputFormat.Default.h"
 #include "OutputFormat/OutputFormat.EDL.h"
@@ -13,8 +11,10 @@
 #include "OutputFormat/OutputFormat.SRT.h"
 
 #include "InfoWriterObsUtils.h"
+#include "FormatUtils.h"
 
 #include <util/platform.h>
+#include <util/base.h>
 
 const char *c_TimestampNotation = "%Y-%m-%d %H:%M:%S";
 
@@ -33,22 +33,7 @@ InfoWriter::InfoWriter() : Settings()
 
 std::string InfoWriter::MillisToHMSString(const int64_t totalmilliseconds) const
 {
-	int64_t totalseconds = totalmilliseconds / 1000;
-	uint32_t hr = (uint32_t)trunc(totalseconds / 60.0 / 60.0);
-	uint32_t min = (uint32_t)trunc(totalseconds / 60.0) - (hr * 60);
-	uint32_t sec = totalseconds % 60;
-	uint32_t zzz = totalmilliseconds % 1000;
-
-	std::string format = Settings.GetFormat();
-	std::string replacement = "\t";
-	std::regex tabregex("(\\\\t)");
-	format = std::regex_replace(format, tabregex, replacement);
-	format += "\0\0\0\0";
-
-	char buffer[1024];
-	sprintf(&buffer[0], format.c_str(), hr, min, sec, zzz);
-
-	return buffer;
+	return FormatMillisToHMS(Settings.GetFormat(), totalmilliseconds);
 }
 
 uint64_t InfoWriter::getPausedTimeNs(const uint64_t currentTimeNs) const
@@ -184,9 +169,14 @@ void InfoWriter::InitCurrentFilename()
 	if (!currentname_set) {
 		CurrentFilename = Settings.GetFilename();
 		if (CurrentFilename.find('%') != 0) {
-			auto filename = Groundfloor::TimestampToStr(CurrentFilename.c_str(), StartTime);
-			CurrentFilename = filename->getValue();
-			delete filename;
+			try {
+				auto filename = Groundfloor::TimestampToStr(CurrentFilename.c_str(), StartTime);
+				CurrentFilename = filename->getValue();
+				delete filename;
+			} catch (const std::runtime_error &e) {
+				blog(LOG_ERROR, "[OBSInfoWriter] Invalid filename format: %s", e.what());
+				CurrentFilename = Settings.GetFilename();
+			}
 		}
 	}
 }
