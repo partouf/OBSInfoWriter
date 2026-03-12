@@ -38,8 +38,8 @@ const char *setting_shouldloghotkeyspecifics = "loghotkeyspecifics";
 const char *setting_file_preview = "file_preview";
 const char *setting_format_preview = "format_preview";
 
-bool obstudio_infowriter_file_property_modified(obs_properties_t *props,
-						[[maybe_unused]] obs_property_t *property, obs_data_t *settings)
+bool obstudio_infowriter_file_property_modified(obs_properties_t *props, [[maybe_unused]] obs_property_t *property,
+						obs_data_t *settings)
 {
 	obs_property_t *preview_prop = obs_properties_get(props, setting_file_preview);
 	const char *file = obs_data_get_string(settings, setting_file);
@@ -72,8 +72,8 @@ bool obstudio_infowriter_file_property_modified(obs_properties_t *props,
 	return true;
 }
 
-bool obstudio_infowriter_format_property_modified(obs_properties_t *props,
-					       [[maybe_unused]] obs_property_t *property, obs_data_t *settings)
+bool obstudio_infowriter_format_property_modified(obs_properties_t *props, [[maybe_unused]] obs_property_t *property,
+						  obs_data_t *settings)
 {
 	obs_property_t *preview_prop = obs_properties_get(props, setting_format_preview);
 	const char *format = obs_data_get_string(settings, setting_format);
@@ -84,8 +84,9 @@ bool obstudio_infowriter_format_property_modified(obs_properties_t *props,
 	}
 
 	if (HasUnsafeFormatSpecifiers(format)) {
-		obs_data_set_string(settings, setting_format_preview,
-				    "Format contains unsafe specifiers. Only integer formats (%d, %02d, etc.) are supported.");
+		obs_data_set_string(
+			settings, setting_format_preview,
+			"Format contains unsafe specifiers. Only integer formats (%d, %02d, etc.) are supported.");
 		obs_property_text_set_info_type(preview_prop, OBS_TEXT_INFO_ERROR);
 		obs_property_set_visible(preview_prop, true);
 		return true;
@@ -93,8 +94,9 @@ bool obstudio_infowriter_format_property_modified(obs_properties_t *props,
 
 	int count = CountFormatSpecifiers(format);
 	if (count > 4) {
-		obs_data_set_string(settings, setting_format_preview,
-				    "Too many format specifiers. At most 4 are supported: hours, minutes, seconds, milliseconds.");
+		obs_data_set_string(
+			settings, setting_format_preview,
+			"Too many format specifiers. At most 4 are supported: hours, minutes, seconds, milliseconds.");
 		obs_property_text_set_info_type(preview_prop, OBS_TEXT_INFO_ERROR);
 		obs_property_set_visible(preview_prop, true);
 		return true;
@@ -375,8 +377,7 @@ obs_properties_t *obstudio_infowriter_properties(void *unused)
 	auto prop_format = obs_properties_add_text(props, setting_format, obs_module_text("Format"), OBS_TEXT_DEFAULT);
 	obs_property_set_modified_callback(prop_format, obstudio_infowriter_format_property_modified);
 
-	auto prop_format_preview =
-		obs_properties_add_text(props, setting_format_preview, "", OBS_TEXT_INFO);
+	auto prop_format_preview = obs_properties_add_text(props, setting_format_preview, "", OBS_TEXT_INFO);
 	obs_property_text_set_info_word_wrap(prop_format_preview, true);
 	obs_property_set_visible(prop_format_preview, false);
 
@@ -389,8 +390,7 @@ obs_properties_t *obstudio_infowriter_properties(void *unused)
 						 logfile_filter, NULL);
 	obs_property_set_modified_callback(prop_file, obstudio_infowriter_file_property_modified);
 
-	auto prop_file_preview =
-		obs_properties_add_text(props, setting_file_preview, "", OBS_TEXT_INFO);
+	auto prop_file_preview = obs_properties_add_text(props, setting_file_preview, "", OBS_TEXT_INFO);
 	obs_property_text_set_info_word_wrap(prop_file_preview, true);
 	obs_property_set_visible(prop_file_preview, false);
 

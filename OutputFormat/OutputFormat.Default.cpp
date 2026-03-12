@@ -80,8 +80,7 @@ void OutputFormatDefault::HotkeyMarker(const int64_t milliseconds, const std::st
 
 void OutputFormatDefault::ScenechangeMarker(const int64_t milliseconds, const std::string scenename)
 {
-	auto MarkStr =
-		Groundfloor::TimestampToStr(c_OutputDefaultTimestampNotation, startTime + (milliseconds / 1000));
+	auto MarkStr = Groundfloor::TimestampToStr(c_OutputDefaultTimestampNotation, startTime + (milliseconds / 1000));
 
 	if (scenename == "") {
 		WriteToFile("EVENT:SCENE CHANGED @ " + std::string(MarkStr->getValue()));
@@ -94,8 +93,7 @@ void OutputFormatDefault::ScenechangeMarker(const int64_t milliseconds, const st
 
 void OutputFormatDefault::PausedMarker(const int64_t milliseconds)
 {
-	auto MarkStr =
-		Groundfloor::TimestampToStr(c_OutputDefaultTimestampNotation, startTime + (milliseconds / 1000));
+	auto MarkStr = Groundfloor::TimestampToStr(c_OutputDefaultTimestampNotation, startTime + (milliseconds / 1000));
 
 	WriteToFile("EVENT:RECORDING PAUSED @ " + std::string(MarkStr->getValue()));
 
@@ -104,8 +102,7 @@ void OutputFormatDefault::PausedMarker(const int64_t milliseconds)
 
 void OutputFormatDefault::ResumedMarker(const int64_t milliseconds, const int64_t pauselength_ms)
 {
-	auto MarkStr =
-		Groundfloor::TimestampToStr(c_OutputDefaultTimestampNotation, startTime + (milliseconds / 1000));
+	auto MarkStr = Groundfloor::TimestampToStr(c_OutputDefaultTimestampNotation, startTime + (milliseconds / 1000));
 
 	std::string Info;
 	Info = "EVENT:RECORDING RESUMED @ " + std::string(MarkStr->getValue()) + " (paused lasted for ";
