@@ -6,6 +6,7 @@
 #include "OutputFormat.h"
 #include <memory>
 #include <chrono>
+#include <filesystem>
 
 enum InfoMediaType {
 	imtUnknown = 0,
@@ -42,6 +43,7 @@ private:
 
 	int64_t getPausedTime(const int64_t currentTime) const;
 	void InitCurrentFilename();
+	bool RenameCurrentFile(const std::string &newFilename);
 	std::string SecsToHMSString(const int64_t totalseconds) const;
 	std::string SecsToHMSSzzztring(const std::chrono::duration<double> totalseconds) const;
 

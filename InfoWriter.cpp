@@ -201,6 +201,23 @@ void InfoWriter::InitCurrentFilename()
 	}
 }
 
+bool InfoWriter::RenameCurrentFile(const std::string &newFilename)
+{
+	if (CurrentFilename.empty() || newFilename.empty())
+		return false;
+
+	if (CurrentFilename == newFilename)
+		return false;
+
+	std::error_code ec;
+	std::filesystem::rename(CurrentFilename, newFilename, ec);
+	if (ec)
+		return false;
+
+	CurrentFilename = newFilename;
+	return true;
+}
+
 void InfoWriter::MarkStart(InfoMediaType AType)
 {
 	StartTime = Groundfloor::GetTimestamp();
@@ -293,6 +310,12 @@ void InfoWriter::MarkStop(InfoMediaType AType)
 	}
 
 	WriteInfo(MarkStr->getValue());
+
+	if (AType == imtRecording && Settings.GetShouldSyncNameAndPathWithVideo()) {
+		auto lastRecording = get_filename_from_last_recording(Settings);
+		if (lastRecording)
+			RenameCurrentFile(lastRecording.value());
+	}
 
 	if (!IsStreaming() && !IsRecording()) {
 		output = nullptr;
