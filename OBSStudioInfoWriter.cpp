@@ -6,7 +6,9 @@
 #include <Groundfloor/Materials/FileWriter.h>
 #include <Groundfloor/Materials/Functions.h>
 #include <Groundfloor/Atoms/Defines.h>
+#include <string>
 #include "InfoWriter.h"
+#include "FormatUtils.h"
 
 const char *infowriter_idname = "Info Writer";
 const char *logfile_filter = "All formats (*.*)";
@@ -33,6 +35,81 @@ const char *setting_shouldlogscenechanges = "logscenechanges";
 const char *setting_shouldlogstreaming = "logstreaming";
 const char *setting_shouldlogabsolutetime = "logabsolutetime";
 const char *setting_shouldloghotkeyspecifics = "loghotkeyspecifics";
+const char *setting_file_preview = "file_preview";
+const char *setting_format_preview = "format_preview";
+
+bool obstudio_infowriter_file_property_modified(obs_properties_t *props, [[maybe_unused]] obs_property_t *property,
+						obs_data_t *settings)
+{
+	obs_property_t *preview_prop = obs_properties_get(props, setting_file_preview);
+	const char *file = obs_data_get_string(settings, setting_file);
+
+	if (!file || strlen(file) == 0) {
+		obs_property_set_visible(preview_prop, false);
+		return true;
+	}
+
+	// If filename has no strftime specifiers, no preview needed
+	if (std::string(file).find('%') == std::string::npos) {
+		obs_property_set_visible(preview_prop, false);
+		return true;
+	}
+
+	try {
+		auto *formatted = Groundfloor::TimestampToStr(file, Groundfloor::GetTimestamp());
+		std::string preview = "Preview: " + std::string(formatted->getValue());
+		delete formatted;
+
+		obs_data_set_string(settings, setting_file_preview, preview.c_str());
+		obs_property_text_set_info_type(preview_prop, OBS_TEXT_INFO_NORMAL);
+		obs_property_set_visible(preview_prop, true);
+	} catch (const std::runtime_error &e) {
+		obs_data_set_string(settings, setting_file_preview, e.what());
+		obs_property_text_set_info_type(preview_prop, OBS_TEXT_INFO_ERROR);
+		obs_property_set_visible(preview_prop, true);
+	}
+
+	return true;
+}
+
+bool obstudio_infowriter_format_property_modified(obs_properties_t *props, [[maybe_unused]] obs_property_t *property,
+						  obs_data_t *settings)
+{
+	obs_property_t *preview_prop = obs_properties_get(props, setting_format_preview);
+	const char *format = obs_data_get_string(settings, setting_format);
+
+	if (!format || strlen(format) == 0) {
+		obs_property_set_visible(preview_prop, false);
+		return true;
+	}
+
+	if (HasUnsafeFormatSpecifiers(format)) {
+		obs_data_set_string(
+			settings, setting_format_preview,
+			"Format contains unsafe specifiers. Only integer formats (%d, %02d, etc.) are supported.");
+		obs_property_text_set_info_type(preview_prop, OBS_TEXT_INFO_ERROR);
+		obs_property_set_visible(preview_prop, true);
+		return true;
+	}
+
+	int count = CountFormatSpecifiers(format);
+	if (count > 4) {
+		obs_data_set_string(
+			settings, setting_format_preview,
+			"Too many format specifiers. At most 4 are supported: hours, minutes, seconds, milliseconds.");
+		obs_property_text_set_info_type(preview_prop, OBS_TEXT_INFO_ERROR);
+		obs_property_set_visible(preview_prop, true);
+		return true;
+	}
+
+	// 1h 23m 45s 678ms = 5025678ms
+	const int64_t example_ms = 1 * 3600000 + 23 * 60000 + 45 * 1000 + 678;
+	std::string preview = "Preview: " + FormatMillisToHMS(format, example_ms);
+	obs_data_set_string(settings, setting_format_preview, preview.c_str());
+	obs_property_text_set_info_type(preview_prop, OBS_TEXT_INFO_NORMAL);
+	obs_property_set_visible(preview_prop, true);
+	return true;
+}
 
 bool obstudio_infowriter_syncnameandpathwithvideo_property_modified(obs_properties_t *props,
 								    [[maybe_unused]] obs_property_t *property,
@@ -297,14 +374,25 @@ obs_properties_t *obstudio_infowriter_properties(void *unused)
 	obs_property_list_add_string(list, "EDL", "edl");
 	obs_property_list_add_string(list, "SRT", "srt");
 
-	obs_properties_add_text(props, setting_format, obs_module_text("Format"), OBS_TEXT_DEFAULT);
+	auto prop_format = obs_properties_add_text(props, setting_format, obs_module_text("Format"), OBS_TEXT_DEFAULT);
+	obs_property_set_modified_callback(prop_format, obstudio_infowriter_format_property_modified);
+
+	auto prop_format_preview = obs_properties_add_text(props, setting_format_preview, "", OBS_TEXT_INFO);
+	obs_property_text_set_info_word_wrap(prop_format_preview, true);
+	obs_property_set_visible(prop_format_preview, false);
+
 	obs_property *prop_syncnameandpathwithvideo =
 		obs_properties_add_bool(props, setting_syncnameandpathwithvideo, "Sync with video file name and path");
 	obs_property_set_modified_callback(prop_syncnameandpathwithvideo,
 					   obstudio_infowriter_syncnameandpathwithvideo_property_modified);
 	obs_properties_add_text(props, setting_automaticoutputextension, "Automatic file extension", OBS_TEXT_DEFAULT);
-	obs_properties_add_path(props, setting_file, obs_module_text("Logfile"), OBS_PATH_FILE_SAVE, logfile_filter,
-				NULL);
+	auto prop_file = obs_properties_add_path(props, setting_file, obs_module_text("Logfile"), OBS_PATH_FILE_SAVE,
+						 logfile_filter, NULL);
+	obs_property_set_modified_callback(prop_file, obstudio_infowriter_file_property_modified);
+
+	auto prop_file_preview = obs_properties_add_text(props, setting_file_preview, "", OBS_TEXT_INFO);
+	obs_property_text_set_info_word_wrap(prop_file_preview, true);
+	obs_property_set_visible(prop_file_preview, false);
 
 	obs_properties_add_text(props, setting_hotkey1text, obs_module_text("Hotkey 1 text"), OBS_TEXT_DEFAULT);
 	obs_properties_add_text(props, setting_hotkey2text, obs_module_text("Hotkey 2 text"), OBS_TEXT_DEFAULT);

@@ -53,6 +53,7 @@ target_sources(
     InfoWriter.cpp
     InfoWriterSettings.cpp
     InfoWriterObsUtils.cpp
+    FormatUtils.cpp
     OBSStudioInfoWriter.cpp
 )
 
@@ -97,16 +98,22 @@ if(BUILD_TESTS)
   add_executable(
     test_infowriter
     tests/test_filename_format.cpp
+    tests/test_format_utils.cpp
     OutputFormat/OutputFormat.SRT.cpp
     OutputFormat/OutputFormat.CSV.cpp
     OutputFormat/OutputFormat.EDL.cpp
     OutputFormat/OutputFormat.Default.cpp
     InfoWriter.cpp
     InfoWriterSettings.cpp
+    FormatUtils.cpp
     DummyUtils.cpp
+    DummyPlatform.cpp
   )
   target_compile_features(test_infowriter PRIVATE cxx_std_17)
-  target_include_directories(test_infowriter PRIVATE ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}/_deps/crosscables-src)
+  target_include_directories(
+    test_infowriter
+    PRIVATE ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}/_deps/crosscables-src ${CMAKE_SOURCE_DIR}/tests/stubs
+  )
   FetchContent_Declare(Catch2 GIT_REPOSITORY https://github.com/catchorg/Catch2.git GIT_TAG v3.5.0)
   FetchContent_MakeAvailable(Catch2)
 

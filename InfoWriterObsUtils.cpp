@@ -23,3 +23,21 @@ std::optional<std::string> get_filename_from_recording_path(const InfoWriterSett
 	CurrentFilename.replace(videoextensionstart, CurrentFilename.length(), extension);
 	return CurrentFilename;
 }
+
+std::optional<std::string> get_filename_from_last_recording(const InfoWriterSettings &Settings)
+{
+	char *path = obs_frontend_get_last_recording();
+	if (!path)
+		return std::nullopt;
+
+	std::string filename = path;
+	bfree(path);
+
+	if (filename.empty())
+		return std::nullopt;
+
+	size_t videoextensionstart = filename.find_last_of('.') + 1;
+	auto extension = Settings.GetAutomaticOutputExtension();
+	filename.replace(videoextensionstart, filename.length(), extension);
+	return filename;
+}
