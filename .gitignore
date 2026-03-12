@@ -23,6 +23,7 @@ bld/
 .deps/
 cmake/.CMakeBuildNumber
 build_x86_64/
+build_test/
 
 # Visual Studio 2015 cache/options directory
 .vs/
