@@ -15,11 +15,13 @@ OutputFormatDefault::OutputFormatDefault(const InfoWriterSettings &settings, con
 {
 }
 
-std::string OutputFormatDefault::SecsToHMSString(const int64_t totalseconds) const
+std::string OutputFormatDefault::MillisToHMSString(const int64_t totalmilliseconds) const
 {
+	int64_t totalseconds = totalmilliseconds / 1000;
 	uint32_t hr = (uint32_t)trunc(totalseconds / 60.0 / 60.0);
 	uint32_t min = (uint32_t)trunc(totalseconds / 60.0) - (hr * 60);
 	uint32_t sec = totalseconds % 60;
+	uint32_t zzz = totalmilliseconds % 1000;
 
 	std::string format = settings.GetFormat();
 	std::string replacement = "\t";
@@ -28,16 +30,9 @@ std::string OutputFormatDefault::SecsToHMSString(const int64_t totalseconds) con
 	format += "\0\0\0\0";
 
 	char buffer[1024];
-	sprintf(&buffer[0], format.c_str(), hr, min, sec);
+	sprintf(&buffer[0], format.c_str(), hr, min, sec, zzz);
 
 	return buffer;
-}
-
-std::string OutputFormatDefault::MilliToHMSString(const int64_t time) const
-{
-	uint32_t totalseconds = (uint32_t)trunc(time / 1000.0);
-
-	return SecsToHMSString(totalseconds);
 }
 
 void OutputFormatDefault::WriteToFile(const std::string Data) const
@@ -81,14 +76,14 @@ void OutputFormatDefault::Start()
 	startTime = Groundfloor::GetTimestamp();
 }
 
-void OutputFormatDefault::Stop([[maybe_unused]] const int64_t timestamp) {}
+void OutputFormatDefault::Stop([[maybe_unused]] const int64_t milliseconds) {}
 
-void OutputFormatDefault::HotkeyMarker(const int64_t timestamp, const std::string text)
+void OutputFormatDefault::HotkeyMarker(const int64_t milliseconds, const std::string text)
 {
 	if (this->settings.GetShouldLogHotkeySpecifics()) {
 		if (this->settings.GetShouldLogAbsoluteTime()) {
-			auto MarkStr =
-				Groundfloor::TimestampToStr(c_OutputDefaultTimestampNotation, startTime + timestamp);
+			auto MarkStr = Groundfloor::TimestampToStr(c_OutputDefaultTimestampNotation,
+								   startTime + (milliseconds / 1000));
 			auto hotkey_text = "HOTKEY:" + text + " @ " + MarkStr->getValue();
 			WriteToFile(hotkey_text);
 			delete MarkStr;
@@ -99,9 +94,10 @@ void OutputFormatDefault::HotkeyMarker(const int64_t timestamp, const std::strin
 	}
 }
 
-void OutputFormatDefault::ScenechangeMarker(const int64_t timestamp, const std::string scenename)
+void OutputFormatDefault::ScenechangeMarker(const int64_t milliseconds, const std::string scenename)
 {
-	auto MarkStr = Groundfloor::TimestampToStr(c_OutputDefaultTimestampNotation, startTime + timestamp);
+	auto MarkStr =
+		Groundfloor::TimestampToStr(c_OutputDefaultTimestampNotation, startTime + (milliseconds / 1000));
 
 	if (scenename == "") {
 		WriteToFile("EVENT:SCENE CHANGED @ " + std::string(MarkStr->getValue()));
@@ -112,22 +108,24 @@ void OutputFormatDefault::ScenechangeMarker(const int64_t timestamp, const std::
 	delete MarkStr;
 }
 
-void OutputFormatDefault::PausedMarker(const int64_t timestamp)
+void OutputFormatDefault::PausedMarker(const int64_t milliseconds)
 {
-	auto MarkStr = Groundfloor::TimestampToStr(c_OutputDefaultTimestampNotation, startTime + timestamp);
+	auto MarkStr =
+		Groundfloor::TimestampToStr(c_OutputDefaultTimestampNotation, startTime + (milliseconds / 1000));
 
 	WriteToFile("EVENT:RECORDING PAUSED @ " + std::string(MarkStr->getValue()));
 
 	delete MarkStr;
 }
 
-void OutputFormatDefault::ResumedMarker(const int64_t timestamp, const int64_t pauselength)
+void OutputFormatDefault::ResumedMarker(const int64_t milliseconds, const int64_t pauselength_ms)
 {
-	auto MarkStr = Groundfloor::TimestampToStr(c_OutputDefaultTimestampNotation, startTime + timestamp);
+	auto MarkStr =
+		Groundfloor::TimestampToStr(c_OutputDefaultTimestampNotation, startTime + (milliseconds / 1000));
 
 	std::string Info;
 	Info = "EVENT:RECORDING RESUMED @ " + std::string(MarkStr->getValue()) + " (paused lasted for ";
-	Info += SecsToHMSString(pauselength);
+	Info += MillisToHMSString(pauselength_ms);
 	Info += " seconds)";
 
 	delete MarkStr;

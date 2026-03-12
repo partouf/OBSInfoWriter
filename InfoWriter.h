@@ -5,7 +5,6 @@
 #include <Groundfloor/Molecules/String.h>
 #include "OutputFormat.h"
 #include <memory>
-#include <chrono>
 #include <filesystem>
 
 enum InfoMediaType {
@@ -20,15 +19,11 @@ typedef int8_t InfoHotkey;
 class InfoWriter {
 private:
 	int64_t StartTime;
-	int64_t StartRecordTime;
-	int64_t StartStreamTime;
-	int64_t PausedTotalTime;
-	int64_t PausedStartTime;
 
-	std::chrono::time_point<std::chrono::steady_clock> StartTimePoint;
-	std::chrono::time_point<std::chrono::steady_clock> StartStreamTimePoint;
-	std::chrono::time_point<std::chrono::steady_clock> StartRecordTimePoint;
-	std::chrono::time_point<std::chrono::steady_clock> StartPausedTimePoint;
+	uint64_t StartRecordTimeNs;
+	uint64_t StartStreamTimeNs;
+	uint64_t PausedTotalTimeNs;
+	uint64_t PausedStartTimeNs;
 
 	InfoMediaType lastInfoMediaType;
 
@@ -41,11 +36,10 @@ private:
 
 	std::unique_ptr<IOutputFormat> output;
 
-	int64_t getPausedTime(const int64_t currentTime) const;
+	uint64_t getPausedTimeNs(const uint64_t currentTimeNs) const;
 	void InitCurrentFilename();
 	bool RenameCurrentFile(const std::string &newFilename);
-	std::string SecsToHMSString(const int64_t totalseconds) const;
-	std::string SecsToHMSSzzztring(const std::chrono::duration<double> totalseconds) const;
+	std::string MillisToHMSString(const int64_t totalmilliseconds) const;
 
 public:
 	InfoWriter();

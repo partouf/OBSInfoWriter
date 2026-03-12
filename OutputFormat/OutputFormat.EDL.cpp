@@ -30,16 +30,18 @@ void OutputFormatEDL::WriteGFStringToFile(const Groundfloor::String &SData) cons
 	Writer.close();
 }
 
-std::string OutputFormatEDL::SecsToHMSString(const int64_t totalseconds) const
+std::string OutputFormatEDL::MillisToHMSString(const int64_t totalmilliseconds) const
 {
+	int64_t totalseconds = totalmilliseconds / 1000;
 	uint32_t hr = (uint32_t)trunc(totalseconds / 60.0 / 60.0);
 	uint32_t min = (uint32_t)trunc(totalseconds / 60.0) - (hr * 60);
 	uint32_t sec = totalseconds % 60;
+	uint32_t cs = (totalmilliseconds % 1000) / 10;
 
 	const char *timeformat = "%02d:%02d:%02d:%02d";
 
 	char buffer[14];
-	sprintf(&buffer[0], timeformat, hr, min, sec, 0);
+	sprintf(&buffer[0], timeformat, hr, min, sec, cs);
 
 	return buffer;
 }
@@ -73,14 +75,14 @@ std::string FilterReelName(const std::string text)
 	return reelname;
 }
 
-void OutputFormatEDL::writeMarker(const int64_t start, const int64_t stop, const std::string text) const
+void OutputFormatEDL::writeMarker(const int64_t start_ms, const int64_t stop_ms, const std::string text) const
 {
 	char crlf[] = GFNATIVENEXTLINE;
 
 	auto markername = FilterReelName(text);
 
-	auto formattedStartTime = SecsToHMSString(start);
-	auto formattedStopTime = SecsToHMSString(stop);
+	auto formattedStartTime = MillisToHMSString(start_ms);
+	auto formattedStopTime = MillisToHMSString(stop_ms);
 
 	const char *edlformat = "%03d  %s V     C        %s %s %s %s";
 	char line[200];
@@ -100,36 +102,36 @@ void OutputFormatEDL::Start()
 	this->lastMarkerText = "START";
 }
 
-void OutputFormatEDL::Stop(const int64_t timestamp)
+void OutputFormatEDL::Stop(const int64_t milliseconds)
 {
 	// -1 second because if the length is longer than the written video, software might like this EDL even less than it already does
-	writeMarker(lastMarker, timestamp - 1, lastMarkerText);
+	writeMarker(lastMarker, milliseconds - 1000, lastMarkerText);
 }
 
-void OutputFormatEDL::HotkeyMarker(const int64_t timestamp, const std::string text)
+void OutputFormatEDL::HotkeyMarker(const int64_t milliseconds, const std::string text)
 {
-	writeMarker(lastMarker, timestamp, lastMarkerText);
+	writeMarker(lastMarker, milliseconds, lastMarkerText);
 
-	lastMarker = timestamp;
+	lastMarker = milliseconds;
 	lastMarkerText = text;
 
 	markercount++;
 }
 
-void OutputFormatEDL::ScenechangeMarker(const int64_t timestamp, const std::string scenename)
+void OutputFormatEDL::ScenechangeMarker(const int64_t milliseconds, const std::string scenename)
 {
-	writeMarker(lastMarker, timestamp, lastMarkerText);
+	writeMarker(lastMarker, milliseconds, lastMarkerText);
 
-	lastMarker = timestamp;
+	lastMarker = milliseconds;
 	lastMarkerText = scenename;
 
 	markercount++;
 }
 
-void OutputFormatEDL::PausedMarker([[maybe_unused]] const int64_t timestamp) {}
+void OutputFormatEDL::PausedMarker([[maybe_unused]] const int64_t milliseconds) {}
 
-void OutputFormatEDL::ResumedMarker([[maybe_unused]] const int64_t timestamp,
-				    [[maybe_unused]] const int64_t pauselength)
+void OutputFormatEDL::ResumedMarker([[maybe_unused]] const int64_t milliseconds,
+				    [[maybe_unused]] const int64_t pauselength_ms)
 {
 }
 

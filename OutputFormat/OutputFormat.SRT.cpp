@@ -15,18 +15,16 @@ OutputFormatSRT::OutputFormatSRT(const InfoWriterSettings &settings, const std::
 {
 }
 
-std::string OutputFormatSRT::SecsToHMSString(const int64_t totalseconds) const
+std::string OutputFormatSRT::MillisToHMSString(const int64_t totalmilliseconds) const
 {
+	int64_t totalseconds = totalmilliseconds / 1000;
 	uint32_t hr = (uint32_t)trunc(totalseconds / 60.0 / 60.0);
 	uint32_t min = (uint32_t)trunc(totalseconds / 60.0) - (hr * 60);
 	uint32_t sec = totalseconds % 60;
-
-	std::string format = "%02d:%02d:%02d,000";
-	std::string replacement = "\t";
-	format += "\0\0\0\0";
+	uint32_t zzz = totalmilliseconds % 1000;
 
 	char buffer[1024];
-	sprintf(&buffer[0], format.c_str(), hr, min, sec);
+	sprintf(&buffer[0], "%02d:%02d:%02d,%03d", hr, min, sec, zzz);
 
 	return buffer;
 }
@@ -48,7 +46,7 @@ void OutputFormatSRT::WriteGFStringToFile(const std::string filename, const std:
 	Writer.close();
 }
 
-void OutputFormatSRT::WriteLines(const int64_t timestamp, const std::string text)
+void OutputFormatSRT::WriteLines(const int64_t milliseconds, const std::string text)
 {
 	char crlf[] = GFNATIVENEXTLINE;
 
@@ -56,7 +54,7 @@ void OutputFormatSRT::WriteLines(const int64_t timestamp, const std::string text
 	sprintf(&buffer[0], "%d", this->subtitleCounter);
 
 	std::string line1 = buffer;
-	std::string line2 = SecsToHMSString(timestamp) + " --> " + SecsToHMSString(timestamp + 5);
+	std::string line2 = MillisToHMSString(milliseconds) + " --> " + MillisToHMSString(milliseconds + 5000);
 
 	WriteGFStringToFile(currentFilename, line1 + crlf);
 	WriteGFStringToFile(currentFilename, line2 + crlf);
@@ -79,34 +77,34 @@ void OutputFormatSRT::Start()
 	this->subtitleCounter++;
 }
 
-void OutputFormatSRT::Stop(const int64_t timestamp)
+void OutputFormatSRT::Stop(const int64_t milliseconds)
 {
 	std::string timestr =
 		Groundfloor::TimestampToStr(c_TimestampNotation_SRT, Groundfloor::GetTimestamp())->getValue();
 	std::string line = "STOP @ " + timestr;
-	WriteLines(timestamp, line);
+	WriteLines(milliseconds, line);
 
 	this->subtitleCounter++;
 }
 
-void OutputFormatSRT::HotkeyMarker(const int64_t timestamp, const std::string text)
+void OutputFormatSRT::HotkeyMarker(const int64_t milliseconds, const std::string text)
 {
-	WriteLines(timestamp, text);
+	WriteLines(milliseconds, text);
 
 	this->subtitleCounter++;
 }
 
-void OutputFormatSRT::ScenechangeMarker(const int64_t timestamp, const std::string scenename)
+void OutputFormatSRT::ScenechangeMarker(const int64_t milliseconds, const std::string scenename)
 {
-	WriteLines(timestamp, scenename);
+	WriteLines(milliseconds, scenename);
 
 	this->subtitleCounter++;
 }
 
-void OutputFormatSRT::PausedMarker([[maybe_unused]] const int64_t timestamp) {}
+void OutputFormatSRT::PausedMarker([[maybe_unused]] const int64_t milliseconds) {}
 
-void OutputFormatSRT::ResumedMarker([[maybe_unused]] const int64_t timestamp,
-				    [[maybe_unused]] const int64_t pauselength)
+void OutputFormatSRT::ResumedMarker([[maybe_unused]] const int64_t milliseconds,
+				    [[maybe_unused]] const int64_t pauselength_ms)
 {
 }
 
