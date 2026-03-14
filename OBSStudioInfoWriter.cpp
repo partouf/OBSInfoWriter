@@ -3,9 +3,11 @@
 
 #include <obs-module.h>
 #include <obs-frontend-api.h>
+#include <callback/signal.h>
 #include <Groundfloor/Materials/FileWriter.h>
 #include <Groundfloor/Materials/Functions.h>
 #include <Groundfloor/Atoms/Defines.h>
+#include <cstring>
 #include <string>
 #include "InfoWriter.h"
 #include "FormatUtils.h"
@@ -304,6 +306,42 @@ void LogSceneChange(InfoWriter *Writer, const std::string scenename)
 	}
 }
 
+static void on_recording_file_changed(void *data, calldata_t *cd)
+{
+	const char *next_file = calldata_string(cd, "next_file");
+	if (next_file) {
+		InfoWriter *Writer = static_cast<InfoWriter *>(data);
+		Writer->HandleRecordingSplit(next_file);
+	}
+}
+
+static void connect_split_signal(InfoWriter *Writer)
+{
+	obs_output_t *output = obs_frontend_get_recording_output();
+	if (!output)
+		return;
+
+	const char *id = obs_output_get_id(output);
+	if (id && (strcmp(id, "ffmpeg_muxer") == 0 || strcmp(id, "ffmpeg_mpegts_muxer") == 0)) {
+		signal_handler_t *handler = obs_output_get_signal_handler(output);
+		signal_handler_connect(handler, "file_changed", on_recording_file_changed, Writer);
+	}
+
+	obs_output_release(output);
+}
+
+static void disconnect_split_signal(InfoWriter *Writer)
+{
+	obs_output_t *output = obs_frontend_get_recording_output();
+	if (!output)
+		return;
+
+	signal_handler_t *handler = obs_output_get_signal_handler(output);
+	signal_handler_disconnect(handler, "file_changed", on_recording_file_changed, Writer);
+
+	obs_output_release(output);
+}
+
 void obsstudio_infowriter_frontend_event_callback(enum obs_frontend_event event, void *private_data)
 {
 	InfoWriter *Writer = static_cast<InfoWriter *>(private_data);
@@ -312,10 +350,12 @@ void obsstudio_infowriter_frontend_event_callback(enum obs_frontend_event event,
 		Writer->MarkStart(imtStream);
 	} else if (event == OBS_FRONTEND_EVENT_RECORDING_STARTED) {
 		Writer->MarkStart(imtRecording);
+		connect_split_signal(Writer);
 	} else if (event == OBS_FRONTEND_EVENT_STREAMING_STOPPED) {
 		if (Writer->IsStreaming())
 			Writer->MarkStop(imtStream);
 	} else if (event == OBS_FRONTEND_EVENT_RECORDING_STOPPED) {
+		disconnect_split_signal(Writer);
 		Writer->MarkStop(imtRecording);
 	} else if (event == OBS_FRONTEND_EVENT_RECORDING_PAUSED) {
 		Writer->MarkPauseStart(imtRecordingPauseStart);
