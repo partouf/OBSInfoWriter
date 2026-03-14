@@ -1,6 +1,7 @@
 #include "OutputFormat.CSV.h"
 #include "../FormatUtils.h"
 #include <Groundfloor/Materials/FileWriter.h>
+#include <fstream>
 
 OutputFormatCSV::OutputFormatCSV(const InfoWriterSettings &settings, const std::string filename)
 	: IOutputFormat(),
@@ -31,7 +32,10 @@ void OutputFormatCSV::WriteGFStringToFile(const std::string filename, const std:
 	Writer.close();
 }
 
-void OutputFormatCSV::Start() {}
+void OutputFormatCSV::Start()
+{
+	std::ofstream file(currentFilename, std::ios::app);
+}
 
 void OutputFormatCSV::Stop([[maybe_unused]] const int64_t milliseconds) {}
 
