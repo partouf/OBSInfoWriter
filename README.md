@@ -39,7 +39,7 @@ You can name a Logfile to be saved with variables that may change every time you
 More variables can be found at http://www.cplusplus.com/reference/ctime/strftime/
 
 #### Format options
-The format option is very limited in it's use, the variables in the formatting are translated to hours:minutes:seconds from when the recording or stream was started, %02d is only to indicate that there is a preceding 0 for the numbers 0 to 9.
+The format option is very limited in its use, the variables in the formatting are translated to hours:minutes:seconds from when the recording or stream was started, %02d is only to indicate that there is a preceding 0 for the numbers 0 to 9.
 It is recommended the default value is not changed.
 
 What is possible that might improve logging is that you can put spaces or a \t tab character in front of the format, so your log times are indented in between the start and stop of the recording or stream.
@@ -52,7 +52,7 @@ Contributed by https://github.com/RetroGamer74
 #### NEW CHANGES (TheTawnyFool)
     Contributed by https://github.com/TheTawnyFool
 
-    Changed the output to log seperate timers for recording and streaming. Allows for indepedent timestamps of streaming and recordings at the same time. 
+    Changed the output to log separate timers for recording and streaming. Allows for independent timestamps of streaming and recordings at the same time. 
 
     Updated to fix problems with OBS newer update to allow pausing in recordings.  Now when you pause a recording, the recording timer used by the hotkeys will pause until you resume the recording.  This way the record timer offsets of the hotkey events to be synced correctly with the video. The streaming timer will not pause if you are tracking both.
 
