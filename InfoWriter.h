@@ -31,6 +31,7 @@ private:
 	bool StreamStarted;
 	bool RecordStarted;
 	bool Paused;
+	bool SceneIsChanging;
 
 	std::string CurrentFilename;
 
@@ -55,6 +56,9 @@ public:
 	bool HasStarted() const;
 	bool IsStreaming() const;
 	bool IsRecording() const;
+
+	bool IsChangingScene() const;
+	void SetSceneIsChanging(bool yesno);
 
 	std::string NowTimeStamp() const;
 
