@@ -53,3 +53,19 @@ There is no test suite. A standalone test console exists in `main.cpp`/`DummyUti
 
 - **libobs** + **obs-frontend-api**: OBS Studio plugin SDK
 - **Crosscables/Groundfloor**: File I/O, string handling, timestamps (fetched automatically from GitHub)
+
+## Release Process
+
+The plugin version is stored in two files: `buildspec.json` (the `"version"` field) and `CMakeLists.txt` (the `project(OBSInfoWriter VERSION X.Y.Z)` line).
+
+**Do not bump these manually.** The `release.yaml` workflow owns the bump — pre-bumping causes its `git commit` step to fail with `nothing to commit, working tree clean` and the tag never gets created.
+
+To cut a release, trigger the workflow with the target version:
+
+```bash
+gh workflow run release.yaml -f version=2.8.0 --ref master
+```
+
+The workflow validates the format as `^[0-9]+\.[0-9]+\.[0-9]+(-(beta|rc)[0-9]*)?$`, updates both version files, commits as `github-actions[bot]`, creates the tag (bare numeric — `2.8.0`, no `v` prefix), builds Windows/macOS/Linux artifacts, and creates a draft GitHub release with checksums. The draft must be published manually.
+
+No CHANGELOG, README, or locale strings need updating.
