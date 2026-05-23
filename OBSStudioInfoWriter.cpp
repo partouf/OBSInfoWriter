@@ -120,6 +120,14 @@ bool obstudio_infowriter_format_property_modified(obs_properties_t *props, [[may
 	return was_visible != new_visible || old_info_type != new_info_type;
 }
 
+bool obstudio_infowriter_preview_refresh_clicked([[maybe_unused]] obs_properties_t *props,
+						 [[maybe_unused]] obs_property_t *property, [[maybe_unused]] void *data)
+{
+	// Returning true triggers a properties refresh; obs_properties_apply_settings then re-fires
+	// the file/format modified callbacks, which regenerate the preview text from current input.
+	return true;
+}
+
 bool obstudio_infowriter_syncnameandpathwithvideo_property_modified(obs_properties_t *props,
 								    [[maybe_unused]] obs_property_t *property,
 								    obs_data_t *settings)
@@ -390,6 +398,9 @@ obs_properties_t *obstudio_infowriter_properties(void *unused)
 	obs_property_text_set_info_word_wrap(prop_format_preview, true);
 	obs_property_set_visible(prop_format_preview, false);
 
+	obs_properties_add_button(props, "format_preview_refresh", "Update format preview",
+				  obstudio_infowriter_preview_refresh_clicked);
+
 	obs_property *prop_syncnameandpathwithvideo =
 		obs_properties_add_bool(props, setting_syncnameandpathwithvideo, "Sync with video file name and path");
 	obs_property_set_modified_callback(prop_syncnameandpathwithvideo,
@@ -402,6 +413,9 @@ obs_properties_t *obstudio_infowriter_properties(void *unused)
 	auto prop_file_preview = obs_properties_add_text(props, setting_file_preview, "", OBS_TEXT_INFO);
 	obs_property_text_set_info_word_wrap(prop_file_preview, true);
 	obs_property_set_visible(prop_file_preview, false);
+
+	obs_properties_add_button(props, "file_preview_refresh", "Update filename preview",
+				  obstudio_infowriter_preview_refresh_clicked);
 
 	obs_properties_add_text(props, setting_hotkey1text, obs_module_text("Hotkey 1 text"), OBS_TEXT_DEFAULT);
 	obs_properties_add_text(props, setting_hotkey2text, obs_module_text("Hotkey 2 text"), OBS_TEXT_DEFAULT);
