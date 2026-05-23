@@ -44,32 +44,36 @@ bool obstudio_infowriter_file_property_modified(obs_properties_t *props, [[maybe
 	obs_property_t *preview_prop = obs_properties_get(props, setting_file_preview);
 	const char *file = obs_data_get_string(settings, setting_file);
 
-	if (!file || strlen(file) == 0) {
-		obs_property_set_visible(preview_prop, false);
-		return true;
+	bool new_visible = false;
+	enum obs_text_info_type new_info_type = OBS_TEXT_INFO_NORMAL;
+	std::string preview_text;
+
+	if (file && strlen(file) > 0 && std::string(file).find('%') != std::string::npos) {
+		try {
+			auto *formatted = Groundfloor::TimestampToStr(file, Groundfloor::GetTimestamp());
+			preview_text = "Preview: " + std::string(formatted->getValue());
+			delete formatted;
+			new_visible = true;
+			new_info_type = OBS_TEXT_INFO_NORMAL;
+		} catch (const std::runtime_error &e) {
+			preview_text = e.what();
+			new_visible = true;
+			new_info_type = OBS_TEXT_INFO_ERROR;
+		}
 	}
 
-	// If filename has no strftime specifiers, no preview needed
-	if (std::string(file).find('%') == std::string::npos) {
-		obs_property_set_visible(preview_prop, false);
-		return true;
+	const bool was_visible = obs_property_visible(preview_prop);
+	const enum obs_text_info_type old_info_type = obs_property_text_info_type(preview_prop);
+
+	if (new_visible) {
+		obs_data_set_string(settings, setting_file_preview, preview_text.c_str());
 	}
+	obs_property_text_set_info_type(preview_prop, new_info_type);
+	obs_property_set_visible(preview_prop, new_visible);
 
-	try {
-		auto *formatted = Groundfloor::TimestampToStr(file, Groundfloor::GetTimestamp());
-		std::string preview = "Preview: " + std::string(formatted->getValue());
-		delete formatted;
-
-		obs_data_set_string(settings, setting_file_preview, preview.c_str());
-		obs_property_text_set_info_type(preview_prop, OBS_TEXT_INFO_NORMAL);
-		obs_property_set_visible(preview_prop, true);
-	} catch (const std::runtime_error &e) {
-		obs_data_set_string(settings, setting_file_preview, e.what());
-		obs_property_text_set_info_type(preview_prop, OBS_TEXT_INFO_ERROR);
-		obs_property_set_visible(preview_prop, true);
-	}
-
-	return true;
+	// Only request a UI refresh on structural transitions; returning true on every
+	// keystroke would rebuild the properties view and reset the cursor (see issue #93).
+	return was_visible != new_visible || old_info_type != new_info_type;
 }
 
 bool obstudio_infowriter_format_property_modified(obs_properties_t *props, [[maybe_unused]] obs_property_t *property,
@@ -78,36 +82,49 @@ bool obstudio_infowriter_format_property_modified(obs_properties_t *props, [[may
 	obs_property_t *preview_prop = obs_properties_get(props, setting_format_preview);
 	const char *format = obs_data_get_string(settings, setting_format);
 
-	if (!format || strlen(format) == 0) {
-		obs_property_set_visible(preview_prop, false);
-		return true;
+	bool new_visible = false;
+	enum obs_text_info_type new_info_type = OBS_TEXT_INFO_NORMAL;
+	std::string preview_text;
+
+	if (format && strlen(format) > 0) {
+		if (HasUnsafeFormatSpecifiers(format)) {
+			preview_text =
+				"Format contains unsafe specifiers. Only integer formats (%d, %02d, etc.) are supported.";
+			new_visible = true;
+			new_info_type = OBS_TEXT_INFO_ERROR;
+		} else if (CountFormatSpecifiers(format) > 4) {
+			preview_text =
+				"Too many format specifiers. At most 4 are supported: hours, minutes, seconds, milliseconds.";
+			new_visible = true;
+			new_info_type = OBS_TEXT_INFO_ERROR;
+		} else {
+			// 1h 23m 45s 678ms = 5025678ms
+			const int64_t example_ms = 1 * 3600000 + 23 * 60000 + 45 * 1000 + 678;
+			preview_text = "Preview: " + FormatMillisToHMS(format, example_ms);
+			new_visible = true;
+			new_info_type = OBS_TEXT_INFO_NORMAL;
+		}
 	}
 
-	if (HasUnsafeFormatSpecifiers(format)) {
-		obs_data_set_string(
-			settings, setting_format_preview,
-			"Format contains unsafe specifiers. Only integer formats (%d, %02d, etc.) are supported.");
-		obs_property_text_set_info_type(preview_prop, OBS_TEXT_INFO_ERROR);
-		obs_property_set_visible(preview_prop, true);
-		return true;
-	}
+	const bool was_visible = obs_property_visible(preview_prop);
+	const enum obs_text_info_type old_info_type = obs_property_text_info_type(preview_prop);
 
-	int count = CountFormatSpecifiers(format);
-	if (count > 4) {
-		obs_data_set_string(
-			settings, setting_format_preview,
-			"Too many format specifiers. At most 4 are supported: hours, minutes, seconds, milliseconds.");
-		obs_property_text_set_info_type(preview_prop, OBS_TEXT_INFO_ERROR);
-		obs_property_set_visible(preview_prop, true);
-		return true;
+	if (new_visible) {
+		obs_data_set_string(settings, setting_format_preview, preview_text.c_str());
 	}
+	obs_property_text_set_info_type(preview_prop, new_info_type);
+	obs_property_set_visible(preview_prop, new_visible);
 
-	// 1h 23m 45s 678ms = 5025678ms
-	const int64_t example_ms = 1 * 3600000 + 23 * 60000 + 45 * 1000 + 678;
-	std::string preview = "Preview: " + FormatMillisToHMS(format, example_ms);
-	obs_data_set_string(settings, setting_format_preview, preview.c_str());
-	obs_property_text_set_info_type(preview_prop, OBS_TEXT_INFO_NORMAL);
-	obs_property_set_visible(preview_prop, true);
+	// Only request a UI refresh on structural transitions; returning true on every
+	// keystroke would rebuild the properties view and reset the cursor (see issue #93).
+	return was_visible != new_visible || old_info_type != new_info_type;
+}
+
+bool obstudio_infowriter_preview_refresh_clicked([[maybe_unused]] obs_properties_t *props,
+						 [[maybe_unused]] obs_property_t *property, [[maybe_unused]] void *data)
+{
+	// Returning true triggers a properties refresh; obs_properties_apply_settings then re-fires
+	// the file/format modified callbacks, which regenerate the preview text from current input.
 	return true;
 }
 
@@ -381,6 +398,9 @@ obs_properties_t *obstudio_infowriter_properties(void *unused)
 	obs_property_text_set_info_word_wrap(prop_format_preview, true);
 	obs_property_set_visible(prop_format_preview, false);
 
+	obs_properties_add_button(props, "format_preview_refresh", "Update format preview",
+				  obstudio_infowriter_preview_refresh_clicked);
+
 	obs_property *prop_syncnameandpathwithvideo =
 		obs_properties_add_bool(props, setting_syncnameandpathwithvideo, "Sync with video file name and path");
 	obs_property_set_modified_callback(prop_syncnameandpathwithvideo,
@@ -393,6 +413,9 @@ obs_properties_t *obstudio_infowriter_properties(void *unused)
 	auto prop_file_preview = obs_properties_add_text(props, setting_file_preview, "", OBS_TEXT_INFO);
 	obs_property_text_set_info_word_wrap(prop_file_preview, true);
 	obs_property_set_visible(prop_file_preview, false);
+
+	obs_properties_add_button(props, "file_preview_refresh", "Update filename preview",
+				  obstudio_infowriter_preview_refresh_clicked);
 
 	obs_properties_add_text(props, setting_hotkey1text, obs_module_text("Hotkey 1 text"), OBS_TEXT_DEFAULT);
 	obs_properties_add_text(props, setting_hotkey2text, obs_module_text("Hotkey 2 text"), OBS_TEXT_DEFAULT);
