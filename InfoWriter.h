@@ -51,6 +51,7 @@ public:
 	void WriteInfo(const InfoHotkey AHotkey) const;
 	void WriteSceneChange(const std::string scenename) const;
 	void MarkStop(const InfoMediaType AType);
+	void HandleRecordingSplit(const std::string &newVideoFile);
 
 	bool HasStarted() const;
 	bool IsStreaming() const;

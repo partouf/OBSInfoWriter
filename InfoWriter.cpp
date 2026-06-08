@@ -301,6 +301,70 @@ void InfoWriter::MarkStop(InfoMediaType AType)
 	}
 }
 
+void InfoWriter::HandleRecordingSplit(const std::string &newVideoFile)
+{
+	if (output == nullptr || !RecordStarted)
+		return;
+
+	auto NowNs = os_gettime_ns();
+	int64_t elapsedMs = (int64_t)((NowNs - StartRecordTimeNs - getPausedTimeNs(NowNs)) / 1000000);
+
+	output->Stop(elapsedMs);
+
+	std::string newFilename;
+
+	if (Settings.GetShouldSyncNameAndPathWithVideo()) {
+		newFilename = newVideoFile;
+		size_t videoextensionstart = newFilename.find_last_of('.') + 1;
+		auto extension = Settings.GetAutomaticOutputExtension();
+		newFilename.replace(videoextensionstart, newFilename.length(), extension);
+	} else {
+		auto now = Groundfloor::GetTimestamp();
+		auto rawFilename = Settings.GetFilename();
+		if (rawFilename.find('%') != std::string::npos) {
+			try {
+				auto filename = Groundfloor::TimestampToStr(rawFilename.c_str(), now);
+				newFilename = filename->getValue();
+				delete filename;
+			} catch (const std::runtime_error &e) {
+				blog(LOG_ERROR, "[OBSInfoWriter] Invalid filename format on split: %s", e.what());
+				newFilename = rawFilename;
+			}
+		} else {
+			newFilename = rawFilename;
+		}
+	}
+
+	CurrentFilename = newFilename;
+
+	auto outputformat = Settings.GetOutputFormat();
+	if (outputformat == "csv") {
+		output = std::make_unique<OutputFormatCSV>(Settings, CurrentFilename);
+	} else if (outputformat == "edl") {
+		output = std::make_unique<OutputFormatEDL>(Settings, CurrentFilename);
+	} else if (outputformat == "srt") {
+		output = std::make_unique<OutputFormatSRT>(Settings, CurrentFilename);
+	} else {
+		output = std::make_unique<OutputFormatDefault>(Settings, CurrentFilename);
+	}
+
+	StartTime = Groundfloor::GetTimestamp();
+	StartRecordTimeNs = os_gettime_ns();
+	PausedTotalTimeNs = 0;
+	PausedStartTimeNs = 0;
+	Paused = false;
+
+	output->Start();
+
+	auto MarkStr = Groundfloor::TimestampToStr(c_TimestampNotation, StartTime);
+	std::string startMsg = "EVENT:RECORDING SPLIT - NEW FILE @ ";
+	startMsg += MarkStr->getValue();
+	delete MarkStr;
+
+	output->TextMarker(startMsg);
+	this->WriteInfo("");
+}
+
 void InfoWriter::MarkPauseStart([[maybe_unused]] const InfoMediaType AType)
 {
 	if (output == nullptr)
