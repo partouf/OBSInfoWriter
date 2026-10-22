@@ -27,8 +27,10 @@ int CountFormatSpecifiers(const std::string &format)
 std::string ReplaceFileExtension(const std::string &filename, const std::string &extension)
 {
 	// only look for the extension in the last path component, folder names can contain dots too
-	size_t namestart = filename.find_last_of("/\\");
-	namestart = (namestart == std::string::npos) ? 0 : namestart + 1;
+	size_t namestart = 0;
+	size_t lastseparator = filename.find_last_of("/\\");
+	if (lastseparator != std::string::npos)
+		namestart = lastseparator + 1;
 
 	size_t extensionstart = filename.find_last_of('.');
 	if (extensionstart == std::string::npos || extensionstart < namestart)
