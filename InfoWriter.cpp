@@ -160,11 +160,12 @@ void InfoWriter::WriteSceneChange(const std::string scenename) const
 	this->WriteInfo("");
 }
 
-void InfoWriter::InitCurrentFilename()
+void InfoWriter::InitCurrentFilename(const bool recording)
 {
 	bool currentname_set = false;
 
-	if (Settings.GetShouldSyncNameAndPathWithVideo()) {
+	// without an active recording OBS still reports the previous recording's path, so only sync while recording
+	if (recording && Settings.GetShouldSyncNameAndPathWithVideo()) {
 		auto filename = get_filename_from_recording_path(Settings);
 		if (filename) {
 			CurrentFilename = filename.value();
@@ -197,8 +198,11 @@ bool InfoWriter::RenameCurrentFile(const std::string &newFilename)
 
 	std::error_code ec;
 	std::filesystem::rename(CurrentFilename, newFilename, ec);
-	if (ec)
+	if (ec) {
+		blog(LOG_WARNING, "[OBSInfoWriter] Could not rename log file '%s' to '%s': %s", CurrentFilename.c_str(),
+		     newFilename.c_str(), ec.message().c_str());
 		return false;
+	}
 
 	CurrentFilename = newFilename;
 	if (output)
@@ -226,7 +230,13 @@ void InfoWriter::MarkStart(InfoMediaType AType)
 
 	StartTime = Groundfloor::GetTimestamp();
 
-	InitCurrentFilename();
+	InitCurrentFilename(AType == imtRecording || IsRecording());
+
+	auto directory = std::filesystem::path(CurrentFilename).parent_path();
+	std::error_code ec;
+	if (!directory.empty() && !std::filesystem::is_directory(directory, ec))
+		blog(LOG_WARNING, "[OBSInfoWriter] Folder for log file '%s' doesn't exist, nothing will be written",
+		     CurrentFilename.c_str());
 
 	CreateOutput();
 

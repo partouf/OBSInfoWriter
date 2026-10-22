@@ -41,7 +41,7 @@ private:
 	mutable std::recursive_mutex mutex;
 
 	uint64_t getPausedTimeNs(const uint64_t currentTimeNs) const;
-	void InitCurrentFilename();
+	void InitCurrentFilename(const bool recording);
 	void CreateOutput();
 	bool RenameCurrentFile(const std::string &newFilename);
 	std::string MillisToHMSString(const int64_t totalmilliseconds) const;
