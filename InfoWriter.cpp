@@ -383,7 +383,9 @@ void InfoWriter::HandleRecordingSplit(const std::string &newVideoFile)
 	// a split during a pause continues that pause in the new segment, from the start of the segment
 	StartRecordTimeNs = os_gettime_ns();
 	PausedTotalTimeNs = 0;
-	PausedStartTimeNs = Paused ? StartRecordTimeNs : 0;
+	PausedStartTimeNs = 0;
+	if (Paused)
+		PausedStartTimeNs = StartRecordTimeNs;
 
 	output->Start();
 
