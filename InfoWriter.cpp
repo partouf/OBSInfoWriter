@@ -49,6 +49,8 @@ uint64_t InfoWriter::getPausedTimeNs(const uint64_t currentTimeNs) const
 
 void InfoWriter::WriteInfo(const std::string AExtraInfo) const
 {
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+
 	if (output == nullptr)
 		return;
 
@@ -101,6 +103,8 @@ void InfoWriter::WriteInfo(const std::string AExtraInfo) const
 
 void InfoWriter::WriteInfo(const InfoHotkey AHotkey) const
 {
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+
 	if (output == nullptr)
 		return;
 
@@ -126,6 +130,8 @@ void InfoWriter::WriteInfo(const InfoHotkey AHotkey) const
 
 void InfoWriter::WriteSceneChange(const std::string scenename) const
 {
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+
 	if (output == nullptr)
 		return;
 
@@ -200,12 +206,8 @@ bool InfoWriter::RenameCurrentFile(const std::string &newFilename)
 	return true;
 }
 
-void InfoWriter::MarkStart(InfoMediaType AType)
+void InfoWriter::CreateOutput()
 {
-	StartTime = Groundfloor::GetTimestamp();
-
-	InitCurrentFilename();
-
 	auto outputformat = Settings.GetOutputFormat();
 	if (outputformat == "csv") {
 		output = std::make_unique<OutputFormatCSV>(Settings, CurrentFilename);
@@ -216,6 +218,17 @@ void InfoWriter::MarkStart(InfoMediaType AType)
 	} else {
 		output = std::make_unique<OutputFormatDefault>(Settings, CurrentFilename);
 	}
+}
+
+void InfoWriter::MarkStart(InfoMediaType AType)
+{
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+
+	StartTime = Groundfloor::GetTimestamp();
+
+	InitCurrentFilename();
+
+	CreateOutput();
 
 	output->Start();
 
@@ -255,6 +268,8 @@ void InfoWriter::MarkStart(InfoMediaType AType)
 
 void InfoWriter::MarkStop(InfoMediaType AType)
 {
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+
 	if (output == nullptr)
 		return;
 
@@ -312,21 +327,27 @@ void InfoWriter::MarkStop(InfoMediaType AType)
 
 void InfoWriter::HandleRecordingSplit(const std::string &newVideoFile)
 {
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+
 	if (output == nullptr || !RecordStarted)
 		return;
 
 	auto NowNs = os_gettime_ns();
 	int64_t elapsedMs = (int64_t)((NowNs - StartRecordTimeNs - getPausedTimeNs(NowNs)) / 1000000);
 
+	auto SplitStr = Groundfloor::TimestampToStr(c_TimestampNotation, Groundfloor::GetTimestamp());
+	std::string splitMsg = "EVENT:RECORDING SPLIT @ ";
+	splitMsg += SplitStr->getValue();
+	delete SplitStr;
+
 	output->Stop(elapsedMs);
+	output->TextMarker(splitMsg);
+	this->WriteInfo("");
 
 	std::string newFilename;
 
 	if (Settings.GetShouldSyncNameAndPathWithVideo()) {
-		newFilename = newVideoFile;
-		size_t videoextensionstart = newFilename.find_last_of('.') + 1;
-		auto extension = Settings.GetAutomaticOutputExtension();
-		newFilename.replace(videoextensionstart, newFilename.length(), extension);
+		newFilename = ReplaceFileExtension(newVideoFile, Settings.GetAutomaticOutputExtension());
 	} else {
 		auto now = Groundfloor::GetTimestamp();
 		auto rawFilename = Settings.GetFilename();
@@ -346,16 +367,7 @@ void InfoWriter::HandleRecordingSplit(const std::string &newVideoFile)
 
 	CurrentFilename = newFilename;
 
-	auto outputformat = Settings.GetOutputFormat();
-	if (outputformat == "csv") {
-		output = std::make_unique<OutputFormatCSV>(Settings, CurrentFilename);
-	} else if (outputformat == "edl") {
-		output = std::make_unique<OutputFormatEDL>(Settings, CurrentFilename);
-	} else if (outputformat == "srt") {
-		output = std::make_unique<OutputFormatSRT>(Settings, CurrentFilename);
-	} else {
-		output = std::make_unique<OutputFormatDefault>(Settings, CurrentFilename);
-	}
+	CreateOutput();
 
 	StartTime = Groundfloor::GetTimestamp();
 	StartRecordTimeNs = os_gettime_ns();
@@ -376,6 +388,8 @@ void InfoWriter::HandleRecordingSplit(const std::string &newVideoFile)
 
 void InfoWriter::MarkPauseStart([[maybe_unused]] const InfoMediaType AType)
 {
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+
 	if (output == nullptr)
 		return;
 
@@ -389,6 +403,8 @@ void InfoWriter::MarkPauseStart([[maybe_unused]] const InfoMediaType AType)
 
 void InfoWriter::MarkPauseResume([[maybe_unused]] const InfoMediaType AType)
 {
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+
 	if (output == nullptr)
 		return;
 

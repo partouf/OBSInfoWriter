@@ -338,8 +338,10 @@ static void connect_split_signal(InfoWriter *Writer)
 	if (!output)
 		return;
 
+	// only these outputs can split files, others don't have the file_changed signal
 	const char *id = obs_output_get_id(output);
-	if (id && (strcmp(id, "ffmpeg_muxer") == 0 || strcmp(id, "ffmpeg_mpegts_muxer") == 0)) {
+	if (id && (strcmp(id, "ffmpeg_muxer") == 0 || strcmp(id, "ffmpeg_mpegts_muxer") == 0 ||
+		   strcmp(id, "mp4_output") == 0 || strcmp(id, "mov_output") == 0)) {
 		signal_handler_t *handler = obs_output_get_signal_handler(output);
 		signal_handler_connect(handler, "file_changed", on_recording_file_changed, Writer);
 	}
@@ -604,6 +606,7 @@ void obstudio_infowriter_destroy(void *data)
 		}
 
 		obs_frontend_remove_event_callback(obsstudio_infowriter_frontend_event_callback, Writer);
+		disconnect_split_signal(Writer);
 
 		delete Writer;
 	}
