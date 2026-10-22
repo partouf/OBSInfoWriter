@@ -290,6 +290,13 @@ void InfoWriter::MarkStop(InfoMediaType AType)
 		break;
 	}
 
+	// keep logging hotkeys and scene changes against whichever is still running
+	if (AType == imtStream && IsRecording()) {
+		lastInfoMediaType = imtRecording;
+	} else if (AType != imtStream && IsStreaming()) {
+		lastInfoMediaType = imtStream;
+	}
+
 	WriteInfo(MarkStr->getValue());
 
 	if (AType == imtRecording && Settings.GetShouldSyncNameAndPathWithVideo()) {

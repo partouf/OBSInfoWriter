@@ -100,6 +100,7 @@ if(BUILD_TESTS)
     tests/test_filename_format.cpp
     tests/test_format_utils.cpp
     tests/test_sync_filename.cpp
+    tests/test_stream_record_overlap.cpp
     OutputFormat/OutputFormat.SRT.cpp
     OutputFormat/OutputFormat.CSV.cpp
     OutputFormat/OutputFormat.EDL.cpp
