@@ -10,15 +10,22 @@ std::optional<std::string> get_filename_from_recording_path(const InfoWriterSett
 		return std::nullopt;
 
 	obs_data_t *outputSettings = obs_output_get_settings(output);
+	obs_output_release(output);
 
 	obs_data_item_t *item = obs_data_item_byname(outputSettings, "url");
 	if (!item)
 		item = obs_data_item_byname(outputSettings, "path");
 
-	if (!item)
+	if (!item) {
+		obs_data_release(outputSettings);
 		return std::nullopt;
+	}
 
+	// copy the string before releasing, it's owned by the settings
 	std::string CurrentFilename = obs_data_item_get_string(item);
+	obs_data_item_release(&item);
+	obs_data_release(outputSettings);
+
 	return ReplaceFileExtension(CurrentFilename, Settings.GetAutomaticOutputExtension());
 }
 
