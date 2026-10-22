@@ -8,7 +8,6 @@ class OutputFormatDefault final : public IOutputFormat {
 private:
 	const InfoWriterSettings &settings;
 	std::string currentFilename;
-	int64_t startTime;
 
 	std::string MillisToHMSString(const int64_t totalmilliseconds) const;
 	void WriteToFile(const std::string Data) const;
