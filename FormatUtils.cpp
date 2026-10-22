@@ -24,6 +24,19 @@ int CountFormatSpecifiers(const std::string &format)
 	return (int)std::distance(begin, end);
 }
 
+std::string ReplaceFileExtension(const std::string &filename, const std::string &extension)
+{
+	// only look for the extension in the last path component, folder names can contain dots too
+	size_t namestart = filename.find_last_of("/\\");
+	namestart = (namestart == std::string::npos) ? 0 : namestart + 1;
+
+	size_t extensionstart = filename.find_last_of('.');
+	if (extensionstart == std::string::npos || extensionstart < namestart)
+		return filename + "." + extension;
+
+	return filename.substr(0, extensionstart + 1) + extension;
+}
+
 static const int MaxFormatSpecifiers = 4; // hr, min, sec, zzz
 
 std::string FormatMillisToHMS(const std::string &format, int64_t totalmilliseconds)

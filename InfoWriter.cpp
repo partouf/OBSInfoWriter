@@ -195,6 +195,8 @@ bool InfoWriter::RenameCurrentFile(const std::string &newFilename)
 		return false;
 
 	CurrentFilename = newFilename;
+	if (output)
+		output->SetFilename(newFilename);
 	return true;
 }
 
@@ -286,6 +288,13 @@ void InfoWriter::MarkStop(InfoMediaType AType)
 		break;
 	case imtRecordingPauseResume:
 		break;
+	}
+
+	// keep logging hotkeys and scene changes against whichever is still running
+	if (AType == imtStream && IsRecording()) {
+		lastInfoMediaType = imtRecording;
+	} else if (AType != imtStream && IsStreaming()) {
+		lastInfoMediaType = imtStream;
 	}
 
 	WriteInfo(MarkStr->getValue());

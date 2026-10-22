@@ -1,4 +1,5 @@
 #include "InfoWriterObsUtils.h"
+#include "FormatUtils.h"
 
 #include <obs-frontend-api.h>
 
@@ -18,10 +19,7 @@ std::optional<std::string> get_filename_from_recording_path(const InfoWriterSett
 		return std::nullopt;
 
 	std::string CurrentFilename = obs_data_item_get_string(item);
-	size_t videoextensionstart = CurrentFilename.find_last_of('.') + 1;
-	auto extension = Settings.GetAutomaticOutputExtension();
-	CurrentFilename.replace(videoextensionstart, CurrentFilename.length(), extension);
-	return CurrentFilename;
+	return ReplaceFileExtension(CurrentFilename, Settings.GetAutomaticOutputExtension());
 }
 
 std::optional<std::string> get_filename_from_last_recording(const InfoWriterSettings &Settings)
@@ -36,8 +34,5 @@ std::optional<std::string> get_filename_from_last_recording(const InfoWriterSett
 	if (filename.empty())
 		return std::nullopt;
 
-	size_t videoextensionstart = filename.find_last_of('.') + 1;
-	auto extension = Settings.GetAutomaticOutputExtension();
-	filename.replace(videoextensionstart, filename.length(), extension);
-	return filename;
+	return ReplaceFileExtension(filename, Settings.GetAutomaticOutputExtension());
 }

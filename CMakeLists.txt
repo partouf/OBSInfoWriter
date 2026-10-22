@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28...3.30)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/common/bootstrap.cmake" NO_POLICY_SCOPE)
 
-project(OBSInfoWriter VERSION 2.7.4)
+project(OBSInfoWriter VERSION 2.8.0)
 
 option(ENABLE_FRONTEND_API "Use obs-frontend-api for UI functionality" OFF)
 option(ENABLE_QT "Use Qt functionality" OFF)
@@ -99,6 +99,9 @@ if(BUILD_TESTS)
     test_infowriter
     tests/test_filename_format.cpp
     tests/test_format_utils.cpp
+    tests/test_sync_filename.cpp
+    tests/test_stream_record_overlap.cpp
+    tests/test_replace_extension.cpp
     OutputFormat/OutputFormat.SRT.cpp
     OutputFormat/OutputFormat.CSV.cpp
     OutputFormat/OutputFormat.EDL.cpp

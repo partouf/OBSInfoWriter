@@ -10,6 +10,11 @@ OutputFormatCSV::OutputFormatCSV(const InfoWriterSettings &settings, const std::
 {
 }
 
+void OutputFormatCSV::SetFilename(const std::string &filename)
+{
+	currentFilename = filename;
+}
+
 std::string OutputFormatCSV::MillisToHMSString(const int64_t totalmilliseconds) const
 {
 	return FormatMillisToHMS(settings.GetFormat(), totalmilliseconds);
