@@ -15,6 +15,11 @@ OutputFormatEDL::OutputFormatEDL(const InfoWriterSettings &settings, const std::
 {
 }
 
+void OutputFormatEDL::SetFilename(const std::string &filename)
+{
+	currentFilename = filename;
+}
+
 void OutputFormatEDL::WriteGFStringToFile(const Groundfloor::String &SData) const
 {
 	Groundfloor::FileWriter Writer;

@@ -14,6 +14,11 @@ OutputFormatDefault::OutputFormatDefault(const InfoWriterSettings &settings, con
 {
 }
 
+void OutputFormatDefault::SetFilename(const std::string &filename)
+{
+	currentFilename = filename;
+}
+
 std::string OutputFormatDefault::MillisToHMSString(const int64_t totalmilliseconds) const
 {
 	return FormatMillisToHMS(settings.GetFormat(), totalmilliseconds);
