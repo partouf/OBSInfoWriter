@@ -29,11 +29,20 @@ InfoWriter::InfoWriter() : Settings()
 	StreamStarted = false;
 	RecordStarted = false;
 	Paused = false;
+	RecordingSplit = false;
 }
 
 std::string InfoWriter::MillisToHMSString(const int64_t totalmilliseconds) const
 {
 	return FormatMillisToHMS(Settings.GetFormat(), totalmilliseconds);
+}
+
+std::string InfoWriter::DurationString(const int64_t totalmilliseconds) const
+{
+	// the format can be indented with spaces or tabs, which don't belong in the middle of a line
+	auto duration = MillisToHMSString(totalmilliseconds);
+	duration.erase(0, duration.find_first_not_of(" \t"));
+	return duration;
 }
 
 uint64_t InfoWriter::getPausedTimeNs(const uint64_t currentTimeNs) const
@@ -291,24 +300,37 @@ void InfoWriter::MarkStop(InfoMediaType AType)
 	case imtStream:
 		if (StartStreamTimeNs == 0)
 			return;
-		output->Stop((int64_t)((NowNs - StartStreamTimeNs) / 1000000));
-		MarkStr->prepend_ansi("EVENT:STOP STREAM @ ");
-		MarkStr->append(" Stream Time Marker Reset to 0");
-		StreamStarted = false;
-		StartStreamTimeNs = 0;
-		break;
+		{
+			int64_t durationMs = (int64_t)((NowNs - StartStreamTimeNs) / 1000000);
+			output->Stop(durationMs);
+			MarkStr->prepend_ansi("EVENT:STOP STREAM @ ");
+			MarkStr->append(" Stream Time Marker Reset to 0 Duration ");
+			MarkStr->append(DurationString(durationMs).c_str());
+			StreamStarted = false;
+			StartStreamTimeNs = 0;
+			break;
+		}
 	case imtUnknown:
 	case imtRecording:
 		if (StartRecordTimeNs == 0)
 			return;
-		output->Stop((int64_t)((NowNs - StartRecordTimeNs - getPausedTimeNs(NowNs)) / 1000000));
-		MarkStr->prepend_ansi("EVENT:STOP RECORDING @ ");
-		MarkStr->append(" Record Time Marker Reset to 0");
-		StartRecordTimeNs = 0;
-		PausedTotalTimeNs = 0;
-		Paused = false;
-		RecordStarted = false;
-		break;
+		{
+			int64_t durationMs = (int64_t)((NowNs - StartRecordTimeNs - getPausedTimeNs(NowNs)) / 1000000);
+			output->Stop(durationMs);
+			MarkStr->prepend_ansi("EVENT:STOP RECORDING @ ");
+			MarkStr->append(" Record Time Marker Reset to 0");
+			// imtUnknown means the source went away, OBS may still be recording so there's no duration yet
+			if (AType == imtRecording) {
+				MarkStr->append(RecordingSplit ? " Segment duration " : " Duration ");
+				MarkStr->append(DurationString(durationMs).c_str());
+			}
+			StartRecordTimeNs = 0;
+			PausedTotalTimeNs = 0;
+			Paused = false;
+			RecordStarted = false;
+			RecordingSplit = false;
+			break;
+		}
 	case imtRecordingPauseStart:
 		break;
 	case imtRecordingPauseResume:
@@ -378,6 +400,8 @@ void InfoWriter::HandleRecordingSplit(const std::string &newVideoFile)
 	CurrentFilename = newFilename;
 
 	CreateOutput();
+
+	RecordingSplit = true;
 
 	StartTime = Groundfloor::GetTimestamp();
 	StartRecordTimeNs = os_gettime_ns();

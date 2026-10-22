@@ -32,6 +32,7 @@ private:
 	bool StreamStarted;
 	bool RecordStarted;
 	bool Paused;
+	bool RecordingSplit;
 
 	std::string CurrentFilename;
 
@@ -45,6 +46,7 @@ private:
 	void CreateOutput();
 	bool RenameCurrentFile(const std::string &newFilename);
 	std::string MillisToHMSString(const int64_t totalmilliseconds) const;
+	std::string DurationString(const int64_t totalmilliseconds) const;
 
 public:
 	InfoWriter();
