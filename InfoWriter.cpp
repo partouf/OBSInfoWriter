@@ -321,7 +321,10 @@ void InfoWriter::MarkStop(InfoMediaType AType)
 			MarkStr->append(" Record Time Marker Reset to 0");
 			// imtUnknown means the source went away, OBS may still be recording so there's no duration yet
 			if (AType == imtRecording) {
-				MarkStr->append(RecordingSplit ? " Segment duration " : " Duration ");
+				if (RecordingSplit)
+					MarkStr->append(" Segment duration ");
+				else
+					MarkStr->append(" Duration ");
 				MarkStr->append(DurationString(durationMs).c_str());
 			}
 			StartRecordTimeNs = 0;
