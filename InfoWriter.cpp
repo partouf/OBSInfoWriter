@@ -49,6 +49,8 @@ uint64_t InfoWriter::getPausedTimeNs(const uint64_t currentTimeNs) const
 
 void InfoWriter::WriteInfo(const std::string AExtraInfo) const
 {
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+
 	if (output == nullptr)
 		return;
 
@@ -101,6 +103,8 @@ void InfoWriter::WriteInfo(const std::string AExtraInfo) const
 
 void InfoWriter::WriteInfo(const InfoHotkey AHotkey) const
 {
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+
 	if (output == nullptr)
 		return;
 
@@ -126,6 +130,8 @@ void InfoWriter::WriteInfo(const InfoHotkey AHotkey) const
 
 void InfoWriter::WriteSceneChange(const std::string scenename) const
 {
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+
 	if (output == nullptr)
 		return;
 
@@ -204,18 +210,8 @@ bool InfoWriter::RenameCurrentFile(const std::string &newFilename)
 	return true;
 }
 
-void InfoWriter::MarkStart(InfoMediaType AType)
+void InfoWriter::CreateOutput()
 {
-	StartTime = Groundfloor::GetTimestamp();
-
-	InitCurrentFilename(AType == imtRecording || IsRecording());
-
-	auto directory = std::filesystem::path(CurrentFilename).parent_path();
-	std::error_code ec;
-	if (!directory.empty() && !std::filesystem::is_directory(directory, ec))
-		blog(LOG_WARNING, "[OBSInfoWriter] Folder for log file '%s' doesn't exist, nothing will be written",
-		     CurrentFilename.c_str());
-
 	auto outputformat = Settings.GetOutputFormat();
 	if (outputformat == "csv") {
 		output = std::make_unique<OutputFormatCSV>(Settings, CurrentFilename);
@@ -226,6 +222,23 @@ void InfoWriter::MarkStart(InfoMediaType AType)
 	} else {
 		output = std::make_unique<OutputFormatDefault>(Settings, CurrentFilename);
 	}
+}
+
+void InfoWriter::MarkStart(InfoMediaType AType)
+{
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+
+	StartTime = Groundfloor::GetTimestamp();
+
+	InitCurrentFilename(AType == imtRecording || IsRecording());
+
+	auto directory = std::filesystem::path(CurrentFilename).parent_path();
+	std::error_code ec;
+	if (!directory.empty() && !std::filesystem::is_directory(directory, ec))
+		blog(LOG_WARNING, "[OBSInfoWriter] Folder for log file '%s' doesn't exist, nothing will be written",
+		     CurrentFilename.c_str());
+
+	CreateOutput();
 
 	output->Start();
 
@@ -265,6 +278,8 @@ void InfoWriter::MarkStart(InfoMediaType AType)
 
 void InfoWriter::MarkStop(InfoMediaType AType)
 {
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+
 	if (output == nullptr)
 		return;
 
@@ -320,8 +335,71 @@ void InfoWriter::MarkStop(InfoMediaType AType)
 	}
 }
 
+void InfoWriter::HandleRecordingSplit(const std::string &newVideoFile)
+{
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+
+	if (output == nullptr || !RecordStarted)
+		return;
+
+	auto NowNs = os_gettime_ns();
+	int64_t elapsedMs = (int64_t)((NowNs - StartRecordTimeNs - getPausedTimeNs(NowNs)) / 1000000);
+
+	auto SplitStr = Groundfloor::TimestampToStr(c_TimestampNotation, Groundfloor::GetTimestamp());
+	std::string splitMsg = "EVENT:RECORDING SPLIT @ ";
+	splitMsg += SplitStr->getValue();
+	delete SplitStr;
+
+	output->Stop(elapsedMs);
+	output->TextMarker(splitMsg);
+	this->WriteInfo("");
+
+	std::string newFilename;
+
+	if (Settings.GetShouldSyncNameAndPathWithVideo()) {
+		newFilename = ReplaceFileExtension(newVideoFile, Settings.GetAutomaticOutputExtension());
+	} else {
+		auto now = Groundfloor::GetTimestamp();
+		auto rawFilename = Settings.GetFilename();
+		if (rawFilename.find('%') != std::string::npos) {
+			try {
+				auto filename = Groundfloor::TimestampToStr(rawFilename.c_str(), now);
+				newFilename = filename->getValue();
+				delete filename;
+			} catch (const std::runtime_error &e) {
+				blog(LOG_ERROR, "[OBSInfoWriter] Invalid filename format on split: %s", e.what());
+				newFilename = rawFilename;
+			}
+		} else {
+			newFilename = rawFilename;
+		}
+	}
+
+	CurrentFilename = newFilename;
+
+	CreateOutput();
+
+	StartTime = Groundfloor::GetTimestamp();
+	StartRecordTimeNs = os_gettime_ns();
+	PausedTotalTimeNs = 0;
+	PausedStartTimeNs = 0;
+	Paused = false;
+
+	output->Start();
+
+	auto MarkStr = Groundfloor::TimestampToStr(c_TimestampNotation, StartTime);
+	std::string startMsg = "EVENT:RECORDING SPLIT - NEW FILE @ ";
+	startMsg += MarkStr->getValue();
+	delete MarkStr;
+
+	output->TextMarker(startMsg);
+	this->WriteInfo("");
+}
+
 void InfoWriter::MarkPauseStart([[maybe_unused]] const InfoMediaType AType)
 {
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+
 	if (output == nullptr)
 		return;
 
@@ -335,6 +413,8 @@ void InfoWriter::MarkPauseStart([[maybe_unused]] const InfoMediaType AType)
 
 void InfoWriter::MarkPauseResume([[maybe_unused]] const InfoMediaType AType)
 {
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+
 	if (output == nullptr)
 		return;
 

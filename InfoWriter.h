@@ -6,6 +6,7 @@
 #include "OutputFormat.h"
 #include <memory>
 #include <filesystem>
+#include <mutex>
 
 enum InfoMediaType {
 	imtUnknown = 0,
@@ -36,8 +37,12 @@ private:
 
 	std::unique_ptr<IOutputFormat> output;
 
+	// OBS calls into the writer from the UI, hotkey and recording output threads
+	mutable std::recursive_mutex mutex;
+
 	uint64_t getPausedTimeNs(const uint64_t currentTimeNs) const;
 	void InitCurrentFilename(const bool recording);
+	void CreateOutput();
 	bool RenameCurrentFile(const std::string &newFilename);
 	std::string MillisToHMSString(const int64_t totalmilliseconds) const;
 
@@ -51,6 +56,7 @@ public:
 	void WriteInfo(const InfoHotkey AHotkey) const;
 	void WriteSceneChange(const std::string scenename) const;
 	void MarkStop(const InfoMediaType AType);
+	void HandleRecordingSplit(const std::string &newVideoFile);
 
 	bool HasStarted() const;
 	bool IsStreaming() const;
