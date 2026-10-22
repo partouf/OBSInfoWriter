@@ -103,6 +103,7 @@ if(BUILD_TESTS)
     tests/test_stream_record_overlap.cpp
     tests/test_replace_extension.cpp
     tests/test_recording_split.cpp
+    tests/test_stop_duration.cpp
     OutputFormat/OutputFormat.SRT.cpp
     OutputFormat/OutputFormat.CSV.cpp
     OutputFormat/OutputFormat.EDL.cpp
