@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include "InfoWriter.h"
 #include "DummyUtils.h"
+#include <optional>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -167,5 +168,68 @@ TEST_CASE("Stream lines keep going to the current segment's log after a split", 
 
 	dummy_recording_path = std::nullopt;
 	dummy_last_recording = std::nullopt;
+	std::filesystem::remove_all(dir);
+}
+
+static const uint64_t start_ns = 1000000000000ull;
+
+static uint64_t seconds(uint64_t s)
+{
+	return s * 1000000000ull;
+}
+
+// A split while the recording is paused must not lose the pause, otherwise the resume subtracts from a reset
+// pause start and the record time underflows.
+
+TEST_CASE("Split while paused keeps the pause in the new segment", "[split][pause]")
+{
+	auto dir = make_test_dir("test_infowriter_split_paused");
+	auto logfile = dir / "log.txt";
+
+	InfoWriter writer;
+	configure(writer, logfile, false);
+
+	dummy_time_ns = start_ns;
+	writer.MarkStart(imtRecording);
+	dummy_time_ns = start_ns + seconds(10);
+	writer.MarkPauseStart(imtRecordingPauseStart);
+	dummy_time_ns = start_ns + seconds(20);
+	writer.HandleRecordingSplit((dir / "second.mkv").string());
+	dummy_time_ns = start_ns + seconds(30);
+	writer.MarkPauseResume(imtRecordingPauseResume);
+	dummy_time_ns = start_ns + seconds(35);
+	writer.WriteInfo("AfterResume");
+	writer.MarkStop(imtRecording);
+
+	auto contents = read_file(logfile);
+	auto after = contents.substr(contents.find("AfterResume"));
+	CHECK(after.find("0:00:05 Record Time Marker") != std::string::npos);
+	CHECK(contents.find("5124095") == std::string::npos);
+
+	dummy_time_ns = std::nullopt;
+	std::filesystem::remove_all(dir);
+}
+
+TEST_CASE("Resume without a pause doesn't change the record time", "[pause]")
+{
+	auto dir = make_test_dir("test_infowriter_resume_unpaused");
+	auto logfile = dir / "log.txt";
+
+	InfoWriter writer;
+	configure(writer, logfile, false);
+
+	dummy_time_ns = start_ns;
+	writer.MarkStart(imtRecording);
+	dummy_time_ns = start_ns + seconds(10);
+	writer.MarkPauseResume(imtRecordingPauseResume);
+	dummy_time_ns = start_ns + seconds(12);
+	writer.WriteInfo("AfterResume");
+	writer.MarkStop(imtRecording);
+
+	auto contents = read_file(logfile);
+	auto after = contents.substr(contents.find("AfterResume"));
+	CHECK(after.find("0:00:12 Record Time Marker") != std::string::npos);
+
+	dummy_time_ns = std::nullopt;
 	std::filesystem::remove_all(dir);
 }
