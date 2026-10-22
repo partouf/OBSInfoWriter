@@ -407,10 +407,12 @@ void InfoWriter::HandleRecordingSplit(const std::string &newVideoFile)
 	RecordingSplit = true;
 
 	StartTime = Groundfloor::GetTimestamp();
+	// a split during a pause continues that pause in the new segment, from the start of the segment
 	StartRecordTimeNs = os_gettime_ns();
 	PausedTotalTimeNs = 0;
 	PausedStartTimeNs = 0;
-	Paused = false;
+	if (Paused)
+		PausedStartTimeNs = StartRecordTimeNs;
 
 	output->Start();
 
@@ -442,7 +444,7 @@ void InfoWriter::MarkPauseResume([[maybe_unused]] const InfoMediaType AType)
 {
 	std::lock_guard<std::recursive_mutex> lock(mutex);
 
-	if (output == nullptr)
+	if (output == nullptr || !Paused)
 		return;
 
 	Paused = false;
