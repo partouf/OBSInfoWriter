@@ -195,6 +195,8 @@ bool InfoWriter::RenameCurrentFile(const std::string &newFilename)
 		return false;
 
 	CurrentFilename = newFilename;
+	if (output)
+		output->SetFilename(newFilename);
 	return true;
 }
 

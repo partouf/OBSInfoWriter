@@ -15,6 +15,11 @@ OutputFormatSRT::OutputFormatSRT(const InfoWriterSettings &settings, const std::
 {
 }
 
+void OutputFormatSRT::SetFilename(const std::string &filename)
+{
+	currentFilename = filename;
+}
+
 std::string OutputFormatSRT::MillisToHMSString(const int64_t totalmilliseconds) const
 {
 	int64_t totalseconds = totalmilliseconds / 1000;
