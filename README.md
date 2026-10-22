@@ -40,7 +40,8 @@ More variables can be found at http://www.cplusplus.com/reference/ctime/strftime
 
 #### Format options
 The format option is very limited in its use, the variables in the formatting are translated to hours:minutes:seconds from when the recording or stream was started, %02d is only to indicate that there is a preceding 0 for the numbers 0 to 9.
-It is recommended the default value is not changed.
+An optional fourth variable adds milliseconds, for example `%d:%02d:%02d.%03d` gives `0:01:23.456`.
+Other than that, it is recommended the default value is not changed.
 
 What is possible that might improve logging is that you can put spaces or a \t tab character in front of the format, so your log times are indented in between the start and stop of the recording or stream.
 
