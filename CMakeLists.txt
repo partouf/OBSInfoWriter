@@ -99,6 +99,7 @@ if(BUILD_TESTS)
     test_infowriter
     tests/test_filename_format.cpp
     tests/test_format_utils.cpp
+    tests/test_sync_filename.cpp
     OutputFormat/OutputFormat.SRT.cpp
     OutputFormat/OutputFormat.CSV.cpp
     OutputFormat/OutputFormat.EDL.cpp
