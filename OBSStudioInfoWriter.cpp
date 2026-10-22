@@ -132,16 +132,14 @@ bool obstudio_infowriter_syncnameandpathwithvideo_property_modified(obs_properti
 								    [[maybe_unused]] obs_property_t *property,
 								    obs_data_t *settings)
 {
-	obs_property_t *prop_setting_file = obs_properties_get(props, setting_file);
-	const bool previously_enabled = obs_property_enabled(prop_setting_file);
+	// the logfile stays enabled when syncing, it's still used while streaming without recording
+	obs_property_t *prop_automaticoutputextension = obs_properties_get(props, setting_automaticoutputextension);
+	const bool previously_visible = obs_property_visible(prop_automaticoutputextension);
 	const bool sync_selected = obs_data_get_bool(settings, setting_syncnameandpathwithvideo);
 
-	obs_property_set_enabled(prop_setting_file, !sync_selected);
-
-	obs_property_t *prop_automaticoutputextension = obs_properties_get(props, setting_automaticoutputextension);
 	obs_property_set_visible(prop_automaticoutputextension, sync_selected);
 
-	return (previously_enabled != obs_property_enabled(prop_setting_file));
+	return (previously_visible != obs_property_visible(prop_automaticoutputextension));
 }
 
 void obstudio_infowriter_write_hotkey1(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
@@ -408,6 +406,8 @@ obs_properties_t *obstudio_infowriter_properties(void *unused)
 	obs_properties_add_text(props, setting_automaticoutputextension, "Automatic file extension", OBS_TEXT_DEFAULT);
 	auto prop_file = obs_properties_add_path(props, setting_file, obs_module_text("Logfile"), OBS_PATH_FILE_SAVE,
 						 logfile_filter, NULL);
+	obs_property_set_long_description(
+		prop_file, "When syncing with the video, this file is only used while streaming without recording");
 	obs_property_set_modified_callback(prop_file, obstudio_infowriter_file_property_modified);
 
 	auto prop_file_preview = obs_properties_add_text(props, setting_file_preview, "", OBS_TEXT_INFO);

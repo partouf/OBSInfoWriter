@@ -37,7 +37,7 @@ private:
 	std::unique_ptr<IOutputFormat> output;
 
 	uint64_t getPausedTimeNs(const uint64_t currentTimeNs) const;
-	void InitCurrentFilename();
+	void InitCurrentFilename(const bool recording);
 	bool RenameCurrentFile(const std::string &newFilename);
 	std::string MillisToHMSString(const int64_t totalmilliseconds) const;
 
