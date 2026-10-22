@@ -34,5 +34,9 @@ int main()
 
 	Writer.WriteInfo(2);
 
+	Writer.SetSceneIsChanging(Writer.IsChangingScene());
+	Writer.IsRecording();
+	Writer.IsStreaming();
+
 	return 0;
 }
