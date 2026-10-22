@@ -17,6 +17,7 @@ private:
 
 public:
 	OutputFormatDefault(const InfoWriterSettings &settings, const std::string filename);
+	void SetFilename(const std::string &filename) override { currentFilename = filename; }
 
 	void Start() override;
 	void Stop(const int64_t milliseconds) override;

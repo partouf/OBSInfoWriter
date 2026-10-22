@@ -7,6 +7,8 @@ class IOutputFormat {
 public:
 	virtual ~IOutputFormat() = default;
 
+	virtual void SetFilename(const std::string &filename) = 0;
+
 	virtual void Start() = 0;
 	virtual void Stop(const int64_t milliseconds) = 0;
 
